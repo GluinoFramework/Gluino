@@ -10,8 +10,8 @@ using namespace Gluino;
 
 extern "C" {
 #ifdef _WIN32
-	EXPORT App* Gluino_App_Create(const autostr name) { return new AppWin32(name); }
-	EXPORT void Gluino_App_Register(AppWin32* app, const HINSTANCE hInstance) { app->Register(hInstance); }
+	EXPORT App* Gluino_App_Create() { return new AppWin32(); }
+	EXPORT void Gluino_App_Register(AppWin32* app, const HINSTANCE hInstance, const autostr className) { app->Register(hInstance, className); }
 
 
 

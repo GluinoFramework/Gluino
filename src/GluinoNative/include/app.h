@@ -9,19 +9,10 @@ namespace Gluino {
 
 class App {
 public:
-	explicit App(const autostr name) {
-		_name = CopyStr(name);
-	}
-
-	virtual ~App() {
-		delete[] _name;
-	}
+	virtual ~App() = default;
 
 	virtual void Run() = 0;
 	virtual void Exit() = 0;
-
-protected:
-	autostr _name;
 };
 
 }

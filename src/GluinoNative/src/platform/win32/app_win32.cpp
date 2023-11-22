@@ -2,8 +2,9 @@
 
 using namespace Gluino;
 
-void AppWin32::Register(HINSTANCE hInstance) {
+void AppWin32::Register(const HINSTANCE hInstance, const autostr className) {
 	_hInstance = hInstance;
+	_className = CopyStr(className);
 
 	WNDCLASSEX wcex;
 	wcex.cbSize = sizeof WNDCLASSEX;
@@ -17,7 +18,7 @@ void AppWin32::Register(HINSTANCE hInstance) {
 	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
 	wcex.lpszMenuName = nullptr;
-	wcex.lpszClassName = _name;
+	wcex.lpszClassName = _className;
 
 	RegisterClassEx(&wcex);
 
@@ -26,10 +27,18 @@ void AppWin32::Register(HINSTANCE hInstance) {
 
 void AppWin32::Run()
 {
+	MSG msg;
+	while (GetMessage(&msg, nullptr, 0, 0)) {
+		TranslateMessage(&msg);
+		DispatchMessageW(&msg);
+	}
 }
 
 void AppWin32::Exit()
 {
+	delete[] _className;
+	UnregisterClass(_className, _hInstance);
+	PostQuitMessage(0);
 }
 
 LRESULT AppWin32::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
