@@ -25,6 +25,7 @@ public:
 	virtual void Show() = 0;
 	virtual void Hide() = 0;
 	virtual void Close() = 0;
+	virtual void Invoke(Action action) = 0;
 
 	virtual void SetTitle(autostr title) = 0;
 

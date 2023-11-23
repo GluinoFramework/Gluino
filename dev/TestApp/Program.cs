@@ -7,6 +7,9 @@ internal class Program
     [STAThread]
     public static void Main()
     {
-        var window = new Window();
+        var window = new Window {
+            Title = "Test Window"
+        };
+        App.Run(window);
     }
 }

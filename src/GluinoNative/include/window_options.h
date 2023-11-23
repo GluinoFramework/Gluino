@@ -6,6 +6,7 @@
 namespace Gluino {
 
 struct WindowOptions {
+	wchar_t* ClassName; // Windows only
 	wchar_t* TitleW;
 	char* TitleA;
 	int Width;

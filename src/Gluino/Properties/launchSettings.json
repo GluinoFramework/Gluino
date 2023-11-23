@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Gluino": {
+      "commandName": "Project",
+      "nativeDebugging": true,
+      "jsWebView2Debugging": false
+    }
+  }
+}

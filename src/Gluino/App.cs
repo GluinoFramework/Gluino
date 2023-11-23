@@ -6,13 +6,15 @@ namespace Gluino;
 
 public static class App
 {
-    internal static readonly nint NativeInstance;
+    private static int _windowCount;
+
     internal static readonly nint AppHInstance;
+    internal static readonly nint NativeInstance;
 
     static App()
     {
-        NativeInstance = NativeApp.Create();
         AppHInstance = NativeLibrary.GetMainProgramHandle();
+        NativeInstance = NativeApp.Create(AppHInstance);
     }
     
     public static string Name { get; set; } = Assembly.GetEntryAssembly()?.GetName().Name ?? "Gluino";
@@ -30,10 +32,11 @@ public static class App
         
         if (Platform.IsWindows) {
             SetWin32AppId();
-            NativeApp.Register(NativeInstance, AppHInstance, Name);
+            NativeApp.Register(NativeInstance, Name);
         }
 
         MainWindow = mainWindow;
+        MainWindow.Show();
 
         NativeApp.Run(NativeInstance);
     }
@@ -44,6 +47,18 @@ public static class App
             throw new InvalidOperationException("The application is not running");
 
         NativeApp.Exit(NativeInstance);
+    }
+
+    internal static nint SpawnNativeWindow(Window managedWindow, ref NativeWindowOptions options)
+    {
+        if (Platform.IsWindows) {
+            options.ClassName = $"{Name}.Window.{_windowCount}";
+            _windowCount++;
+        }
+
+        var window = NativeApp.SpawnWindow(NativeInstance, ref options);
+        ActiveWindows.Add(managedWindow);
+        return window;
     }
 
     private static void SetWin32AppId()

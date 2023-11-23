@@ -14,7 +14,7 @@ public class Platform
 
     public Architecture Arch { get; } = RuntimeInformation.ProcessArchitecture;
 
-    public static bool IsWindows { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-    public static bool IsLinux { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-    public static bool IsOSX { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+    public bool IsWindows { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+    public bool IsLinux { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+    public bool IsOSX { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
 }
