@@ -15,17 +15,16 @@ public:
 	explicit AppWin32(HINSTANCE hInstance);
 	~AppWin32() override = default;
 
-	void Register(autostr className) const;
-
 	Window* SpawnWindow(WindowOptions* options) override;
 	void DespawnWindow(Window* window) override;
 	void Run() override;
 	void Exit() override;
 
+	static HINSTANCE GetHInstance();
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 private:
-	HINSTANCE _hInstance{};
+	HINSTANCE _hInstance;
 };
 
 }

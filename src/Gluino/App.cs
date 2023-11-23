@@ -32,7 +32,6 @@ public static class App
         
         if (Platform.IsWindows) {
             SetWin32AppId();
-            NativeApp.Register(NativeInstance, Name);
         }
 
         MainWindow = mainWindow;

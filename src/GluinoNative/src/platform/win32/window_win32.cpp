@@ -2,11 +2,15 @@
 
 #include <future>
 
+#include "app_win32.h"
+
 using namespace Gluino;
 
-WindowWin32::WindowWin32(WindowOptions* options, const HINSTANCE hInstance) : Window(options) {
+WindowWin32::WindowWin32(WindowOptions* options) : Window(options) {
 	_className = CopyStr(options->ClassName);
 	_title = CopyStr(options->TitleW);
+
+	Register(_className);
 
 	_hWnd = CreateWindowEx(
 		WS_EX_COMPOSITED,
@@ -18,7 +22,7 @@ WindowWin32::WindowWin32(WindowOptions* options, const HINSTANCE hInstance) : Wi
 		800, 600,
 		nullptr,
 		nullptr,
-		hInstance,
+		AppWin32::GetHInstance(),
 		this
 	);
 }
@@ -28,8 +32,24 @@ WindowWin32::~WindowWin32() {
 	delete[] _title;
 }
 
-HWND WindowWin32::GetHandle() const {
-	return _hWnd;
+void WindowWin32::Register(autostr className) const {
+	WNDCLASSEX wcex;
+	wcex.cbSize = sizeof WNDCLASSEX;
+	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc = AppWin32::WndProc;
+	wcex.cbClsExtra = 0;
+	wcex.cbWndExtra = WS_EX_NOPARENTNOTIFY;
+	wcex.hInstance = AppWin32::GetHInstance();
+	wcex.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+	wcex.hIconSm = LoadIcon(nullptr, IDI_WINLOGO);
+	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
+	wcex.lpszMenuName = nullptr;
+	wcex.lpszClassName = _className;
+
+	RegisterClassEx(&wcex);
+
+	SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 }
 
 void WindowWin32::Show() {
@@ -50,6 +70,13 @@ void WindowWin32::Invoke(Action action) {
 	PostMessage(_hWnd, WM_USER_INVOKE, (WPARAM)action, (LPARAM)&promise);
 
 	future.wait();
+}
+
+autostr WindowWin32::GetTitle() {
+	const auto length = GetWindowTextLength(_hWnd);
+	const auto title = new wchar_t[length + 1];
+	GetWindowText(_hWnd, title, length + 1);
+	return title;
 }
 
 void WindowWin32::SetTitle(const autostr title) {

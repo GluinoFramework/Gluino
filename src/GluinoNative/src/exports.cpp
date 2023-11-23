@@ -3,7 +3,6 @@
 
 #ifdef _WIN32
 #include "app_win32.h"
-#include "window_win32.h"
 #endif
 
 using namespace Gluino;
@@ -11,9 +10,6 @@ using namespace Gluino;
 extern "C" {
 #ifdef _WIN32
 	EXPORT App* Gluino_App_Create(const HINSTANCE hInstance) { return new AppWin32(hInstance); }
-	EXPORT void Gluino_App_Register(const AppWin32* app, const autostr className) { app->Register(className); }
-
-
 
 	//EXPORT Window* Gluino_Window_Create(WindowOptions* options) { return new WindowWin32(options); }
 #endif

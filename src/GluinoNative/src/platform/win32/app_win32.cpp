@@ -13,30 +13,8 @@ AppWin32::AppWin32(const HINSTANCE hInstance) {
 	appWin32 = this;
 }
 
-void AppWin32::Register(const autostr className) const {
-	WNDCLASSEX wcex;
-	wcex.cbSize = sizeof WNDCLASSEX;
-	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = WndProc;
-	wcex.cbClsExtra = 0;
-	wcex.cbWndExtra = WS_EX_NOPARENTNOTIFY;
-	wcex.hInstance = _hInstance;
-	wcex.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
-	wcex.hIconSm = LoadIcon(nullptr, IDI_WINLOGO);
-	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
-	wcex.lpszMenuName = nullptr;
-	wcex.lpszClassName = CopyStr(className);
-
-	RegisterClassEx(&wcex);
-
-	SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
-}
-
 Window* AppWin32::SpawnWindow(WindowOptions* options) {
-	Register(options->ClassName);
-
-	const auto window = new WindowWin32(options, _hInstance);
+	const auto window = new WindowWin32(options);
 	windowMap[window->GetHandle()] = window;
 	return window;
 }
@@ -63,6 +41,10 @@ void AppWin32::Run() {
 
 void AppWin32::Exit() {
 	PostQuitMessage(0);
+}
+
+HINSTANCE AppWin32::GetHInstance() {
+	return appWin32->_hInstance;
 }
 
 LRESULT AppWin32::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {

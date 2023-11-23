@@ -11,16 +11,18 @@ namespace Gluino {
 
 class WindowWin32 final : public Window {
 public:
-	explicit WindowWin32(WindowOptions* options, HINSTANCE hInstance);
+	explicit WindowWin32(WindowOptions* options);
 	~WindowWin32() override;
 
-	HWND GetHandle() const;
+	HWND GetHandle() const { return _hWnd; }
+	void Register(autostr className) const;
 
 	void Show() override;
 	void Hide() override;
 	void Close() override;
 	void Invoke(Action action) override;
 
+	autostr GetTitle() override;
 	void SetTitle(autostr title) override;
 
 private:

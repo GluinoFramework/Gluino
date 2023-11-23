@@ -27,6 +27,7 @@ public:
 	virtual void Close() = 0;
 	virtual void Invoke(Action action) = 0;
 
+	virtual autostr GetTitle() = 0;
 	virtual void SetTitle(autostr title) = 0;
 
 protected:

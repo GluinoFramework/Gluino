@@ -12,4 +12,7 @@ internal class LibImportAttribute(string libName, string entryPoint) : Attribute
     public CallingConvention CallingConvention = CallingConvention.Cdecl;
     public CharSet CharSet= CharSet.Auto;
     public bool SetLastError = true;
+    public ManagedMember Member = ManagedMember.None;
+    public Type[] MethodParamTypes = [];
+    public ManagedProperty Property = ManagedProperty.None;
 }
