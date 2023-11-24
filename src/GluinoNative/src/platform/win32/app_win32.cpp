@@ -1,7 +1,10 @@
 #include "app_win32.h"
 
+#include <dwmapi.h>
 #include <future>
 #include <map>
+
+#pragma comment(lib, "Dwmapi.lib")
 
 using namespace Gluino;
 
@@ -27,8 +30,12 @@ void AppWin32::DespawnWindow(Window* window) {
 	GetClassName(hWnd, className, 256);
 
 	UnregisterClass(className, _hInstance);
-	DestroyWindow(hWnd);
+	//DestroyWindow(hWnd);
 	windowMap.erase(hWnd);
+
+	
+	if (windowMap.empty())
+		Exit();
 }
 
 void AppWin32::Run() {
@@ -47,10 +54,31 @@ HINSTANCE AppWin32::GetHInstance() {
 	return appWin32->_hInstance;
 }
 
+void ApplyMica(const HWND hWnd, bool enabled) {
+	constexpr MARGINS margins = { -1, -1, -1, -1 };
+	//constexpr int mica_entry = 1029, mica_value = 0x01; // Windows 11 23523-
+	constexpr int mica_entry = 38, mica_value = 0x02; // Windows 11 23523+
+	constexpr bool theme = true;
+
+	DwmExtendFrameIntoClientArea(hWnd, &margins);
+	DwmSetWindowAttribute(hWnd, 20, &theme, sizeof(int));
+	DwmSetWindowAttribute(hWnd, mica_entry, &mica_value, sizeof(int));
+}
+
 LRESULT AppWin32::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
-		case WM_CREATE:
+		case WM_CREATE: {
+			ApplyMica(hWnd, true);
 			break;
+		}
+		case WM_PAINT: {
+			PAINTSTRUCT ps;
+			const HDC hdc = BeginPaint(hWnd, &ps);
+
+			FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
+			EndPaint(hWnd, &ps);
+			return 0;
+		}
 		case WM_DESTROY: {
 			if (windowMap.find(hWnd) != windowMap.end())
 				appWin32->DespawnWindow(windowMap[hWnd]);

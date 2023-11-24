@@ -6,8 +6,7 @@ namespace Gluino;
 
 public static class App
 {
-    private static int _windowCount;
-
+    internal static int WindowCount;
     internal static readonly nint AppHInstance;
     internal static readonly nint NativeInstance;
 
@@ -47,19 +46,7 @@ public static class App
 
         NativeApp.Exit(NativeInstance);
     }
-
-    internal static nint SpawnNativeWindow(Window managedWindow, ref NativeWindowOptions options)
-    {
-        if (Platform.IsWindows) {
-            options.ClassName = $"{Name}.Window.{_windowCount}";
-            _windowCount++;
-        }
-
-        var window = NativeApp.SpawnWindow(NativeInstance, ref options);
-        ActiveWindows.Add(managedWindow);
-        return window;
-    }
-
+    
     private static void SetWin32AppId()
     {
         var ass = Assembly.GetEntryAssembly();

@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Xml.Linq;
 using Gluino.Native;
 
 namespace Gluino;
@@ -14,8 +15,7 @@ public class Window
     public Window()
     {
         _managedWindowThreadId = Environment.CurrentManagedThreadId;
-        _nativeOptions = new()
-        {
+        _nativeOptions = new() {
             Width = -1,
             Height = -1,
             X = -1,
@@ -40,8 +40,15 @@ public class Window
 
     public void Show()
     {
-        if (_nativeInstance == nint.Zero)
-            Invoke(() => _nativeInstance = App.SpawnNativeWindow(this, ref _nativeOptions));
+        if (_nativeInstance == nint.Zero) {
+            if (App.Platform.IsWindows) {
+                _nativeOptions.ClassName = $"{App.Name}.Window.{App.WindowCount}";
+                App.WindowCount++;
+            }
+
+            _nativeInstance = NativeApp.SpawnWindow(App.NativeInstance, ref _nativeOptions);
+            App.ActiveWindows.Add(this);
+        }
 
         Invoke(() => NativeWindow.Show(_nativeInstance));
     }

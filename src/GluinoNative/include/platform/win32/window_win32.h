@@ -15,7 +15,6 @@ public:
 	~WindowWin32() override;
 
 	HWND GetHandle() const { return _hWnd; }
-	void Register(autostr className) const;
 
 	void Show() override;
 	void Hide() override;
