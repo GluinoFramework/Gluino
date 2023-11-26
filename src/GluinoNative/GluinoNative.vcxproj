@@ -24,6 +24,7 @@
     <ClInclude Include="include\platform\win32\app_win32.h" />
     <ClInclude Include="include\platform\win32\window_win32.h" />
     <ClInclude Include="include\window.h" />
+    <ClInclude Include="include\window_events.h" />
     <ClInclude Include="include\window_options.h" />
   </ItemGroup>
   <ItemGroup>

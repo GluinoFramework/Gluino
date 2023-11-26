@@ -15,7 +15,7 @@ extern "C" {
 #endif
 
 	EXPORT void Gluino_App_Destroy(const App* app) { delete app; }
-	EXPORT Window* Gluino_App_SpawnWindow(App* app, WindowOptions* options) { return app->SpawnWindow(options); }
+	EXPORT Window* Gluino_App_SpawnWindow(App* app, WindowOptions* options, WindowEvents* events) { return app->SpawnWindow(options, events); }
 	EXPORT void Gluino_App_DespawnWindow(App* app, Window* window) { app->DespawnWindow(window); }
 	EXPORT void Gluino_App_Run(App* app) { app->Run(); }
 	EXPORT void Gluino_App_Exit(App* app) { app->Exit(); }
@@ -28,8 +28,9 @@ extern "C" {
 	EXPORT void Gluino_Window_Show(Window* window) { window->Show(); }
 	EXPORT void Gluino_Window_Hide(Window* window) { window->Hide(); }
 	EXPORT void Gluino_Window_Close(Window* window) { window->Close(); }
-	EXPORT void Gluino_Window_Invoke(Window* window, const Action action) { window->Invoke(action); }
+	EXPORT void Gluino_Window_Invoke(Window* window, const Delegate action) { window->Invoke(action); }
 
+	EXPORT void Gluino_Window_GetBounds(Window* window, Rect* bounds) { window->GetBounds(bounds); }
 
 	EXPORT void Gluino_Window_SetTitle(Window* window, const autostr title) { window->SetTitle(title); }
 }

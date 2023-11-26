@@ -26,7 +26,7 @@ void Register(const autostr className) {
 	SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 }
 
-WindowWin32::WindowWin32(WindowOptions* options) : Window(options) {
+WindowWin32::WindowWin32(WindowOptions* options, const WindowEvents* events) : Window(options, events) {
 	_className = CopyStr(options->ClassName);
 	_title = CopyStr(options->TitleW);
 
@@ -37,9 +37,10 @@ WindowWin32::WindowWin32(WindowOptions* options) : Window(options) {
 		_className,
 		_title,
 		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		800, 600,
+		options->Location.x,
+		options->Location.y,
+		options->Size.width,
+		options->Size.height,
 		nullptr,
 		nullptr,
 		AppWin32::GetHInstance(),
@@ -54,24 +55,81 @@ WindowWin32::~WindowWin32() {
 	delete[] _title;
 }
 
+LRESULT WindowWin32::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam) {
+	switch (msg) {
+		case WM_ACTIVATE: {
+			if (LOWORD(wParam) == WA_INACTIVE) {
+				_onFocusIn();
+			}
+			else {
+				_onFocusOut();
+				return 0;
+			}
+			break;
+		}
+		case WM_SIZE: {
+			Rect bounds;
+			GetBounds(&bounds);
+			_onSizeChanged({ bounds.width, bounds.height });
+			break;
+		}
+		case WM_MOVE: {
+			Rect bounds;
+			GetBounds(&bounds);
+			_onLocationChanged({ bounds.x, bounds.y });
+			break;
+		}
+		case WM_CLOSE: {
+			const auto cancel = _onClosing();
+			if (!cancel) {
+				DestroyWindow(_hWnd);
+				return 0;
+			}
+			break;
+		}
+		default:
+			return DefWindowProc(_hWnd, msg, wParam, lParam);
+	}
+
+	return DefWindowProc(_hWnd, msg, wParam, lParam);
+}
+
 void WindowWin32::Show() {
 	ShowWindow(_hWnd, SW_SHOWDEFAULT);
 	UpdateWindow(_hWnd);
 }
 
 void WindowWin32::Hide() {
+	ShowWindow(_hWnd, SW_HIDE);
 }
 
 void WindowWin32::Close() {
+	PostMessage(_hWnd, WM_CLOSE, 0, 0);
 }
 
-void WindowWin32::Invoke(Action action) {
+void WindowWin32::Invoke(Delegate action) {
 	std::promise<void> promise;
 	const std::future<void> future = promise.get_future();
 
 	PostMessage(_hWnd, WM_USER_INVOKE, (WPARAM)action, (LPARAM)&promise);
 
 	future.wait();
+}
+
+void WindowWin32::GetBounds(Rect* bounds) {
+	RECT rect;
+	GetWindowRect(_hWnd, &rect);
+
+	*bounds = {
+		rect.right - rect.left,
+		rect.bottom - rect.top,
+		rect.left,
+		rect.top,
+		rect.top,
+		rect.right,
+		rect.bottom,
+		rect.left
+	};
 }
 
 autostr WindowWin32::GetTitle() {

@@ -36,6 +36,9 @@
     <ClInclude Include="include\platform\win32\window_win32.h">
       <Filter>Header Files\Platform</Filter>
     </ClInclude>
+    <ClInclude Include="include\window_events.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\exports.cpp">

@@ -11,7 +11,7 @@ class App {
 public:
 	virtual ~App() = default;
 
-	virtual Window* SpawnWindow(WindowOptions* options) = 0;
+	virtual Window* SpawnWindow(WindowOptions* options, WindowEvents* events) = 0;
 	virtual void DespawnWindow(Window* window) = 0;
 
 	virtual void Run() = 0;

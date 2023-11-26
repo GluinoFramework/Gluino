@@ -34,6 +34,7 @@ public static class App
         }
 
         MainWindow = mainWindow;
+        MainWindow.IsMain = true;
         MainWindow.Show();
 
         NativeApp.Run(NativeInstance);

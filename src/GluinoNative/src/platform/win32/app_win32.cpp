@@ -16,8 +16,8 @@ AppWin32::AppWin32(const HINSTANCE hInstance) {
 	appWin32 = this;
 }
 
-Window* AppWin32::SpawnWindow(WindowOptions* options) {
-	const auto window = new WindowWin32(options);
+Window* AppWin32::SpawnWindow(WindowOptions* options, WindowEvents* events) {
+	const auto window = new WindowWin32(options, events);
 	windowMap[window->GetHandle()] = window;
 	return window;
 }
@@ -30,11 +30,9 @@ void AppWin32::DespawnWindow(Window* window) {
 	GetClassName(hWnd, className, 256);
 
 	UnregisterClass(className, _hInstance);
-	//DestroyWindow(hWnd);
 	windowMap.erase(hWnd);
 
-	
-	if (windowMap.empty())
+	if (window->IsMain())
 		Exit();
 }
 
@@ -65,7 +63,9 @@ void ApplyMica(const HWND hWnd, bool enabled) {
 	DwmSetWindowAttribute(hWnd, mica_entry, &mica_value, sizeof(int));
 }
 
-LRESULT AppWin32::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+LRESULT AppWin32::WndProc(const HWND hWnd, const UINT msg, const WPARAM wParam, const LPARAM lParam) {
+	const auto window = windowMap[hWnd];
+
 	switch (msg) {
 		case WM_CREATE: {
 			ApplyMica(hWnd, true);
@@ -85,16 +85,19 @@ LRESULT AppWin32::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			break;
 		}
 		case WM_USER_INVOKE: {
-			const auto callback = (Action)wParam;
+			const auto callback = (Delegate)wParam;
 			callback();
 
 			const auto promise = (std::promise<void>*)lParam;
 			promise->set_value();
 			return 0;
 		}
-		default:
-			return DefWindowProc(hWnd, msg, wParam, lParam);
+		default: {
+			if (window)
+				return window->WndProc(msg, wParam, lParam);
+			break;
+		}
 	}
 
-	return 0;
+	return DefWindowProc(hWnd, msg, wParam, lParam);
 }

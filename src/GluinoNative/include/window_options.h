@@ -7,12 +7,11 @@ namespace Gluino {
 
 struct WindowOptions {
 	wchar_t* ClassName; // Windows only
+	bool IsMain;
 	wchar_t* TitleW;
 	char* TitleA;
-	int Width;
-	int Height;
-	int X;
-	int Y;
+	Size Size;
+	Point Location;
 };
 
 }

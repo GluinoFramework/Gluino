@@ -17,7 +17,32 @@ typedef wchar_t* autostr;
 typedef char* autostr;
 #endif
 
-typedef void (*Action)();
+struct Size {
+	int width;
+	int height;
+};
+
+struct Point {
+	int x;
+	int y;
+};
+
+struct Rect {
+    int width;
+    int height;
+    int x;
+    int y;
+    int top;
+    int right;
+    int bottom;
+    int left;
+};
+
+typedef void (*Delegate)();
+typedef bool (*Predicate)();
+typedef void (*SizeDelegate)(Size);
+typedef void (*PointDelegate)(Point);
+typedef void (*StringDelegate)(autostr);
 
 inline autostr CopyStr(autostr source) {
     autostr result;

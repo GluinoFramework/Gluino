@@ -6,10 +6,9 @@ namespace Gluino.Native;
 internal struct NativeWindowOptions
 {
     [MarshalAs(UnmanagedType.LPWStr)] public string ClassName;
+    public bool IsMain;
     [MarshalAs(UnmanagedType.LPWStr)] public string TitleW;
     [MarshalAs(UnmanagedType.LPStr)] public string TitleA;
-    public int Width;
-    public int Height;
-    public int X;
-    public int Y;
+    public NativeSize Size;
+    public NativePoint Location;
 }

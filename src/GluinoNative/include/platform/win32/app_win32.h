@@ -15,7 +15,7 @@ public:
 	explicit AppWin32(HINSTANCE hInstance);
 	~AppWin32() override = default;
 
-	Window* SpawnWindow(WindowOptions* options) override;
+	Window* SpawnWindow(WindowOptions* options, WindowEvents* events) override;
 	void DespawnWindow(Window* window) override;
 	void Run() override;
 	void Exit() override;
