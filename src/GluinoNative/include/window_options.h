@@ -10,6 +10,8 @@ struct WindowOptions {
 	bool IsMain;
 	wchar_t* TitleW;
 	char* TitleA;
+	WindowStyle WindowStyle;
+	WindowState WindowState;
 	Size Size;
 	Point Location;
 };

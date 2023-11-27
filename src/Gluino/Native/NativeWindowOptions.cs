@@ -9,6 +9,8 @@ internal struct NativeWindowOptions
     public bool IsMain;
     [MarshalAs(UnmanagedType.LPWStr)] public string TitleW;
     [MarshalAs(UnmanagedType.LPStr)] public string TitleA;
+    public WindowStyle WindowStyle;
+    public WindowState WindowState;
     public NativeSize Size;
     public NativePoint Location;
 }

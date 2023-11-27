@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -28,7 +27,7 @@ public class LibImportGenerator : ISourceGenerator
 
         foreach (var classDeclaration in receiver.CandidateClasses) {
             var classModel = compilation.GetSemanticModel(classDeclaration.SyntaxTree);
-            var classSymbol = ModelExtensions.GetDeclaredSymbol(classModel, classDeclaration);
+            var classSymbol = classModel.GetDeclaredSymbol(classDeclaration);
 
             if (!classDeclaration.IsPartial() ||
                 classSymbol == null ||
@@ -41,7 +40,7 @@ public class LibImportGenerator : ISourceGenerator
 
             if (libName == null)
                 throw new Exception($"LibName is not specified for {className}");
-            
+
             var nativeMethods = new List<NativeMethod>();
             foreach (var methodDeclaration in classDeclaration.DescendantNodes().OfType<MethodDeclarationSyntax>()) {
                 var methodModel = compilation.GetSemanticModel(methodDeclaration.SyntaxTree);
@@ -51,16 +50,11 @@ public class LibImportGenerator : ISourceGenerator
                     methodSymbol == null ||
                     !methodSymbol.TryGetAttribute(libImportAttributeSymbol, out var libImportAttributeData))
                     continue;
-
-                if (className == "NativeWindow")
-                {
-                    ;
-                }
-
+                
                 var methodName = methodDeclaration.Identifier.Text;
                 var methodSignature = methodSymbol.GetMethodSignature();
 
-                //var libNameOverride = libImportAttributeData.GetFieldValue("LibName").Value?.ToString() ?? libName;
+                //var libNameOverride = libImportAttributeData.GetFieldTypeConstant("LibName").Value?.ToString() ?? libName;
 
                 var libNameOverride = libImportAttributeData.ConstructorArguments.Length switch {
                     2 => libImportAttributeData.ConstructorArguments[0].Value?.ToString(),
@@ -75,27 +69,36 @@ public class LibImportGenerator : ISourceGenerator
                         .FirstOrDefault(kv => kv.Key == "EntryPoint")
                         .Value.Value?.ToString()
                 } ?? methodName;
-                
-                var callingConvention = libImportAttributeData.GetFieldValueCSharpString("CallingConvention", "CallingConvention.Cdecl");
-                var charSet = libImportAttributeData.GetFieldValueCSharpString("CharSet", "CharSet.Auto");
-                var setLastError = libImportAttributeData.GetFieldValueCSharpString("SetLastError", "true");
 
-                nativeMethods.Add(new NativeMethod(
+                nativeMethods.Add(new(
+                    methodName,
                     methodSignature,
-                    new(libNameOverride, entryPoint, callingConvention, charSet, setLastError))
-                );
+                    new(
+                        libNameOverride,
+                        entryPoint,
+                        libImportAttributeData.GetFieldValueCSharpString("CallingConvention", "CallingConvention.Cdecl"),
+                        libImportAttributeData.GetFieldValueCSharpString("CharSet", "CharSet.Auto"),
+                        libImportAttributeData.GetFieldValueCSharpString("SetLastError", "true"),
+                        libImportAttributeData.GetFieldValue("IsStatic", false),
+                        libImportAttributeData.GetFieldValue("Managed", false),
+                        libImportAttributeData.GetFieldValue("PropertyData", ManagedProperty.None),
+                        libImportAttributeData.GetFieldValue<string>("Option")),
+                    methodSymbol
+                ));
             }
 
             var source = GeneratePartialClassSource(namespaceName, className, libName, nativeMethods);
             context.AddSource($"{className}.Generated", source);
+
+            GenerateManagedClassSource(context, libDetailsAttributeData, nativeMethods);
         }
     }
 
-    private string GeneratePartialClassSource(string namespaceName, string className, string libName, List<NativeMethod> nativeMethdos)
+    private string GeneratePartialClassSource(string namespaceName, string className, string libName, List<NativeMethod> nativeMethods)
     {
         var methodsSourceBuilder = new StringBuilder();
         
-        foreach (var nativeMethod in nativeMethdos) {
+        foreach (var nativeMethod in nativeMethods) {
             methodsSourceBuilder.AppendLine($"""    [DllImport("{nativeMethod.Import.LibName ?? libName}", EntryPoint = "{nativeMethod.Import.EntryPoint}", CallingConvention = {nativeMethod.Import.CallingConvention}, CharSet = {nativeMethod.Import.CharSet}, SetLastError = {nativeMethod.Import.SetLastError})]""");
             methodsSourceBuilder.AppendLine($"    public static extern partial {nativeMethod.Signature};");
             methodsSourceBuilder.AppendLine();
@@ -115,6 +118,87 @@ public class LibImportGenerator : ISourceGenerator
          """;
     }
 
+    private void GenerateManagedClassSource(
+        GeneratorExecutionContext context,
+        AttributeData libDetailsAttributeData,
+        List<NativeMethod> nativeMethods)
+    {
+        if (!libDetailsAttributeData.HasFieldValue("ManagedType")) return;
+        if (!nativeMethods.Any(nm => nm.Import.Managed)) return;
+
+        var managedTypeConstant = libDetailsAttributeData.GetFieldTypeConstant("ManagedType");
+        if (managedTypeConstant.Value is not INamedTypeSymbol managedTypeSymbol) return;
+
+        var namespaceName = managedTypeSymbol.ContainingNamespace.IsGlobalNamespace ? "" : managedTypeSymbol.ContainingNamespace.ToDisplayString();
+        var managedClassName = managedTypeSymbol.Name;
+
+        var properties = nativeMethods
+            .Where(nm => nm.Import.Managed && nm.Import.Property != ManagedProperty.None)
+            .GroupBy(m => m.Import.Option)
+            .Select(g => {
+                var getter = g.FirstOrDefault(nm => nm.Import.Property == ManagedProperty.Get);
+                var setter = g.FirstOrDefault(nm => nm.Import.Property == ManagedProperty.Set);
+                return new PropertyData(g.Key, getter, setter);
+            }).ToList();
+
+        var propSources = new List<string>();
+        foreach (var property in properties) {
+            propSources.Add(GenerateManagedPropertySource(property));
+        }
+        var propsSource = string.Join("\r\n\r\n\r\n", propSources);
+
+        var source =
+            $$"""
+              using System.Drawing;
+              using Gluino.Native;
+
+              namespace {{namespaceName}};
+
+              public partial class {{managedClassName}}
+              {
+              {{propsSource}}
+              }
+              """;
+
+
+        context.AddSource($"{managedClassName}.Generated", source);
+    }
+    
+    private string GenerateManagedPropertySource(PropertyData propertyData)
+    {
+        var className = propertyData.Getter.Symbol.ContainingType.Name;
+
+        var getType = propertyData.Getter.Symbol.ReturnType.ToDisplayString();
+        var getSource =
+            $$"""
+                private {{(propertyData.Getter.Import.IsStatic ? "static " : "")}}{{getType}} {{propertyData.Getter.Name}}()
+                {
+                   if (_nativeInstance == nint.Zero) {
+                       {{(propertyData.Getter.Symbol.ReturnType.IsString() ? $"return App.Platform.IsWindows ? _nativeOptions.{propertyData.Option}W : _nativeOptions.{propertyData.Option}A" : $"return _nativeOptions.{propertyData.Option}")}};
+                   }
+                   return Invoke(() => {{className}}.{{propertyData.Getter.Name}}(_nativeInstance));
+                }
+            """;
+
+        var setParam = propertyData.Setter.Symbol.Parameters[1];
+        var setParamType = setParam.Type.ToDisplayString();
+        var setParamName = setParam.Name;
+        var setSource =
+            $$"""
+                private {{(propertyData.Setter.Import.IsStatic ? "static " : "")}}void {{propertyData.Setter.Name}}({{setParamType}} {{setParamName}})
+                {
+                    if (_nativeInstance == nint.Zero) {
+                        {{(setParam.Type.IsString() ? $"if (App.Platform.IsWindows) {{\r\n                _nativeOptions.{propertyData.Option}W = {setParamName};\r\n            }}\r\n            else {{\r\n                _nativeOptions.{propertyData.Option}A = {setParamName};\r\n            }}" : $"_nativeOptions.{propertyData.Option} = {setParamName};")}}
+                    }
+                    else {
+                        Invoke(() => {{className}}.{{propertyData.Setter.Name}}(_nativeInstance, {{setParamName}}));
+                    }
+                }
+            """;
+
+        return $"{getSource}\r\n\r\n\r\n{setSource}";
+    }
+
     private class SyntaxReceiver : ISyntaxReceiver
     {
         public List<ClassDeclarationSyntax> CandidateClasses { get; } = [];
@@ -127,19 +211,41 @@ public class LibImportGenerator : ISourceGenerator
         }
     }
 
-    private class NativeMethod(string signature, LibImport import)
+    private class NativeMethod(string name, string signature, LibImport import, IMethodSymbol symbol)
     {
+        public readonly string Name = name;
         public readonly string Signature = signature;
         public readonly LibImport Import = import;
+        public readonly IMethodSymbol Symbol = symbol;
     }
 
-    private class LibImport(string libName, string entryPoint, string callingConvention, string charSet, string setLastError)
+    private class LibImport(
+        string libName,
+        string entryPoint,
+        string callingConvention,
+        string charSet,
+        string setLastError,
+        bool isStatic,
+        bool managed,
+        ManagedProperty property,
+        string option)
     {
         public readonly string LibName = libName;
         public readonly string EntryPoint = entryPoint;
         public readonly string CallingConvention = callingConvention;
         public readonly string CharSet = charSet;
         public readonly string SetLastError = setLastError;
+        public readonly bool IsStatic = isStatic;
+        public readonly bool Managed = managed;
+        public readonly ManagedProperty Property = property;
+        public readonly string Option = option;
+    }
+
+    private class PropertyData(string option, NativeMethod getter, NativeMethod setter)
+    {
+        public readonly string Option = option;
+        public readonly NativeMethod Getter = getter;
+        public readonly NativeMethod Setter = setter;
     }
 }
 
@@ -158,10 +264,27 @@ public static class Extensions
     {
         return methodDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword));
     }
+
+    public static bool HasFieldValue(this AttributeData attributeData, string name)
+    {
+        return attributeData.NamedArguments.Any(kvp => kvp.Key == name);
+    }
     
-    public static TypedConstant GetFieldValue(this AttributeData attributeData, string name)
+    public static TypedConstant GetFieldTypeConstant(this AttributeData attributeData, string name)
     {
         return attributeData.NamedArguments.FirstOrDefault(kvp => kvp.Key == name).Value;
+    }
+
+    public static T GetFieldValue<T>(this AttributeData attributeData, string name, T defaultValue = default)
+    {
+        var dict = attributeData.NamedArguments.ToDictionary(kv => kv.Key, kv => kv.Value);
+        if (!dict.TryGetValue(name, out var tc)) return defaultValue;
+
+        if (typeof(T).IsEnum) {
+            return (T)Enum.Parse(typeof(T), tc.Value?.ToString() ?? "None");
+        }
+
+        return (T)tc.Value;
     }
 
     public static string GetFieldValueCSharpString(this AttributeData attributeData, string name, string defaultValue)
@@ -174,18 +297,22 @@ public static class Extensions
     {
         var returnType = methodSymbol.ReturnType.ToDisplayString();
         var methodName = methodSymbol.Name;
-        var refKeyword = methodSymbol.RefKind switch {
-            RefKind.None => "",
-            RefKind.Ref => "ref ",
-            RefKind.Out => "out ",
-            RefKind.In => "in ",
-            _ => throw new Exception($"Unknown RefKind: {methodSymbol.RefKind}")
-        };
-        //var parameters = string.Join(", ", methodSymbol.Parameters.Select(p => $"{refKeyword}{p.Type} {p.Name}"));
         var parameters = string.Join(", ", methodSymbol.Parameters.Select(p => p.OriginalDefinition));
         var methodSignature = $"{returnType} {methodName}({parameters})";
 
         return methodSignature;
     }
+
+    public static bool IsString(this ITypeSymbol typeSymbol)
+    {
+        return typeSymbol.SpecialType == SpecialType.System_String;
+    }
+}
+
+public enum ManagedProperty
+{
+    None,
+    Get,
+    Set
 }
 

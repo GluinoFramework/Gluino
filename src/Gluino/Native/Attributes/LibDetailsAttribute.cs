@@ -3,5 +3,6 @@
 [AttributeUsage(AttributeTargets.Class)]
 internal class LibDetailsAttribute(string libName) : Attribute
 {
-    public string LibName { get; set; } = libName;
+    public string LibName = libName;
+    public Type ManagedType;
 }

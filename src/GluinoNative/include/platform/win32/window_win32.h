@@ -6,6 +6,9 @@
 #include "window.h"
 
 #include <Windows.h>
+#include <dwmapi.h>
+
+#pragma comment(lib, "dwmapi.lib")
 
 namespace Gluino {
 
@@ -14,8 +17,16 @@ public:
 	explicit WindowWin32(WindowOptions* options, const WindowEvents* events);
 	~WindowWin32() override;
 
+	static bool IsCompositionEnabled() {
+		BOOL enabled = FALSE;
+		const auto success = DwmIsCompositionEnabled(&enabled) == S_OK;
+		return enabled && success;
+	}
+
 	HWND GetHandle() const { return _hWnd; }
 	LRESULT WndProc(UINT msg, WPARAM wParam, LPARAM lParam);
+	void AdjustMaximizedClientRect(RECT& rect);
+	void SetBorderlessStyle(bool borderless) const;
 
 	void Show() override;
 	void Hide() override;
@@ -26,8 +37,12 @@ public:
 
 	autostr GetTitle() override;
 	void SetTitle(autostr title) override;
-	
 
+	WindowStyle GetWindowStyle() override;
+	void SetWindowStyle(WindowStyle style) override;
+	
+	WindowState GetWindowState() override;
+	void SetWindowState(WindowState state) override;
 private:
 	wchar_t* _className;
 	HWND _hWnd;

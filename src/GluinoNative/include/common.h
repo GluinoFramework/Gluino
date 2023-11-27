@@ -17,6 +17,18 @@ typedef wchar_t* autostr;
 typedef char* autostr;
 #endif
 
+enum class WindowStyle {
+    Normal,
+    Borderless,
+    None
+};
+
+enum class WindowState {
+	Normal,
+	Minimized,
+	Maximized
+};
+
 struct Size {
 	int width;
 	int height;

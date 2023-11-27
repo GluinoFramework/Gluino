@@ -4,7 +4,7 @@ using Gluino.Native;
 
 namespace Gluino;
 
-public class Window
+public partial class Window
 {
     private const int CW_USEDEFAULT = unchecked((int)0x80000000);
 
@@ -29,6 +29,8 @@ public class Window
     {
         _managedWindowThreadId = Environment.CurrentManagedThreadId;
         _nativeOptions = new() {
+            WindowStyle = WindowStyle.Normal,
+            WindowState = WindowState.Normal,
             Size = new() {
                 Width = 800, 
                 Height = 600
@@ -54,16 +56,18 @@ public class Window
     }
 
     public string Title {
-        set {
-            if (_nativeInstance == nint.Zero) {
-                if (App.Platform.IsWindows)
-                    _nativeOptions.TitleW = value;
-                else
-                    _nativeOptions.TitleA = value;
-            }
-            else
-                Invoke(() => NativeWindow.SetTitle(_nativeInstance, value));
-        }
+        get => GetTitle();
+        set => SetTitle(value);
+    }
+
+    public WindowStyle WindowStyle {
+        get => GetWindowStyle();
+        set => SetWindowStyle(value);
+    }
+
+    public WindowState WindowState {
+        get => GetWindowState();
+        set => SetWindowState(value);
     }
 
     internal bool IsMain {
@@ -73,6 +77,13 @@ public class Window
             else
                 throw new InvalidOperationException();
         }
+    }
+
+    public Rectangle GetBounds()
+    {
+        var bounds = NativeRect.Empty;
+        SafeInvoke(() => NativeWindow.GetBounds(_nativeInstance, out bounds));
+        return new(bounds.X, bounds.Y, bounds.Width, bounds.Height);
     }
 
     public void Show()
@@ -94,6 +105,11 @@ public class Window
         Invoke(() => NativeWindow.Show(_nativeInstance));
     }
 
+    public void Hide()
+    {
+        SafeInvoke(() => NativeWindow.Hide(_nativeInstance));
+    }
+
     public void Close()
     {
         if (_nativeInstance == nint.Zero)
@@ -104,6 +120,14 @@ public class Window
         if (App.MainWindow == this)
             App.Exit();
     }
+    
+    internal void Invoke(Action action)
+    {
+        if (Environment.CurrentManagedThreadId == _managedWindowThreadId)
+            action();
+        else
+            NativeWindow.Invoke(_nativeInstance, action.Invoke);
+    }
 
     internal T Invoke<T>(Func<T> func)
     {
@@ -112,13 +136,14 @@ public class Window
         return result;
     }
 
-    internal void Invoke(Action action)
+    internal void SafeInvoke(Action action)
     {
-        if (Environment.CurrentManagedThreadId == _managedWindowThreadId)
-            action();
-        else
-            NativeWindow.Invoke(_nativeInstance, action.Invoke);
+        if (_nativeInstance == nint.Zero)
+            return;
+        Invoke(action);
     }
+
+    internal T SafeInvoke<T>(Func<T> func) => _nativeInstance == nint.Zero ? default : Invoke(func);
 
     protected virtual void OnCreating(EventArgs e) { }
     protected virtual void OnCreated(EventArgs e) { }

@@ -17,6 +17,7 @@ public:
 #else
 		_title = CopyStr(options->TitleA);
 #endif
+		_style = options->WindowStyle;
 
 		_onShown = (Delegate)events->OnShown;
 		_onHidden = (Delegate)events->OnHidden;
@@ -44,9 +45,16 @@ public:
 	virtual autostr GetTitle() = 0;
 	virtual void SetTitle(autostr title) = 0;
 
+	virtual WindowStyle GetWindowStyle() = 0;
+	virtual void SetWindowStyle(WindowStyle style) = 0;
+
+	virtual WindowState GetWindowState() = 0;
+	virtual void SetWindowState(WindowState state) = 0;
+
 protected:
 	bool _isMain;
 	autostr _title;
+	WindowStyle _style;
 
 	Delegate _onShown;
 	Delegate _onHidden;

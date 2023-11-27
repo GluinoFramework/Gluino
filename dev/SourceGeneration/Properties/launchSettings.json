@@ -2,7 +2,7 @@
   "profiles": {
     "SourceGeneration": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "..\\Gluino\\Gluino.csproj"
+      "targetProject": "..\\..\\src\\Gluino\\Gluino.csproj"
     }
   }
 }
