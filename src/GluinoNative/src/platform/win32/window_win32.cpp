@@ -32,7 +32,7 @@ WindowWin32::WindowWin32(WindowOptions* options, const WindowEvents* events) : W
 	Register(_className);
 
 	_hWnd = CreateWindowEx(
-		WS_EX_LAYERED,
+		WS_EX_NOREDIRECTIONBITMAP,
 		_className,
 		_title,
 		WS_OVERLAPPEDWINDOW,
@@ -45,8 +45,6 @@ WindowWin32::WindowWin32(WindowOptions* options, const WindowEvents* events) : W
 		AppWin32::GetHInstance(),
 		this
 	);
-
-	SetLayeredWindowAttributes(_hWnd, RGB(255, 255, 255), 0, LWA_COLORKEY);
 
 	SetWindowStyle(_style);
 }

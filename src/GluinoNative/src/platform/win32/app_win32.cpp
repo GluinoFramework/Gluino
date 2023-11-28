@@ -54,13 +54,16 @@ HINSTANCE AppWin32::GetHInstance() {
 
 void ApplyMica(const HWND hWnd, bool enabled) {
 	constexpr MARGINS margins = { -1, -1, -1, -1 };
-	//constexpr int mica_entry = 1029, mica_value = 0x01; // Windows 11 23523-
-	constexpr int mica_entry = 38, mica_value = 0x02; // Windows 11 23523+
-	constexpr bool theme = true;
-
 	DwmExtendFrameIntoClientArea(hWnd, &margins);
-	DwmSetWindowAttribute(hWnd, 20, &theme, sizeof(int));
-	DwmSetWindowAttribute(hWnd, mica_entry, &mica_value, sizeof(int));
+
+	constexpr BOOL mode = TRUE;
+	DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &mode, sizeof mode);
+
+	constexpr DWM_SYSTEMBACKDROP_TYPE value = DWMSBT_MAINWINDOW;
+	DwmSetWindowAttribute(hWnd, DWMWA_SYSTEMBACKDROP_TYPE, &value, sizeof value);
+
+	constexpr BOOL bkdbrush = TRUE;
+	DwmSetWindowAttribute(hWnd, DWMWA_USE_HOSTBACKDROPBRUSH, &bkdbrush, sizeof bkdbrush);
 }
 
 LRESULT AppWin32::WndProc(const HWND hWnd, const UINT msg, const WPARAM wParam, const LPARAM lParam) {
