@@ -1,5 +1,5 @@
-#include "app_win32.h"
-#include "window_win32.h"
+#include "app.h"
+#include "window.h"
 
 #include <future>
 
@@ -9,10 +9,10 @@ void Register(const autostr className) {
 	WNDCLASSEX wcex;
 	wcex.cbSize = sizeof WNDCLASSEX;
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = AppWin32::WndProc;
+	wcex.lpfnWndProc = App::WndProc;
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = WS_EX_NOPARENTNOTIFY;
-	wcex.hInstance = AppWin32::GetHInstance();
+	wcex.hInstance = App::GetHInstance();
 	wcex.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
 	wcex.hIconSm = LoadIcon(nullptr, IDI_WINLOGO);
 	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
@@ -25,7 +25,7 @@ void Register(const autostr className) {
 	SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 }
 
-WindowWin32::WindowWin32(WindowOptions* options, const WindowEvents* events) : Window(options, events) {
+Window::Window(WindowOptions* options, const WindowEvents* events) : WindowBase(options, events) {
 	_className = CopyStr(options->ClassName);
 	_title = CopyStr(options->TitleW);
 
@@ -42,19 +42,19 @@ WindowWin32::WindowWin32(WindowOptions* options, const WindowEvents* events) : W
 		options->Size.height,
 		nullptr,
 		nullptr,
-		AppWin32::GetHInstance(),
+		App::GetHInstance(),
 		this
 	);
 
 	SetWindowStyle(_style);
 }
 
-WindowWin32::~WindowWin32() {
+Window::~Window() {
 	delete[] _className;
 	delete[] _title;
 }
 
-LRESULT WindowWin32::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam) {
+LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam) {
 	switch (msg) {
 		case WM_NCCALCSIZE: {
 			if (wParam == TRUE && _style == WindowStyle::Borderless) {
@@ -108,7 +108,7 @@ LRESULT WindowWin32::WndProc(const UINT msg, const WPARAM wParam, const LPARAM l
 	return DefWindowProc(_hWnd, msg, wParam, lParam);
 }
 
-void WindowWin32::AdjustMaximizedClientRect(RECT& rect) {
+void Window::AdjustMaximizedClientRect(RECT& rect) {
 	if (GetWindowState() != WindowState::Maximized)
 		return;
 
@@ -123,7 +123,7 @@ void WindowWin32::AdjustMaximizedClientRect(RECT& rect) {
 	rect = monitorInfo.rcWork;
 }
 
-void WindowWin32::SetBorderlessStyle(const bool borderless) const {
+void Window::SetBorderlessStyle(const bool borderless) const {
 	const auto compositionEnabled = IsCompositionEnabled();
 
 	constexpr DWORD aeroBorderless = WS_POPUP | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_MAXIMIZEBOX | WS_MINIMIZEBOX;
@@ -146,20 +146,20 @@ void WindowWin32::SetBorderlessStyle(const bool borderless) const {
 	}
 }
 
-void WindowWin32::Show() {
+void Window::Show() {
 	ShowWindow(_hWnd, SW_SHOWDEFAULT);
 	UpdateWindow(_hWnd);
 }
 
-void WindowWin32::Hide() {
+void Window::Hide() {
 	ShowWindow(_hWnd, SW_HIDE);
 }
 
-void WindowWin32::Close() {
+void Window::Close() {
 	PostMessage(_hWnd, WM_CLOSE, 0, 0);
 }
 
-void WindowWin32::Invoke(Delegate action) {
+void Window::Invoke(Delegate action) {
 	std::promise<void> promise;
 	const std::future<void> future = promise.get_future();
 
@@ -168,7 +168,7 @@ void WindowWin32::Invoke(Delegate action) {
 	future.wait();
 }
 
-void WindowWin32::GetBounds(Rect* bounds) {
+void Window::GetBounds(Rect* bounds) {
 	RECT rect;
 	GetWindowRect(_hWnd, &rect);
 
@@ -184,31 +184,31 @@ void WindowWin32::GetBounds(Rect* bounds) {
 	};
 }
 
-/*bool WindowWin32::GetMaximized() {
+/*bool Window::GetMaximized() {
 	WINDOWPLACEMENT placement;
 	if (GetWindowPlacement(_hWnd, &placement))
 		return false;
 	return placement.showCmd == SW_MAXIMIZE;
 }*/
 
-autostr WindowWin32::GetTitle() {
+autostr Window::GetTitle() {
 	const auto length = GetWindowTextLength(_hWnd);
 	const auto title = new wchar_t[length + 1];
 	GetWindowText(_hWnd, title, length + 1);
 	return title;
 }
 
-void WindowWin32::SetTitle(const autostr title) {
+void Window::SetTitle(const autostr title) {
 	_title = CopyStr(title);
 
 	SetWindowText(_hWnd, _title);
 }
 
-WindowStyle WindowWin32::GetWindowStyle() {
+WindowStyle Window::GetWindowStyle() {
 	return _style;
 }
 
-void WindowWin32::SetWindowStyle(WindowStyle style) {
+void Window::SetWindowStyle(WindowStyle style) {
 	if (style == WindowStyle::Borderless)
 		SetBorderlessStyle(true);
 	else if (_style == WindowStyle::Borderless && style != WindowStyle::Borderless)
@@ -220,7 +220,7 @@ void WindowWin32::SetWindowStyle(WindowStyle style) {
 	_style = style;	
 }
 
-WindowState WindowWin32::GetWindowState() {
+WindowState Window::GetWindowState() {
 	WINDOWPLACEMENT placement;
 	if (GetWindowPlacement(_hWnd, &placement))
 		return WindowState::Normal;
@@ -234,7 +234,7 @@ WindowState WindowWin32::GetWindowState() {
 	}
 }
 
-void WindowWin32::SetWindowState(WindowState state) {
+void Window::SetWindowState(WindowState state) {
 	WINDOWPLACEMENT placement;
 	if (GetWindowPlacement(_hWnd, &placement))
 		return;

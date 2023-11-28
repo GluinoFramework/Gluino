@@ -1,4 +1,4 @@
-#include "app_win32.h"
+#include "app.h"
 
 #include <dwmapi.h>
 #include <future>
@@ -8,22 +8,22 @@
 
 using namespace Gluino;
 
-AppWin32* appWin32{};
-std::map<HWND, WindowWin32*> windowMap{};
+App* appWin32{};
+std::map<HWND, Window*> windowMap{};
 
-AppWin32::AppWin32(const HINSTANCE hInstance) {
+App::App(const HINSTANCE hInstance) {
 	_hInstance = hInstance;
 	appWin32 = this;
 }
 
-Window* AppWin32::SpawnWindow(WindowOptions* options, WindowEvents* events) {
-	const auto window = new WindowWin32(options, events);
+WindowBase* App::SpawnWindow(WindowOptions* options, WindowEvents* events) {
+	const auto window = new Window(options, events);
 	windowMap[window->GetHandle()] = window;
 	return window;
 }
 
-void AppWin32::DespawnWindow(Window* window) {
-	const auto win32Window = (WindowWin32*)window;
+void App::DespawnWindow(WindowBase* window) {
+	const auto win32Window = (Window*)window;
 	const HWND hWnd = win32Window->GetHandle();
 
 	WCHAR className[256];
@@ -36,7 +36,7 @@ void AppWin32::DespawnWindow(Window* window) {
 		Exit();
 }
 
-void AppWin32::Run() {
+void App::Run() {
 	MSG msg;
 	while (GetMessage(&msg, nullptr, 0, 0)) {
 		TranslateMessage(&msg);
@@ -44,11 +44,11 @@ void AppWin32::Run() {
 	}
 }
 
-void AppWin32::Exit() {
+void App::Exit() {
 	PostQuitMessage(0);
 }
 
-HINSTANCE AppWin32::GetHInstance() {
+HINSTANCE App::GetHInstance() {
 	return appWin32->_hInstance;
 }
 
@@ -66,7 +66,7 @@ void ApplyMica(const HWND hWnd, bool enabled) {
 	DwmSetWindowAttribute(hWnd, DWMWA_USE_HOSTBACKDROPBRUSH, &bkdbrush, sizeof bkdbrush);
 }
 
-LRESULT AppWin32::WndProc(const HWND hWnd, const UINT msg, const WPARAM wParam, const LPARAM lParam) {
+LRESULT App::WndProc(const HWND hWnd, const UINT msg, const WPARAM wParam, const LPARAM lParam) {
 	const auto window = windowMap[hWnd];
 
 	switch (msg) {

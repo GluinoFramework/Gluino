@@ -19,18 +19,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\app.h" />
+    <ClInclude Include="include\app_base.h" />
     <ClInclude Include="include\common.h" />
-    <ClInclude Include="include\platform\win32\app_win32.h" />
-    <ClInclude Include="include\platform\win32\window_win32.h" />
-    <ClInclude Include="include\window.h" />
+    <ClInclude Include="include\platform\win32\app.h" />
+    <ClInclude Include="include\platform\win32\window.h" />
+    <ClInclude Include="include\window_base.h" />
     <ClInclude Include="include\window_events.h" />
     <ClInclude Include="include\window_options.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\exports.cpp" />
-    <ClCompile Include="src\platform\win32\app_win32.cpp" />
-    <ClCompile Include="src\platform\win32\window_win32.cpp" />
+    <ClCompile Include="src\platform\win32\app.cpp" />
+    <ClCompile Include="src\platform\win32\window.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

@@ -8,9 +8,9 @@
 
 namespace Gluino {
 
-class Window {
+class WindowBase {
 public:
-	explicit Window(WindowOptions* options, const WindowEvents* events) {
+	explicit WindowBase(WindowOptions* options, const WindowEvents* events) {
 		_isMain = options->IsMain;
 #ifdef _WIN32
 		_title = CopyStr(options->TitleW);
@@ -29,7 +29,7 @@ public:
 		_onClosed = (Delegate)events->OnClosed;
 	}
 
-	virtual ~Window() {
+	virtual ~WindowBase() {
 		delete[] _title;
 	}
 

@@ -5,7 +5,11 @@
 
 #ifdef _WIN32
 #include <wchar.h>
+#endif
 
+namespace Gluino {
+
+#ifdef _WIN32
 #define WM_USER_INVOKE (WM_USER + 0x0002)
 #define EXPORT __declspec(dllexport)
 
@@ -24,19 +28,19 @@ enum class WindowStyle {
 };
 
 enum class WindowState {
-	Normal,
-	Minimized,
-	Maximized
+    Normal,
+    Minimized,
+    Maximized
 };
 
 struct Size {
-	int width;
-	int height;
+    int width;
+    int height;
 };
 
 struct Point {
-	int x;
-	int y;
+    int x;
+    int y;
 };
 
 struct Rect {
@@ -78,6 +82,8 @@ inline autostr CopyStr(autostr source) {
 #endif
 
     return result;
+}
+
 }
 
 #endif // !GLUINO_COMMON_H

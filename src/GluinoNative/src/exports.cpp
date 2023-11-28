@@ -1,43 +1,43 @@
-#include "window.h"
+#include "window_base.h"
 #include "window_options.h"
 
 #ifdef _WIN32
-#include "app_win32.h"
+#include "app.h"
 #endif
 
 using namespace Gluino;
 
 extern "C" {
 #ifdef _WIN32
-	EXPORT App* Gluino_App_Create(const HINSTANCE hInstance) { return new AppWin32(hInstance); }
+	EXPORT AppBase* Gluino_App_Create(const HINSTANCE hInstance) { return new App(hInstance); }
 
-	//EXPORT Window* Gluino_Window_Create(WindowOptions* options) { return new WindowWin32(options); }
+	//EXPORT WindowBase* Gluino_Window_Create(WindowOptions* options) { return new Window(options); }
 #endif
 
-	EXPORT void Gluino_App_Destroy(const App* app) { delete app; }
-	EXPORT Window* Gluino_App_SpawnWindow(App* app, WindowOptions* options, WindowEvents* events) { return app->SpawnWindow(options, events); }
-	EXPORT void Gluino_App_DespawnWindow(App* app, Window* window) { app->DespawnWindow(window); }
-	EXPORT void Gluino_App_Run(App* app) { app->Run(); }
-	EXPORT void Gluino_App_Exit(App* app) { app->Exit(); }
+	EXPORT void Gluino_App_Destroy(const AppBase* app) { delete app; }
+	EXPORT WindowBase* Gluino_App_SpawnWindow(AppBase* app, WindowOptions* options, WindowEvents* events) { return app->SpawnWindow(options, events); }
+	EXPORT void Gluino_App_DespawnWindow(AppBase* app, WindowBase* window) { app->DespawnWindow(window); }
+	EXPORT void Gluino_App_Run(AppBase* app) { app->Run(); }
+	EXPORT void Gluino_App_Exit(AppBase* app) { app->Exit(); }
 
 
 
-	//EXPORT void Gluino_Window_Destroy(const Window* window) { delete window; }
+	//EXPORT void Gluino_Window_Destroy(const WindowBase* window) { delete window; }
 
 
-	EXPORT void Gluino_Window_Show(Window* window) { window->Show(); }
-	EXPORT void Gluino_Window_Hide(Window* window) { window->Hide(); }
-	EXPORT void Gluino_Window_Close(Window* window) { window->Close(); }
-	EXPORT void Gluino_Window_Invoke(Window* window, const Delegate action) { window->Invoke(action); }
+	EXPORT void Gluino_Window_Show(WindowBase* window) { window->Show(); }
+	EXPORT void Gluino_Window_Hide(WindowBase* window) { window->Hide(); }
+	EXPORT void Gluino_Window_Close(WindowBase* window) { window->Close(); }
+	EXPORT void Gluino_Window_Invoke(WindowBase* window, const Delegate action) { window->Invoke(action); }
 
-	EXPORT void Gluino_Window_GetBounds(Window* window, Rect* bounds) { window->GetBounds(bounds); }
+	EXPORT void Gluino_Window_GetBounds(WindowBase* window, Rect* bounds) { window->GetBounds(bounds); }
 
-	EXPORT autostr Gluino_Window_GetTitle(Window* window) { return window->GetTitle(); }
-	EXPORT void Gluino_Window_SetTitle(Window* window, const autostr title) { window->SetTitle(title); }
+	EXPORT autostr Gluino_Window_GetTitle(WindowBase* window) { return window->GetTitle(); }
+	EXPORT void Gluino_Window_SetTitle(WindowBase* window, const autostr title) { window->SetTitle(title); }
 
-	EXPORT WindowStyle Gluino_Window_GetWindowStyle(Window* window) { return window->GetWindowStyle(); }
-	EXPORT void Gluino_Window_SetWindowStyle(Window* window, const WindowStyle style) { window->SetWindowStyle(style); }
+	EXPORT WindowStyle Gluino_Window_GetWindowStyle(WindowBase* window) { return window->GetWindowStyle(); }
+	EXPORT void Gluino_Window_SetWindowStyle(WindowBase* window, const WindowStyle style) { window->SetWindowStyle(style); }
 
-	EXPORT WindowState Gluino_Window_GetWindowState(Window* window) { return window->GetWindowState(); }
-	EXPORT void Gluino_Window_SetWindowState(Window* window, const WindowState state) { window->SetWindowState(state); }
+	EXPORT WindowState Gluino_Window_GetWindowState(WindowBase* window) { return window->GetWindowState(); }
+	EXPORT void Gluino_Window_SetWindowState(WindowBase* window, const WindowState state) { window->SetWindowState(state); }
 }

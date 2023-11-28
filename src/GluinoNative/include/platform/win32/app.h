@@ -3,20 +3,20 @@
 #ifndef GLUINO_APP_WIN32_H
 #define GLUINO_APP_WIN32_H
 
-#include "app.h"
-#include "window_win32.h"
+#include "app_base.h"
+#include "window.h"
 
 #include <Windows.h>
 
 namespace Gluino {
 
-class AppWin32 final : public App {
+class App final : public AppBase {
 public:
-	explicit AppWin32(HINSTANCE hInstance);
-	~AppWin32() override = default;
+	explicit App(HINSTANCE hInstance);
+	~App() override = default;
 
-	Window* SpawnWindow(WindowOptions* options, WindowEvents* events) override;
-	void DespawnWindow(Window* window) override;
+	WindowBase* SpawnWindow(WindowOptions* options, WindowEvents* events) override;
+	void DespawnWindow(WindowBase* window) override;
 	void Run() override;
 	void Exit() override;
 

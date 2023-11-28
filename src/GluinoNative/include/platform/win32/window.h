@@ -3,7 +3,7 @@
 #ifndef GLUINO_WINDOW_WIN32_H
 #define GLUINO_WINDOW_WIN32_H
 
-#include "window.h"
+#include "window_base.h"
 
 #include <Windows.h>
 #include <dwmapi.h>
@@ -12,10 +12,10 @@
 
 namespace Gluino {
 
-class WindowWin32 final : public Window {
+class Window final : public WindowBase {
 public:
-	explicit WindowWin32(WindowOptions* options, const WindowEvents* events);
-	~WindowWin32() override;
+	explicit Window(WindowOptions* options, const WindowEvents* events);
+	~Window() override;
 
 	static bool IsCompositionEnabled() {
 		BOOL enabled = FALSE;
