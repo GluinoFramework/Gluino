@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef GLUINO_APP_WIN32_H
-#define GLUINO_APP_WIN32_H
+#ifndef GLUINO_APP_H
+#define GLUINO_APP_H
 
 #include "app_base.h"
 #include "window.h"

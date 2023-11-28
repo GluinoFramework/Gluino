@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef GLUINO_WINDOW_H
-#define GLUINO_WINDOW_H
+#ifndef GLUINO_WINDOW_BASE_H
+#define GLUINO_WINDOW_BASE_H
 
 #include "window_events.h"
 #include "window_options.h"

@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef GLUINO_WINDOW_WIN32_H
-#define GLUINO_WINDOW_WIN32_H
+#ifndef GLUINO_WINDOW_H
+#define GLUINO_WINDOW_H
 
 #include "window_base.h"
 
@@ -50,5 +50,5 @@ private:
 
 }
 
-#endif // !GLUINO_WINDOW_WIN32_H
+#endif // !GLUINO_WINDOW_H
 

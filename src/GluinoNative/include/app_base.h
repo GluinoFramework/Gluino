@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef GLUINO_APP_H
-#define GLUINO_APP_H
+#ifndef GLUINO_APP_BASE_H
+#define GLUINO_APP_BASE_H
 
 #include "window_base.h"
 
@@ -20,4 +20,4 @@ public:
 
 }
 
-#endif // !GLUINO_APP_H
+#endif // !GLUINO_APP_BASE_H
