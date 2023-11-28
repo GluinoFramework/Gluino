@@ -81,7 +81,7 @@ public class LibImportGenerator : ISourceGenerator
                         libImportAttributeData.GetFieldValueCSharpString("SetLastError", "true"),
                         libImportAttributeData.GetFieldValue("IsStatic", false),
                         libImportAttributeData.GetFieldValue("Managed", false),
-                        libImportAttributeData.GetFieldValue("PropertyData", ManagedProperty.None),
+                        libImportAttributeData.GetFieldValue("Property", ManagedProperty.None),
                         libImportAttributeData.GetFieldValue<string>("Option")),
                     methodSymbol
                 ));
