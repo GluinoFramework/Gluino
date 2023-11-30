@@ -29,6 +29,7 @@ Window::Window(WindowOptions* options, const WindowEvents* events) : WindowBase(
 	_className = CopyStr(options->ClassName);
 	_title = CopyStr(options->TitleW);
 
+	InitDarkModeSupport();
 	Register(_className);
 
 	_hWnd = CreateWindowEx(
@@ -46,7 +47,8 @@ Window::Window(WindowOptions* options, const WindowEvents* events) : WindowBase(
 		this
 	);
 
-	SetWindowStyle(_style);
+	//EnableDarkMode(_hWnd, true);
+	ApplyWindowStyle(_hWnd, true);
 }
 
 Window::~Window() {
@@ -56,28 +58,13 @@ Window::~Window() {
 
 LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam) {
 	switch (msg) {
-		case WM_NCCALCSIZE: {
-			if (wParam == TRUE && _style == WindowStyle::Borderless) {
-				auto& params = *reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
-				AdjustMaximizedClientRect(params.rgrc[0]);
-				return 0;
-			}
-			break;
-		}
 		case WM_ACTIVATE: {
 			if (LOWORD(wParam) == WA_INACTIVE) {
-				_onFocusIn();
+				_onFocusOut();
 			}
 			else {
-				_onFocusOut();
-				if (!IsCompositionEnabled()) {
-					return 1;
-				}
+				_onFocusIn();
 				return 0;
-			}
-
-			if (!IsCompositionEnabled()) {
-				return 1;
 			}
 			break;
 		}
@@ -94,11 +81,28 @@ LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam
 			break;
 		}
 		case WM_CLOSE: {
-			const auto cancel = _onClosing();
-			if (!cancel) {
+			if (const auto cancel = _onClosing(); !cancel) {
 				DestroyWindow(_hWnd);
 				return 0;
 			}
+			break;
+		}
+		case WM_NCCALCSIZE: {
+			if (wParam == TRUE && _style == WindowStyle::Borderless) {
+				auto& [rgrc, _] = *reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
+				AdjustMaximizedClientRect(_hWnd, rgrc[0]);
+				return 0;
+			}
+			break;
+		}
+		case WM_SETTINGCHANGE: {
+			if (IsColorSchemeChange(lParam)) {
+				SendMessageW(_hWnd, WM_THEMECHANGED, 0, 0);
+			}
+			break;
+		}
+		case WM_THEMECHANGED: {
+			ApplyWindowStyle(_hWnd, IsDarkModeEnabled());
 			break;
 		}
 		default:
@@ -106,21 +110,6 @@ LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam
 	}
 
 	return DefWindowProc(_hWnd, msg, wParam, lParam);
-}
-
-void Window::AdjustMaximizedClientRect(RECT& rect) {
-	if (GetWindowState() != WindowState::Maximized)
-		return;
-
-	const auto monitor = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONULL);
-	if (!monitor) return;
-
-	MONITORINFO monitorInfo;
-	monitorInfo.cbSize = sizeof monitorInfo;
-	if (!GetMonitorInfoW(monitor, &monitorInfo))
-		return;
-
-	rect = monitorInfo.rcWork;
 }
 
 void Window::SetBorderlessStyle(const bool borderless) const {
@@ -133,22 +122,27 @@ void Window::SetBorderlessStyle(const bool borderless) const {
 	const DWORD newStyle = borderless ? borderlessStyle : WS_OVERLAPPEDWINDOW;
 	const DWORD oldStyle = GetWindowLong(_hWnd, GWL_STYLE);
 
-	if (newStyle != oldStyle) {
-		SetWindowLongW(_hWnd, GWL_STYLE, static_cast<LONG>(newStyle));
-
-		if (compositionEnabled) {
-			constexpr MARGINS shadowState[2] = { {0, 0, 0, 0}, {1, 1, 1, 1} };
-			DwmExtendFrameIntoClientArea(_hWnd, &shadowState[borderless]);
-		}
-
-		SetWindowPos(_hWnd, nullptr, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
-		ShowWindow(_hWnd, SW_SHOW);
+	if (newStyle == oldStyle) {
+		return;
 	}
+
+	SetWindowLongW(_hWnd, GWL_STYLE, static_cast<LONG>(newStyle));
+
+	if (compositionEnabled) {
+		constexpr MARGINS shadowState[2] = { {0, 0, 0, 0}, {1, 1, 1, 1} };
+		DwmExtendFrameIntoClientArea(_hWnd, &shadowState[borderless]);
+	}
+
+	SetWindowPos(_hWnd, nullptr, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
+	ShowWindow(_hWnd, SW_SHOW);
 }
 
 void Window::Show() {
 	ShowWindow(_hWnd, SW_SHOWDEFAULT);
 	UpdateWindow(_hWnd);
+
+	if (_style != WindowStyle::Normal)
+		SetWindowStyle(_style);
 }
 
 void Window::Hide() {
@@ -183,13 +177,6 @@ void Window::GetBounds(Rect* bounds) {
 		rect.left
 	};
 }
-
-/*bool Window::GetMaximized() {
-	WINDOWPLACEMENT placement;
-	if (GetWindowPlacement(_hWnd, &placement))
-		return false;
-	return placement.showCmd == SW_MAXIMIZE;
-}*/
 
 autostr Window::GetTitle() {
 	const auto length = GetWindowTextLength(_hWnd);

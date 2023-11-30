@@ -2,9 +2,8 @@
 
 #include <dwmapi.h>
 #include <future>
+#include <iostream>
 #include <map>
-
-#pragma comment(lib, "Dwmapi.lib")
 
 using namespace Gluino;
 
@@ -52,38 +51,12 @@ HINSTANCE App::GetHInstance() {
 	return appWin32->_hInstance;
 }
 
-void ApplyMica(const HWND hWnd, bool enabled) {
-	constexpr MARGINS margins = { -1, -1, -1, -1 };
-	DwmExtendFrameIntoClientArea(hWnd, &margins);
-
-	constexpr BOOL mode = TRUE;
-	DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &mode, sizeof mode);
-
-	constexpr DWM_SYSTEMBACKDROP_TYPE value = DWMSBT_MAINWINDOW;
-	DwmSetWindowAttribute(hWnd, DWMWA_SYSTEMBACKDROP_TYPE, &value, sizeof value);
-
-	constexpr BOOL bkdbrush = TRUE;
-	DwmSetWindowAttribute(hWnd, DWMWA_USE_HOSTBACKDROPBRUSH, &bkdbrush, sizeof bkdbrush);
-}
-
 LRESULT App::WndProc(const HWND hWnd, const UINT msg, const WPARAM wParam, const LPARAM lParam) {
 	const auto window = windowMap[hWnd];
 
 	switch (msg) {
-		case WM_CREATE: {
-			ApplyMica(hWnd, true);
-			break;
-		}
-		case WM_PAINT: {
-			PAINTSTRUCT ps;
-			const HDC hdc = BeginPaint(hWnd, &ps);
-
-			FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
-			EndPaint(hWnd, &ps);
-			return 0;
-		}
 		case WM_DESTROY: {
-			if (windowMap.find(hWnd) != windowMap.end())
+			if (windowMap.contains(hWnd))
 				appWin32->DespawnWindow(windowMap[hWnd]);
 			break;
 		}
@@ -95,12 +68,11 @@ LRESULT App::WndProc(const HWND hWnd, const UINT msg, const WPARAM wParam, const
 			promise->set_value();
 			return 0;
 		}
-		default: {
-			if (window)
-				return window->WndProc(msg, wParam, lParam);
-			break;
-		}
+		default: break;
 	}
+
+	if (window)
+		return window->WndProc(msg, wParam, lParam);
 
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }

@@ -8,8 +8,6 @@
 #include <Windows.h>
 #include <dwmapi.h>
 
-#pragma comment(lib, "dwmapi.lib")
-
 namespace Gluino {
 
 class Window final : public WindowBase {
@@ -25,7 +23,6 @@ public:
 
 	HWND GetHandle() const { return _hWnd; }
 	LRESULT WndProc(UINT msg, WPARAM wParam, LPARAM lParam);
-	void AdjustMaximizedClientRect(RECT& rect);
 	void SetBorderlessStyle(bool borderless) const;
 
 	void Show() override;

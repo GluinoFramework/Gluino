@@ -10,7 +10,6 @@
 namespace Gluino {
 
 #ifdef _WIN32
-#define WM_USER_INVOKE (WM_USER + 0x0002)
 #define EXPORT __declspec(dllexport)
 
 typedef wchar_t* autostr;

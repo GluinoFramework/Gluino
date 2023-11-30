@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Platform">
-      <UniqueIdentifier>{c41db159-a21d-47b8-97fe-8fa621e513f5}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\common.h">
@@ -30,13 +27,16 @@
     <ClInclude Include="include\app_base.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\window_events.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\platform\win32\app.h">
-      <Filter>Header Files\Platform</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\platform\win32\window.h">
-      <Filter>Header Files\Platform</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\window_events.h">
+    <ClInclude Include="src\platform\win32\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -48,6 +48,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\platform\win32\app.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platform\win32\utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

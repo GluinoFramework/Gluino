@@ -3,10 +3,15 @@
 #ifndef GLUINO_APP_H
 #define GLUINO_APP_H
 
+#include "utils.h"
 #include "app_base.h"
 #include "window.h"
 
 #include <Windows.h>
+
+#pragma comment(lib, "Dwmapi.lib")
+
+#define WM_USER_INVOKE (WM_USER + 0x0002)
 
 namespace Gluino {
 

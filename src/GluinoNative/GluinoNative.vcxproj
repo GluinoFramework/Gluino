@@ -26,10 +26,12 @@
     <ClInclude Include="include\window_base.h" />
     <ClInclude Include="include\window_events.h" />
     <ClInclude Include="include\window_options.h" />
+    <ClInclude Include="src\platform\win32\utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\exports.cpp" />
     <ClCompile Include="src\platform\win32\app.cpp" />
+    <ClCompile Include="src\platform\win32\utils.cpp" />
     <ClCompile Include="src\platform\win32\window.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -37,7 +39,7 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{7eebda8b-6d58-41fe-aa3d-23081deca060}</ProjectGuid>
     <RootNamespace>GluinoLib</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>GluinoNative</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -61,7 +63,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -89,8 +91,13 @@
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <PublicIncludeDirectories>
     </PublicIncludeDirectories>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)include;$(ProjectDir)include\platform\win32;$(PublicIncludeDirectories)</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)include;$(ProjectDir)include\platform\win32;$(ProjectDir)src\platform\win32;$(PublicIncludeDirectories)</IncludePath>
     <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)include;$(ProjectDir)include\platform\win32;$(ProjectDir)src\platform\win32;</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -128,6 +135,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,6 +155,7 @@ copy $(OutDir)GluinoNative.pdb $(SolutionDir)dev\TestApp\bin\Debug\net8.0\
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
