@@ -20,6 +20,7 @@ public partial class Window
     public event EventHandler Hidden;
     public event EventHandler<Size> SizeChanged;
     public event EventHandler<Point> LocationChanged;
+    public event EventHandler<WindowStateChangedEventArgs> WindowStateChanged; 
     public event EventHandler FocusIn;
     public event EventHandler FocusOut;
     public event EventHandler<WindowClosingEventArgs> Closing;
@@ -29,8 +30,12 @@ public partial class Window
     {
         _managedWindowThreadId = Environment.CurrentManagedThreadId;
         _nativeOptions = new() {
-            WindowStyle = WindowStyle.Normal,
+            BorderStyle = WindowBorderStyle.Normal,
             WindowState = WindowState.Normal,
+            MaximumSize = new() {
+                Width = int.MaxValue,
+                Height = int.MaxValue
+            },
             Size = new() {
                 Width = 800, 
                 Height = 600
@@ -48,6 +53,7 @@ public partial class Window
             OnHidden = InvokeHidden,
             OnSizeChanged = InvokeSizeChanged,
             OnLocationChanged = InvokeLocationChanged,
+            OnWindowStateChanged = InvokeWindowStateChanged,
             OnFocusIn = InvokeFocusIn,
             OnFocusOut = InvokeFocusOut,
             OnClosing = InvokeClosing,
@@ -60,14 +66,64 @@ public partial class Window
         set => SetTitle(value);
     }
 
-    public WindowStyle WindowStyle {
-        get => GetWindowStyle();
-        set => SetWindowStyle(value);
+    public WindowBorderStyle BorderStyle {
+        get => GetBorderStyle();
+        set => SetBorderStyle(value);
     }
 
     public WindowState WindowState {
         get => GetWindowState();
         set => SetWindowState(value);
+    }
+
+    public Size MinimumSize {
+        get => GetMinimumSize().ToManaged();
+        set => SetMinimumSize(value.ToNative());
+    }
+
+    public Size MaximumSize {
+        get => GetMaximumSize().ToManaged();
+        set => SetMaximumSize(value.ToNative());
+    }
+
+    public Size Size {
+        get => GetSize().ToManaged();
+        set => SetSize(value.ToNative());
+    }
+
+    public int Width {
+        get => GetSize().Width;
+        set => SetSize(new() { Width = value, Height = GetSize().Height });
+    }
+
+    public int Height {
+        get => GetSize().Height;
+        set => SetSize(new() { Width = GetSize().Width, Height = value });
+    }
+
+    public Point Location {
+        get => GetLocation().ToManaged();
+        set => SetLocation(value.ToNative());
+    }
+
+    public int X {
+        get => GetLocation().X;
+        set => SetLocation(new() { X = value, Y = GetLocation().Y });
+    }
+
+    public int Y {
+        get => GetLocation().Y;
+        set => SetLocation(new() { X = GetLocation().X, Y = value });
+    }
+
+    public WindowStartupLocation StartupLocation {
+        get => _nativeOptions.StartupLocation;
+        set => _nativeOptions.StartupLocation = value;
+    }
+
+    public bool TopMost {
+        get => GetTopMost();
+        set => SetTopMost(value);
     }
 
     internal bool IsMain {
@@ -151,6 +207,7 @@ public partial class Window
     protected virtual void OnHidden(EventArgs e) { }
     protected virtual void OnSizeChanged(Size e) { }
     protected virtual void OnLocationChanged(Point e) { }
+    protected virtual void OnWindowStateChanged(WindowStateChangedEventArgs e) { }
     protected virtual void OnFocusIn(EventArgs e) { }
     protected virtual void OnFocusOut(EventArgs e) { }
     protected virtual void OnClosing(WindowClosingEventArgs e) { }
@@ -190,6 +247,12 @@ public partial class Window
     {
         OnLocationChanged(new(e.X, e.Y));
         LocationChanged?.Invoke(this, new(e.X, e.Y));
+    }
+
+    private void InvokeWindowStateChanged(int e)
+    {
+        OnWindowStateChanged(new((WindowState)e));
+        WindowStateChanged?.Invoke(this, new((WindowState)e));
     }
 
     private void InvokeFocusIn()

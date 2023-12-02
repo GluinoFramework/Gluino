@@ -12,6 +12,7 @@ struct WindowEvents {
 	Delegate* OnHidden;
 	SizeDelegate* OnSizeChanged;
 	PointDelegate* OnLocationChanged;
+	IntDelegate* OnWindowStateChanged;
 	Delegate* OnFocusIn;
 	Delegate* OnFocusOut;
 	Predicate* OnClosing;

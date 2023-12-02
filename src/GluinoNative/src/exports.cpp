@@ -35,9 +35,24 @@ extern "C" {
 	EXPORT autostr Gluino_Window_GetTitle(WindowBase* window) { return window->GetTitle(); }
 	EXPORT void Gluino_Window_SetTitle(WindowBase* window, const autostr title) { window->SetTitle(title); }
 
-	EXPORT WindowStyle Gluino_Window_GetWindowStyle(WindowBase* window) { return window->GetWindowStyle(); }
-	EXPORT void Gluino_Window_SetWindowStyle(WindowBase* window, const WindowStyle style) { window->SetWindowStyle(style); }
+	EXPORT WindowBorderStyle Gluino_Window_GetBorderStyle(WindowBase* window) { return window->GetBorderStyle(); }
+	EXPORT void Gluino_Window_SetBorderStyle(WindowBase* window, const WindowBorderStyle style) { window->SetBorderStyle(style); }
 
 	EXPORT WindowState Gluino_Window_GetWindowState(WindowBase* window) { return window->GetWindowState(); }
 	EXPORT void Gluino_Window_SetWindowState(WindowBase* window, const WindowState state) { window->SetWindowState(state); }
+
+	EXPORT Size Gluino_Window_GetMinimumSize(WindowBase* window) { return window->GetMinimumSize(); }
+	EXPORT void Gluino_Window_SetMinimumSize(WindowBase* window, Size size) { window->SetMinimumSize(size); }
+
+	EXPORT Size Gluino_Window_GetMaximumSize(WindowBase* window) { return window->GetMaximumSize(); }
+	EXPORT void Gluino_Window_SetMaximumSize(WindowBase* window, Size size) { window->SetMaximumSize(size); }
+
+	EXPORT Size Gluino_Window_GetSize(WindowBase* window) { return window->GetSize(); }
+	EXPORT void Gluino_Window_SetSize(WindowBase* window, Size size) { window->SetSize(size); }
+
+	EXPORT Point Gluino_Window_GetLocation(WindowBase* window) { return window->GetLocation(); }
+	EXPORT void Gluino_Window_SetLocation(WindowBase* window, Point location) { window->SetLocation(location); }
+
+	EXPORT bool Gluino_Window_GetTopMost(WindowBase* window) { return window->GetTopMost(); }
+	EXPORT void Gluino_Window_SetTopMost(WindowBase* window, const bool topMost) { window->SetTopMost(topMost); }
 }

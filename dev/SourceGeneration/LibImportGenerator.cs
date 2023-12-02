@@ -88,7 +88,7 @@ public class LibImportGenerator : ISourceGenerator
             }
 
             var source = GeneratePartialClassSource(namespaceName, className, libName, nativeMethods);
-            context.AddSource($"{className}.Generated", source);
+            context.AddSource($"{className}.Imports", source);
 
             GenerateManagedClassSource(context, libDetailsAttributeData, nativeMethods);
         }
@@ -161,7 +161,7 @@ public class LibImportGenerator : ISourceGenerator
               """;
 
 
-        context.AddSource($"{managedClassName}.Generated", source);
+        context.AddSource($"{managedClassName}.Managed", source);
     }
     
     private string GenerateManagedPropertySource(PropertyData propertyData)

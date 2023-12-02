@@ -20,7 +20,7 @@ typedef wchar_t* autostr;
 typedef char* autostr;
 #endif
 
-enum class WindowStyle {
+enum class WindowBorderStyle {
     Normal,
     Borderless,
     None
@@ -30,6 +30,13 @@ enum class WindowState {
     Normal,
     Minimized,
     Maximized
+};
+
+enum class WindowStartupLocation {
+	Default,
+    CenterScreen,
+    CenterParent,
+    Manual
 };
 
 struct Size {
@@ -58,6 +65,7 @@ typedef bool (*Predicate)();
 typedef void (*SizeDelegate)(Size);
 typedef void (*PointDelegate)(Point);
 typedef void (*StringDelegate)(autostr);
+typedef void (*IntDelegate)(int);
 
 inline autostr CopyStr(autostr source) {
     autostr result;

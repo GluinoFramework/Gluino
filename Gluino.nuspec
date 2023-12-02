@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>Gluino</id>
-    <version>0.0.6</version>
+    <version>0.0.7</version>
     <title>Gluino</title>
     <authors>RyanGDev</authors>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
@@ -24,6 +24,6 @@
 
     <file src="src/GluinoNative/bin/x64/Release/GluinoNative.dll" target="runtimes\win-x64\native\" />
     <file src="src/GluinoNative/bin/x64/Release/GluinoNative.pdb" target="runtimes\win-x64\native\" />
-    <!-- <file src="src/GluinoNative/bin/x64/Release/WebView2Loader.dll" target="runtimes\win-x64\native\" /> -->
+    <file src="src/GluinoNative/bin/x64/Release/WebView2Loader.dll" target="runtimes\win-x64\native\" />
   </files>
 </package>

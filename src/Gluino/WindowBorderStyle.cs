@@ -1,6 +1,6 @@
 ﻿namespace Gluino;
 
-public enum WindowStyle
+public enum WindowBorderStyle
 {
     Normal,
     Borderless,

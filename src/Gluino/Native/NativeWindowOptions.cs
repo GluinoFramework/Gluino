@@ -9,8 +9,12 @@ internal struct NativeWindowOptions
     public bool IsMain;
     [MarshalAs(UnmanagedType.LPWStr)] public string TitleW;
     [MarshalAs(UnmanagedType.LPStr)] public string TitleA;
-    public WindowStyle WindowStyle;
+    public WindowBorderStyle BorderStyle;
     public WindowState WindowState;
+    public NativeSize MinimumSize;
+    public NativeSize MaximumSize;
     public NativeSize Size;
     public NativePoint Location;
+    public WindowStartupLocation StartupLocation;
+    public bool TopMost;
 }

@@ -13,7 +13,13 @@ public static class App
     static App()
     {
         AppHInstance = NativeLibrary.GetMainProgramHandle();
-        NativeInstance = NativeApp.Create(AppHInstance);
+
+        if (Platform.IsWindows) {
+            NativeInstance = NativeApp.Create(AppHInstance);
+        }
+        else {
+            //TODO: NativeInstance = NativeApp.Create();
+        }
     }
     
     public static string Name { get; set; } = Assembly.GetEntryAssembly()?.GetName().Name ?? "Gluino";

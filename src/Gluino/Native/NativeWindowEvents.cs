@@ -10,6 +10,7 @@ internal struct NativeWindowEvents
     [MarshalAs(UnmanagedType.FunctionPtr)] public NativeDelegate OnHidden;
     [MarshalAs(UnmanagedType.FunctionPtr)] public NativeSizeDelegate OnSizeChanged;
     [MarshalAs(UnmanagedType.FunctionPtr)] public NativePointDelegate OnLocationChanged;
+    [MarshalAs(UnmanagedType.FunctionPtr)] public NativeIntDelegate OnWindowStateChanged;
     [MarshalAs(UnmanagedType.FunctionPtr)] public NativeDelegate OnFocusIn;
     [MarshalAs(UnmanagedType.FunctionPtr)] public NativeDelegate OnFocusOut;
     [MarshalAs(UnmanagedType.FunctionPtr)] public NativePredicate OnClosing;
