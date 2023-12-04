@@ -8,7 +8,6 @@
 namespace Gluino {
 
 struct WindowOptions {
-	wchar_t* ClassName; // Windows only
 	bool IsMain;
 	wchar_t* TitleW;
 	char* TitleA;

@@ -64,7 +64,6 @@ public:
 private:
 	HWND _hWnd;
 	WindowFrame* _frame;
-	wchar_t* _className;
 	WindowState _windowState;
 	Size _minSize;
 	Size _maxSize;

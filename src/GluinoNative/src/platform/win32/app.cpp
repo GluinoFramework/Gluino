@@ -4,15 +4,42 @@
 #include <future>
 #include <iostream>
 #include <map>
+#include <shobjidl_core.h>
 
 using namespace Gluino;
 
 App* app{};
 std::map<HWND, Window*> windowMap{};
 
-App::App(const HINSTANCE hInstance) {
+App::App(const HINSTANCE hInstance, wchar_t* appId) {
 	_hInstance = hInstance;
+	_appId = CopyStr(appId);
+	_wndClassName = ConcatStr(_appId, L"Window");
+
+	SetCurrentProcessExplicitAppUserModelID(_appId);
+
+	WNDCLASSEX wcex;
+	wcex.cbSize = sizeof WNDCLASSEX;
+	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc = WndProc;
+	wcex.cbClsExtra = 0;
+	wcex.cbWndExtra = WS_EX_NOPARENTNOTIFY;
+	wcex.hInstance = _hInstance;
+	wcex.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+	wcex.hIconSm = LoadIcon(nullptr, IDI_WINLOGO);
+	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
+	wcex.lpszMenuName = nullptr;
+	wcex.lpszClassName = _wndClassName;
+
+	RegisterClassEx(&wcex);
+
 	app = this;
+}
+
+App::~App() {
+	delete[] _appId;
+	delete[] _wndClassName;
 }
 
 WindowBase* App::SpawnWindow(WindowOptions* options, WindowEvents* events) {
@@ -49,6 +76,10 @@ void App::Exit() {
 
 HINSTANCE App::GetHInstance() {
 	return app->_hInstance;
+}
+
+wchar_t* App::GetWndClassName() {
+	return app->_wndClassName;
 }
 
 LRESULT App::WndProc(const HWND hWnd, const UINT msg, const WPARAM wParam, const LPARAM lParam) {

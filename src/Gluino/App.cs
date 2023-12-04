@@ -15,7 +15,7 @@ public static class App
         AppHInstance = NativeLibrary.GetMainProgramHandle();
 
         if (Platform.IsWindows) {
-            NativeInstance = NativeApp.Create(AppHInstance);
+            NativeInstance = NativeApp.Create(AppHInstance, GetAppId());
         }
         else {
             //TODO: NativeInstance = NativeApp.Create();
@@ -34,10 +34,6 @@ public static class App
     {
         if (MainWindow != null)
             throw new InvalidOperationException("The application is already running");
-        
-        if (Platform.IsWindows) {
-            SetWin32AppId();
-        }
 
         MainWindow = mainWindow;
         MainWindow.IsMain = true;
@@ -53,11 +49,11 @@ public static class App
 
         NativeApp.Exit(NativeInstance);
     }
-    
-    private static void SetWin32AppId()
+
+    private static string GetAppId()
     {
         var ass = Assembly.GetEntryAssembly();
-        if (ass == null) return;
+        if (ass == null) return Name;
         var companyAttr = ass.GetCustomAttribute<AssemblyCompanyAttribute>();
         var productAttr = ass.GetCustomAttribute<AssemblyProductAttribute>();
         var titleAttr = ass.GetCustomAttribute<AssemblyTitleAttribute>();
@@ -67,6 +63,6 @@ public static class App
             titleAttr?.Title
         }.Where(x => x != null));
 
-        NativeApp.SetCurrentProcessExplicitAppUserModelID(string.IsNullOrEmpty(id) || string.IsNullOrWhiteSpace(id) ? Name : id);
+        return string.IsNullOrEmpty(id) || string.IsNullOrWhiteSpace(id) ? Name : id;
     }
 }

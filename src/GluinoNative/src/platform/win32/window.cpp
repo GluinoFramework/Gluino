@@ -13,34 +13,17 @@ using namespace Microsoft::WRL;
 using namespace Gluino;
 
 Window::Window(WindowOptions* options, const WindowEvents* events) : WindowBase(options, events) {
-    _className = CopyStr(options->ClassName);
     _title = CopyStr(options->TitleW);
 	_windowState = options->WindowState;
 	_minSize = options->MinimumSize;
 	_maxSize = options->MaximumSize;
-
-    WNDCLASSEX wcex;
-    wcex.cbSize = sizeof WNDCLASSEX;
-    wcex.style = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc = App::WndProc;
-    wcex.cbClsExtra = 0;
-    wcex.cbWndExtra = WS_EX_NOPARENTNOTIFY;
-    wcex.hInstance = App::GetHInstance();
-    wcex.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
-    wcex.hIconSm = LoadIcon(nullptr, IDI_WINLOGO);
-    wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
-    wcex.lpszMenuName = nullptr;
-    wcex.lpszClassName = _className;
-
-    RegisterClassEx(&wcex);
 
 	const auto x = options->StartupLocation == WindowStartupLocation::Default ? CW_USEDEFAULT : options->Location.x;
 	const auto y = options->StartupLocation == WindowStartupLocation::Default ? CW_USEDEFAULT : options->Location.y;
 
     _hWnd = CreateWindowEx(
         WS_EX_NOREDIRECTIONBITMAP,
-        _className,
+        App::GetWndClassName(),
         _title,
         WS_OVERLAPPEDWINDOW,
         x,
@@ -67,7 +50,6 @@ Window::Window(WindowOptions* options, const WindowEvents* events) : WindowBase(
 
 
 Window::~Window() {
-	delete[] _className;
 	delete[] _title;
 }
 

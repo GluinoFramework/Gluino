@@ -9,7 +9,7 @@ using namespace Gluino;
 
 extern "C" {
 #ifdef _WIN32
-	EXPORT AppBase* Gluino_App_Create(const HINSTANCE hInstance) { return new App(hInstance); }
+	EXPORT AppBase* Gluino_App_Create(const HINSTANCE hInstance, const autostr appId) { return new App(hInstance, appId); }
 #endif
 
 	EXPORT void Gluino_App_Destroy(const AppBase* app) { delete app; }

@@ -146,12 +146,7 @@ public partial class Window
     {
         if (_nativeInstance == nint.Zero) {
             InvokeCreating();
-
-            if (App.Platform.IsWindows) {
-                _nativeOptions.ClassName = $"{App.Name}.Window.{App.WindowCount}";
-                App.WindowCount++;
-            }
-
+            
             _nativeInstance = NativeApp.SpawnWindow(App.NativeInstance, ref _nativeOptions, ref _nativeEvents);
             App.ActiveWindows.Add(this);
 
