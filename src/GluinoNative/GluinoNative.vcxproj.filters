@@ -39,6 +39,9 @@
     <ClInclude Include="src\platform\win32\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\platform\win32\window_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\exports.cpp">
@@ -51,6 +54,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\platform\win32\utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platform\win32\window_frame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

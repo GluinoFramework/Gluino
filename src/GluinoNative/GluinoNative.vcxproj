@@ -23,6 +23,7 @@
     <ClInclude Include="include\common.h" />
     <ClInclude Include="include\platform\win32\app.h" />
     <ClInclude Include="include\platform\win32\window.h" />
+    <ClInclude Include="include\platform\win32\window_frame.h" />
     <ClInclude Include="include\window_base.h" />
     <ClInclude Include="include\window_events.h" />
     <ClInclude Include="include\window_options.h" />
@@ -33,6 +34,7 @@
     <ClCompile Include="src\platform\win32\app.cpp" />
     <ClCompile Include="src\platform\win32\utils.cpp" />
     <ClCompile Include="src\platform\win32\window.cpp" />
+    <ClCompile Include="src\platform\win32\window_frame.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

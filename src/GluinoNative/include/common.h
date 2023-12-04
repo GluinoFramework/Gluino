@@ -5,6 +5,8 @@
 
 #ifdef _WIN32
 #include <wchar.h>
+#else
+#include <cstring>
 #endif
 
 namespace Gluino {
@@ -14,7 +16,6 @@ namespace Gluino {
 
 typedef wchar_t* autostr;
 #else
-#include <cstring>
 
 #define EXPORT
 typedef char* autostr;
@@ -33,10 +34,21 @@ enum class WindowState {
 };
 
 enum class WindowStartupLocation {
-	Default,
+    Default,
     CenterScreen,
     CenterParent,
     Manual
+};
+
+enum class WindowEdge {
+    Top,
+    Bottom,
+    Left,
+    Right,
+    TopLeft,
+    TopRight,
+    BottomLeft,
+    BottomRight
 };
 
 struct Size {
@@ -50,14 +62,10 @@ struct Point {
 };
 
 struct Rect {
-    int width;
-    int height;
     int x;
     int y;
-    int top;
-    int right;
-    int bottom;
-    int left;
+    int width;
+    int height;
 };
 
 typedef void (*Delegate)();
@@ -81,11 +89,7 @@ inline autostr CopyStr(autostr source) {
 #else
     size_t len = strlen(source) + 1;
     result = new char[len];
-    errno_t err = strcpy_s(result, len, source);
-    if (err != 0) {
-        delete[] result;
-        result = nullptr;
-    }
+    strcpy(result, source);
 #endif
 
     return result;

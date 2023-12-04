@@ -1,8 +1,10 @@
 #include "app.h"
 #include "window.h"
+#include "window_frame.h"
 
 #include <future>
 #include <algorithm>
+#include <iostream>
 #include <shlobj.h>
 #include <wrl.h>
 
@@ -50,7 +52,11 @@ Window::Window(WindowOptions* options, const WindowEvents* events) : WindowBase(
     ApplyWindowStyle(_hWnd, true);
 
 	SetWindowState(options->WindowState);
+
+	_frame = new WindowFrame(_hWnd);
 }
+
+
 
 Window::~Window() {
 	delete[] _className;
@@ -71,7 +77,11 @@ LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam
 			break;
 		}
 		case WM_SIZE: {
+			if (_borderStyle == WindowBorderStyle::Borderless)
+				_frame->Update();
+
 			RefitWebView();
+			
 			_onSizeChanged(GetSize());
 
 			if (LOWORD(wParam) == SIZE_MAXIMIZED)      _onWindowStateChanged((int)WindowState::Maximized);
@@ -218,11 +228,7 @@ void Window::GetBounds(Rect* bounds) {
 		rect.right - rect.left,
 		rect.bottom - rect.top,
 		rect.left,
-		rect.top,
-		rect.top,
-		rect.right,
-		rect.bottom,
-		rect.left
+		rect.top
 	};
 }
 
@@ -244,12 +250,17 @@ WindowBorderStyle Window::GetBorderStyle() {
 }
 
 void Window::SetBorderStyle(const WindowBorderStyle style) {
-	if (style == WindowBorderStyle::Borderless)
+	if (style == WindowBorderStyle::Borderless) {
 		SetBorderlessStyle(true);
-	else if (_borderStyle == WindowBorderStyle::Borderless && style != WindowBorderStyle::Borderless)
+		_frame->Attach();
+	}
+	else if (_borderStyle == WindowBorderStyle::Borderless && style != WindowBorderStyle::Borderless) {
 		SetBorderlessStyle(false);
+		_frame->Detach();
+	}
 	else if (style == WindowBorderStyle::None) {
 		//TODO
+		_frame->Attach();
 	}
 
 	_borderStyle = style;	
@@ -404,7 +415,7 @@ HRESULT Window::OnWebView2CreateControllerCompleted(HRESULT result, ICoreWebView
 \n\
     html, body {\n\
       background-color: transparent;\n\
-      color: white;\n\
+      color: pink;\n\
       font-family: \"Segoe UI\", sans-serif;\n\
       font-size: 14px;\n\
       font-weight: 400;\n\

@@ -4,6 +4,7 @@
 #define GLUINO_WINDOW_H
 
 #include "window_base.h"
+
 #include <Windows.h>
 #include <dwmapi.h>
 #include <wil/com.h>
@@ -14,16 +15,12 @@
 
 namespace Gluino {
 
+class WindowFrame;
+
 class Window final : public WindowBase {
 public:
 	explicit Window(WindowOptions* options, const WindowEvents* events);
 	~Window() override;
-
-	static bool IsCompositionEnabled() {
-		BOOL enabled = FALSE;
-		const auto success = DwmIsCompositionEnabled(&enabled) == S_OK;
-		return enabled && success;
-	}
 
 	HWND GetHandle() const { return _hWnd; }
 	LRESULT WndProc(UINT msg, WPARAM wParam, LPARAM lParam);
@@ -68,6 +65,7 @@ private:
 	HWND _hWnd;
 	Size _minSize;
 	Size _maxSize;
+	WindowFrame* _frame;
 
 	wil::com_ptr<ICoreWebView2>            _webview;
 	wil::com_ptr<ICoreWebView2Environment> _webviewEnv;

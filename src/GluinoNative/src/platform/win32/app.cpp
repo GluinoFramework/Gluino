@@ -7,12 +7,12 @@
 
 using namespace Gluino;
 
-App* appWin32{};
+App* app{};
 std::map<HWND, Window*> windowMap{};
 
 App::App(const HINSTANCE hInstance) {
 	_hInstance = hInstance;
-	appWin32 = this;
+	app = this;
 }
 
 WindowBase* App::SpawnWindow(WindowOptions* options, WindowEvents* events) {
@@ -48,7 +48,7 @@ void App::Exit() {
 }
 
 HINSTANCE App::GetHInstance() {
-	return appWin32->_hInstance;
+	return app->_hInstance;
 }
 
 LRESULT App::WndProc(const HWND hWnd, const UINT msg, const WPARAM wParam, const LPARAM lParam) {
@@ -57,7 +57,7 @@ LRESULT App::WndProc(const HWND hWnd, const UINT msg, const WPARAM wParam, const
 	switch (msg) {
 		case WM_DESTROY: {
 			if (windowMap.contains(hWnd))
-				appWin32->DespawnWindow(windowMap[hWnd]);
+				app->DespawnWindow(windowMap[hWnd]);
 			break;
 		}
 		case WM_USER_INVOKE: {
