@@ -70,4 +70,10 @@ internal partial class NativeWindow
 
     [LibImport("Gluino_Window_SetTopMost", Managed = true, Property = PS, Option = nameof(NativeWindowOptions.TopMost))]
     public static partial void SetTopMost(nint window, bool topMost);
+
+    [LibImport("Gluino_Window_GetResizable", Managed = true, Property = PG, Option = nameof(NativeWindowOptions.Resizable))]
+    public static partial bool GetResizable(nint window);
+
+    [LibImport("Gluino_Window_SetResizable", Managed = true, Property = PS, Option = nameof(NativeWindowOptions.Resizable))]
+    public static partial void SetResizable(nint window, bool resizable);
 }

@@ -43,7 +43,8 @@ public partial class Window
             Location = new() {
                 X = CW_USEDEFAULT, 
                 Y = CW_USEDEFAULT
-            }
+            },
+            Resizable = true
         };
 
         Title = "Window";
@@ -124,6 +125,11 @@ public partial class Window
     public bool TopMost {
         get => GetTopMost();
         set => SetTopMost(value);
+    }
+
+    public bool Resizable {
+        get => GetResizable();
+        set => SetResizable(value);
     }
 
     internal bool IsMain {

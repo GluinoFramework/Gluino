@@ -67,6 +67,9 @@ public:
 	virtual bool GetTopMost() = 0;
 	virtual void SetTopMost(bool topMost) = 0;
 
+	virtual bool GetResizable() = 0;
+	virtual void SetResizable(bool resizable) = 0;
+
 protected:
 	bool _isMain;
 	autostr _title;

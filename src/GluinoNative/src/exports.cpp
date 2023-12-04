@@ -55,4 +55,7 @@ extern "C" {
 
 	EXPORT bool Gluino_Window_GetTopMost(WindowBase* window) { return window->GetTopMost(); }
 	EXPORT void Gluino_Window_SetTopMost(WindowBase* window, const bool topMost) { window->SetTopMost(topMost); }
+
+	EXPORT bool Gluino_Window_GetResizable(WindowBase* window) { return window->GetResizable(); }
+	EXPORT void Gluino_Window_SetResizable(WindowBase* window, const bool resizable) { window->SetResizable(resizable); }
 }

@@ -17,10 +17,12 @@ public:
 	void Attach();
 	void Detach() const;
 	void Update() const;
-	Rect GetEdgeRect(WindowEdge edge) const;
+
 private:
 	HWND _hWndWindow;
 	std::vector<HWND> _hWndEdges;
+
+	Rect GetEdgeRect(WindowEdge edge) const;
 
 	LRESULT CALLBACK WndFrameEdgeProc(HWND hWnd, WindowEdge edge, UINT msg, WPARAM wParam, LPARAM lParam) const;
 	static LRESULT CALLBACK WndFrameProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

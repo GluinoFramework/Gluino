@@ -6,7 +6,7 @@ namespace Gluino.Native;
 internal struct NativeWindowOptions
 {
     [MarshalAs(UnmanagedType.LPWStr)] public string ClassName;
-    public bool IsMain;
+    [MarshalAs(UnmanagedType.I1)] public bool IsMain;
     [MarshalAs(UnmanagedType.LPWStr)] public string TitleW;
     [MarshalAs(UnmanagedType.LPStr)] public string TitleA;
     public WindowBorderStyle BorderStyle;
@@ -16,5 +16,6 @@ internal struct NativeWindowOptions
     public NativeSize Size;
     public NativePoint Location;
     public WindowStartupLocation StartupLocation;
-    public bool TopMost;
+    [MarshalAs(UnmanagedType.I1)] public bool TopMost;
+    [MarshalAs(UnmanagedType.I1)] public bool Resizable;
 }

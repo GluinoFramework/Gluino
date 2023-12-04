@@ -6,7 +6,6 @@
 #include "window_base.h"
 
 #include <Windows.h>
-#include <dwmapi.h>
 #include <wil/com.h>
 #include <WebView2.h>
 
@@ -60,12 +59,17 @@ public:
 	bool GetTopMost() override;
 	void SetTopMost(bool topMost) override;
 
+	bool GetResizable() override;
+	void SetResizable(bool resizable) override;
+
 private:
-	wchar_t* _className;
 	HWND _hWnd;
+	WindowFrame* _frame;
+	wchar_t* _className;
+	WindowState _windowState;
 	Size _minSize;
 	Size _maxSize;
-	WindowFrame* _frame;
+	bool _resizable;
 
 	wil::com_ptr<ICoreWebView2>            _webview;
 	wil::com_ptr<ICoreWebView2Environment> _webviewEnv;
