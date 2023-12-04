@@ -22,8 +22,10 @@ typedef char* autostr;
 #endif
 
 enum class WindowBorderStyle {
-    Normal,
-    Borderless,
+    Sizable,
+    SizableNoCaption,
+    Fixed,
+    FixedNoCaption,
     None
 };
 

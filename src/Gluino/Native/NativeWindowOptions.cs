@@ -17,5 +17,4 @@ internal struct NativeWindowOptions
     public NativePoint Location;
     public WindowStartupLocation StartupLocation;
     [MarshalAs(UnmanagedType.I1)] public bool TopMost;
-    [MarshalAs(UnmanagedType.I1)] public bool Resizable;
 }

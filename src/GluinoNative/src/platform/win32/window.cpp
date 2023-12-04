@@ -56,23 +56,9 @@ Window::Window(WindowOptions* options, const WindowEvents* events) : WindowBase(
     InitDarkModeSupport();
     ApplyWindowStyle(_hWnd, true);
 
-	if (options->StartupLocation == WindowStartupLocation::CenterScreen) {
-		const auto screenDpi = GetDpiForWindow(_hWnd);
-		const auto screenWidth = GetSystemMetricsForDpi(SM_CXSCREEN, screenDpi);
-		const auto screenHeight = GetSystemMetricsForDpi(SM_CYSCREEN, screenDpi);
+	if (options->StartupLocation == WindowStartupLocation::CenterScreen)
+		Center();
 
-		RECT wndRect = {};
-		GetWindowRect(_hWnd, &wndRect);
-		const auto wndWidth = wndRect.right - wndRect.left;
-		const auto wndHeight = wndRect.bottom - wndRect.top;
-		const auto wndX = (screenWidth - wndWidth) / 2;
-		const auto wndY = (screenHeight - wndHeight) / 2;
-		Point loc = { wndX, wndY };
-
-		SetLocation(loc);
-	}
-
-	SetResizable(options->Resizable);
 	SetTopMost(options->TopMost);
 
 	_frame = new WindowFrame(_hWnd);
@@ -99,7 +85,8 @@ LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam
 			break;
 		}
 		case WM_SIZE: {
-			if (_borderStyle == WindowBorderStyle::Borderless)
+			if (_borderStyle == WindowBorderStyle::SizableNoCaption || 
+				_borderStyle == WindowBorderStyle::FixedNoCaption)
 				_frame->Update();
 
 			RefitWebView();
@@ -137,7 +124,9 @@ LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam
 			break;
 		}
 		case WM_NCCALCSIZE: {
-			if (wParam == TRUE && _borderStyle == WindowBorderStyle::Borderless) {
+			if (wParam == TRUE && 
+				_borderStyle == WindowBorderStyle::SizableNoCaption || 
+				_borderStyle == WindowBorderStyle::FixedNoCaption) {
 				auto& [rgrc, _] = *reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
 				AdjustMaximizedClientRect(_hWnd, rgrc[0]);
 				return 0;
@@ -200,7 +189,8 @@ void Window::RefitWebView() const {
 
 	RECT bounds;
 	GetClientRect(_hWnd, &bounds);
-	if (_borderStyle == WindowBorderStyle::Borderless) {
+	if (_borderStyle == WindowBorderStyle::SizableNoCaption || 
+		_borderStyle == WindowBorderStyle::FixedNoCaption) {
 		bounds.top += 1;
 		bounds.left += 1;
 		bounds.right -= 1;
@@ -221,11 +211,9 @@ void Window::Show() {
 	UpdateWindow(_hWnd);
 
 	if (_windowState != WindowState::Normal)
-	if (_windowState != WindowState::Normal)
 		SetWindowState(_windowState);
 
-	if (_borderStyle != WindowBorderStyle::Normal)
-		SetBorderStyle(_borderStyle);
+	SetBorderStyle(_borderStyle);
 
 	AttachWebView();
 }
@@ -236,6 +224,27 @@ void Window::Hide() {
 
 void Window::Close() {
 	PostMessage(_hWnd, WM_CLOSE, 0, 0);
+}
+
+void Window::Center() {
+	const auto screenDpi = GetDpiForWindow(_hWnd);
+	const auto screenWidth = GetSystemMetricsForDpi(SM_CXSCREEN, screenDpi);
+	const auto screenHeight = GetSystemMetricsForDpi(SM_CYSCREEN, screenDpi);
+
+	RECT wndRect = {};
+	GetWindowRect(_hWnd, &wndRect);
+	const auto wndWidth = wndRect.right - wndRect.left;
+	const auto wndHeight = wndRect.bottom - wndRect.top;
+	const auto wndX = (screenWidth - wndWidth) / 2;
+	const auto wndY = (screenHeight - wndHeight) / 2;
+	Point loc = { wndX, wndY };
+
+	SetLocation(loc);
+}
+
+void Window::DragMove() {
+	ReleaseCapture();
+	PostMessage(_hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
 }
 
 void Window::Invoke(Delegate action) {
@@ -277,17 +286,27 @@ WindowBorderStyle Window::GetBorderStyle() {
 }
 
 void Window::SetBorderStyle(const WindowBorderStyle style) {
-	if (style == WindowBorderStyle::Borderless) {
+	if (style == WindowBorderStyle::SizableNoCaption ||
+		style == WindowBorderStyle::FixedNoCaption) {
 		SetBorderlessStyle(true);
-		if (_resizable)	_frame->Attach();
+		if (style == WindowBorderStyle::SizableNoCaption)
+			_frame->Attach();
 	}
-	else if (_borderStyle == WindowBorderStyle::Borderless && style != WindowBorderStyle::Borderless) {
+	else if (style == WindowBorderStyle::Sizable || 
+			 style == WindowBorderStyle::Fixed) {
 		SetBorderlessStyle(false);
 		_frame->Detach();
+
+		const auto wndStyle = GetWindowLongPtr(_hWnd, GWL_STYLE);
+		if (style == WindowBorderStyle::Sizable) {
+			SetWindowLongPtr(_hWnd, GWL_STYLE, wndStyle | WS_THICKFRAME);
+		}
+		else if (style == WindowBorderStyle::Fixed) {
+			SetWindowLongPtr(_hWnd, GWL_STYLE, wndStyle & ~WS_THICKFRAME);
+		}
 	}
 	else if (style == WindowBorderStyle::None) {
 		//TODO
-		if (_resizable)	_frame->Attach();
 	}
 
 	_borderStyle = style;	
@@ -298,29 +317,20 @@ WindowState Window::GetWindowState() {
 	if (GetWindowPlacement(_hWnd, &placement))
 		return WindowState::Normal;
 	switch (placement.showCmd) {
-		case SW_MAXIMIZE:
-			return WindowState::Maximized;
-		case SW_MINIMIZE:
-			return WindowState::Minimized;
-		default:
-			return WindowState::Normal;
+		case SW_MAXIMIZE: return WindowState::Maximized;
+		case SW_MINIMIZE: return WindowState::Minimized;
+		default:          return WindowState::Normal;
 	}
 }
 
-void Window::SetWindowState(WindowState state) {
+void Window::SetWindowState(const WindowState state) {
 	WINDOWPLACEMENT placement;
 	if (!GetWindowPlacement(_hWnd, &placement))
 		return;
-	switch (state) { // NOLINT(clang-diagnostic-switch-enum)
-		case WindowState::Maximized:
-			placement.showCmd = SW_MAXIMIZE;
-			break;
-		case WindowState::Minimized:
-			placement.showCmd = SW_MINIMIZE;
-			break;
-		default:
-			placement.showCmd = SW_NORMAL;
-			break;
+	switch (state) {
+		case WindowState::Maximized: placement.showCmd = SW_MAXIMIZE; break;
+		case WindowState::Minimized: placement.showCmd = SW_MINIMIZE; break;
+		case WindowState::Normal:	 placement.showCmd = SW_NORMAL;	  break;
 	}
 	SetWindowPlacement(_hWnd, &placement);
 }
@@ -384,27 +394,6 @@ bool Window::GetTopMost() {
 
 void Window::SetTopMost(const bool topMost) {
     SetWindowPos(_hWnd, topMost ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-}
-
-bool Window::GetResizable() {
-	if (_borderStyle == WindowBorderStyle::Borderless) return _resizable;
-
-	const auto style = GetWindowLongPtr(_hWnd, GWL_STYLE);
-	return (style & WS_THICKFRAME) != 0;
-}
-
-void Window::SetResizable(const bool resizable) {
-	_resizable = resizable;
-
-	if (_borderStyle == WindowBorderStyle::Borderless) return;
-
-	const auto style = GetWindowLongPtr(_hWnd, GWL_STYLE);
-	if (resizable) {
-		SetWindowLongPtr(_hWnd, GWL_STYLE, style | WS_THICKFRAME);
-	}
-	else {
-		SetWindowLongPtr(_hWnd, GWL_STYLE, style & ~WS_THICKFRAME);
-	}
 }
 
 HRESULT Window::OnWebView2CreateEnvironmentCompleted(const HRESULT result, ICoreWebView2Environment* env) {

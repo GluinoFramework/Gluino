@@ -20,7 +20,6 @@ struct WindowOptions {
 	Point Location;
 	WindowStartupLocation StartupLocation;
 	bool TopMost;
-	bool Resizable;
 };
 
 }

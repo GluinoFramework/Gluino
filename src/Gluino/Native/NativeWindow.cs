@@ -17,6 +17,12 @@ internal partial class NativeWindow
     [LibImport("Gluino_Window_Close", Managed = true)]
     public static partial void Close(nint window);
 
+    [LibImport("Gluino_Window_Center", Managed = true)]
+    public static partial void Center(nint window);
+
+    [LibImport("Gluino_Window_DragMove", Managed = true)]
+    public static partial void DragMove(nint window);
+
     [LibImport("Gluino_Window_Invoke")]
     public static partial void Invoke(nint window, NativeDelegate action);
 
@@ -70,10 +76,4 @@ internal partial class NativeWindow
 
     [LibImport("Gluino_Window_SetTopMost", Managed = true, Property = PS, Option = nameof(NativeWindowOptions.TopMost))]
     public static partial void SetTopMost(nint window, bool topMost);
-
-    [LibImport("Gluino_Window_GetResizable", Managed = true, Property = PG, Option = nameof(NativeWindowOptions.Resizable))]
-    public static partial bool GetResizable(nint window);
-
-    [LibImport("Gluino_Window_SetResizable", Managed = true, Property = PS, Option = nameof(NativeWindowOptions.Resizable))]
-    public static partial void SetResizable(nint window, bool resizable);
 }

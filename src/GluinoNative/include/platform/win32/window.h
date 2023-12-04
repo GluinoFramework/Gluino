@@ -31,6 +31,8 @@ public:
 	void Show() override;
 	void Hide() override;
 	void Close() override;
+	void Center() override;
+	void DragMove() override;
 	void Invoke(Delegate action) override;
 
 	void GetBounds(Rect* bounds) override;
@@ -58,9 +60,6 @@ public:
 
 	bool GetTopMost() override;
 	void SetTopMost(bool topMost) override;
-
-	bool GetResizable() override;
-	void SetResizable(bool resizable) override;
 
 private:
 	HWND _hWnd;

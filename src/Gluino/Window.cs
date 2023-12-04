@@ -30,7 +30,7 @@ public partial class Window
     {
         _managedWindowThreadId = Environment.CurrentManagedThreadId;
         _nativeOptions = new() {
-            BorderStyle = WindowBorderStyle.Normal,
+            BorderStyle = WindowBorderStyle.Sizable,
             WindowState = WindowState.Normal,
             MaximumSize = new() {
                 Width = int.MaxValue,
@@ -43,8 +43,7 @@ public partial class Window
             Location = new() {
                 X = CW_USEDEFAULT, 
                 Y = CW_USEDEFAULT
-            },
-            Resizable = true
+            }
         };
 
         Title = "Window";
@@ -126,12 +125,7 @@ public partial class Window
         get => GetTopMost();
         set => SetTopMost(value);
     }
-
-    public bool Resizable {
-        get => GetResizable();
-        set => SetResizable(value);
-    }
-
+    
     internal bool IsMain {
         set {
             if (_nativeInstance == nint.Zero)
@@ -181,6 +175,16 @@ public partial class Window
 
         if (App.MainWindow == this)
             App.Exit();
+    }
+
+    public void Center()
+    {
+        SafeInvoke(() => NativeWindow.Center(_nativeInstance));
+    }
+
+    public void DragMove()
+    {
+        SafeInvoke(() => NativeWindow.DragMove(_nativeInstance));
     }
     
     internal void Invoke(Action action)

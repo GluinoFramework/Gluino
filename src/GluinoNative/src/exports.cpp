@@ -10,8 +10,6 @@ using namespace Gluino;
 extern "C" {
 #ifdef _WIN32
 	EXPORT AppBase* Gluino_App_Create(const HINSTANCE hInstance) { return new App(hInstance); }
-
-	//EXPORT WindowBase* Gluino_Window_Create(WindowOptions* options) { return new Window(options); }
 #endif
 
 	EXPORT void Gluino_App_Destroy(const AppBase* app) { delete app; }
@@ -20,14 +18,11 @@ extern "C" {
 	EXPORT void Gluino_App_Run(AppBase* app) { app->Run(); }
 	EXPORT void Gluino_App_Exit(AppBase* app) { app->Exit(); }
 
-
-
-	//EXPORT void Gluino_Window_Destroy(const WindowBase* window) { delete window; }
-
-
 	EXPORT void Gluino_Window_Show(WindowBase* window) { window->Show(); }
 	EXPORT void Gluino_Window_Hide(WindowBase* window) { window->Hide(); }
 	EXPORT void Gluino_Window_Close(WindowBase* window) { window->Close(); }
+	EXPORT void Gluino_Window_Center(WindowBase* window) { window->Center(); }
+	EXPORT void Gluino_Window_DragMove(WindowBase* window) { window->DragMove(); }
 	EXPORT void Gluino_Window_Invoke(WindowBase* window, const Delegate action) { window->Invoke(action); }
 
 	EXPORT void Gluino_Window_GetBounds(WindowBase* window, Rect* bounds) { window->GetBounds(bounds); }
@@ -55,7 +50,4 @@ extern "C" {
 
 	EXPORT bool Gluino_Window_GetTopMost(WindowBase* window) { return window->GetTopMost(); }
 	EXPORT void Gluino_Window_SetTopMost(WindowBase* window, const bool topMost) { window->SetTopMost(topMost); }
-
-	EXPORT bool Gluino_Window_GetResizable(WindowBase* window) { return window->GetResizable(); }
-	EXPORT void Gluino_Window_SetResizable(WindowBase* window, const bool resizable) { window->SetResizable(resizable); }
 }

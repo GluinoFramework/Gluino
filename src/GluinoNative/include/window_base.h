@@ -39,6 +39,8 @@ public:
 	virtual void Show() = 0;
 	virtual void Hide() = 0;
 	virtual void Close() = 0;
+	virtual void Center() = 0;
+	virtual void DragMove() = 0;
 	virtual void Invoke(Delegate action) = 0;
 
 	virtual void GetBounds(Rect* bounds) = 0;
@@ -66,9 +68,6 @@ public:
 
 	virtual bool GetTopMost() = 0;
 	virtual void SetTopMost(bool topMost) = 0;
-
-	virtual bool GetResizable() = 0;
-	virtual void SetResizable(bool resizable) = 0;
 
 protected:
 	bool _isMain;
