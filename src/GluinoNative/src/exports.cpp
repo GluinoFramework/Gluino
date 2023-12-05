@@ -48,6 +48,12 @@ extern "C" {
 	EXPORT Point Gluino_Window_GetLocation(WindowBase* window) { return window->GetLocation(); }
 	EXPORT void Gluino_Window_SetLocation(WindowBase* window, Point location) { window->SetLocation(location); }
 
+	EXPORT bool Gluino_Window_GetMinimizeEnabled(WindowBase* window) { return window->GetMinimizeEnabled(); }
+	EXPORT void Gluino_Window_SetMinimizeEnabled(WindowBase* window, const bool enabled) { window->SetMinimizeEnabled(enabled); }
+
+	EXPORT bool Gluino_Window_GetMaximizeEnabled(WindowBase* window) { return window->GetMaximizeEnabled(); }
+	EXPORT void Gluino_Window_SetMaximizeEnabled(WindowBase* window, const bool enabled) { window->SetMaximizeEnabled(enabled); }
+
 	EXPORT bool Gluino_Window_GetTopMost(WindowBase* window) { return window->GetTopMost(); }
 	EXPORT void Gluino_Window_SetTopMost(WindowBase* window, const bool topMost) { window->SetTopMost(topMost); }
 }

@@ -6,8 +6,6 @@ namespace Gluino;
 
 public partial class Window
 {
-    private const int CW_USEDEFAULT = unchecked((int)0x80000000);
-
     private readonly int _managedWindowThreadId;
 
     private nint _nativeInstance;
@@ -40,10 +38,8 @@ public partial class Window
                 Width = 800, 
                 Height = 600
             },
-            Location = new() {
-                X = CW_USEDEFAULT, 
-                Y = CW_USEDEFAULT
-            }
+            MinimizeEnabled = true,
+            MaximizeEnabled = true
         };
 
         Title = "Window";
@@ -74,6 +70,12 @@ public partial class Window
     public WindowState WindowState {
         get => GetWindowState();
         set => SetWindowState(value);
+    }
+
+    public WindowStartupLocation StartupLocation
+    {
+        get => _nativeOptions.StartupLocation;
+        set => _nativeOptions.StartupLocation = value;
     }
 
     public Size MinimumSize {
@@ -116,9 +118,14 @@ public partial class Window
         set => SetLocation(new() { X = GetLocation().X, Y = value });
     }
 
-    public WindowStartupLocation StartupLocation {
-        get => _nativeOptions.StartupLocation;
-        set => _nativeOptions.StartupLocation = value;
+    public bool MinimizeEnabled {
+        get => GetMinimizeEnabled();
+        set => SetMinimizeEnabled(value);
+    }
+
+    public bool MaximizeEnabled {
+        get => GetMaximizeEnabled();
+        set => SetMaximizeEnabled(value);
     }
 
     public bool TopMost {

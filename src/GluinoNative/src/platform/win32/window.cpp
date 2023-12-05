@@ -17,6 +17,8 @@ Window::Window(WindowOptions* options, const WindowEvents* events) : WindowBase(
 	_windowState = options->WindowState;
 	_minSize = options->MinimumSize;
 	_maxSize = options->MaximumSize;
+	_minimizeEnabled = options->MinimizeEnabled;
+	_maximizeEnabled = options->MaximizeEnabled;
 
 	const auto x = options->StartupLocation == WindowStartupLocation::Default ? CW_USEDEFAULT : options->Location.x;
 	const auto y = options->StartupLocation == WindowStartupLocation::Default ? CW_USEDEFAULT : options->Location.y;
@@ -41,8 +43,8 @@ Window::Window(WindowOptions* options, const WindowEvents* events) : WindowBase(
 
 	if (options->StartupLocation == WindowStartupLocation::CenterScreen)
 		Center();
-
-	SetTopMost(options->TopMost);
+	if (options->TopMost)
+		SetTopMost(options->TopMost);
 
 	_frame = new WindowFrame(_hWnd);
 }
@@ -67,9 +69,8 @@ LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam
 			break;
 		}
 		case WM_SIZE: {
-			if (_borderStyle == WindowBorderStyle::SizableNoCaption || 
-				_borderStyle == WindowBorderStyle::FixedNoCaption)
-				_frame->Update();
+			// Blocking the thread for 1 millisecond seems to make WebView2 resize smoother
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
 			RefitWebView();
 			
@@ -78,6 +79,12 @@ LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam
 			if (LOWORD(wParam) == SIZE_MAXIMIZED)      _onWindowStateChanged((int)WindowState::Maximized);
 			else if (LOWORD(wParam) == SIZE_MINIMIZED) _onWindowStateChanged((int)WindowState::Minimized);
 			else if (LOWORD(wParam) == SIZE_RESTORED)  _onWindowStateChanged((int)WindowState::Normal);
+
+			return 0;
+		}
+		case WM_EXITSIZEMOVE: {
+			if (_borderStyle == WindowBorderStyle::SizableNoCaption)
+				_frame->Update();
 			break;
 		}
 		case WM_MOVE: {
@@ -196,6 +203,10 @@ void Window::Show() {
 		SetWindowState(_windowState);
 
 	SetBorderStyle(_borderStyle);
+	if (!_minimizeEnabled)
+		SetMinimizeEnabled(_minimizeEnabled);
+	if (!_maximizeEnabled)
+		SetMaximizeEnabled(_maximizeEnabled);
 
 	AttachWebView();
 }
@@ -367,6 +378,56 @@ Point Window::GetLocation() {
 
 void Window::SetLocation(Point& location) {
 	SetWindowPos(_hWnd, HWND_TOP, location.x, location.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+}
+
+bool Window::GetMinimizeEnabled() {
+	if (_borderStyle == WindowBorderStyle::SizableNoCaption ||
+		_borderStyle == WindowBorderStyle::FixedNoCaption) {
+		return _minimizeEnabled;
+	}
+
+	const auto style = GetWindowLong(_hWnd, GWL_STYLE);
+	return (style & WS_MINIMIZEBOX) != 0;
+}
+
+void Window::SetMinimizeEnabled(const bool enabled) {
+	_minimizeEnabled = enabled;
+
+	if (_borderStyle == WindowBorderStyle::SizableNoCaption ||
+		_borderStyle == WindowBorderStyle::FixedNoCaption) {
+		return;
+	}
+
+	auto style = GetWindowLong(_hWnd, GWL_STYLE);
+	if (enabled) style |= WS_MINIMIZEBOX;
+	else         style &= ~WS_MINIMIZEBOX;
+	SetWindowLong(_hWnd, GWL_STYLE, style);
+	SetWindowPos(_hWnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+}
+
+bool Window::GetMaximizeEnabled() {
+	if (_borderStyle == WindowBorderStyle::SizableNoCaption ||
+		_borderStyle == WindowBorderStyle::FixedNoCaption) {
+		return _maximizeEnabled;
+	}
+
+	const auto style = GetWindowLong(_hWnd, GWL_STYLE);
+	return (style & WS_MAXIMIZEBOX) != 0;
+}
+
+void Window::SetMaximizeEnabled(const bool enabled) {
+	_maximizeEnabled = enabled;
+
+	if (_borderStyle == WindowBorderStyle::SizableNoCaption ||
+		_borderStyle == WindowBorderStyle::FixedNoCaption) {
+		return;
+	}
+
+	auto style = GetWindowLong(_hWnd, GWL_STYLE);
+	if (enabled) style |= WS_MAXIMIZEBOX;
+	else         style &= ~WS_MAXIMIZEBOX;
+	SetWindowLong(_hWnd, GWL_STYLE, style);
+	SetWindowPos(_hWnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 }
 
 bool Window::GetTopMost() {

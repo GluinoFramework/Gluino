@@ -71,6 +71,18 @@ internal partial class NativeWindow
     [LibImport("Gluino_Window_SetLocation", Managed = true, Property = PS, Option = nameof(NativeWindowOptions.Location))]
     public static partial NativePoint SetLocation(nint window, NativePoint location);
 
+    [LibImport("Gluino_Window_GetMinimizeEnabled", Managed = true, Property = PG, Option = nameof(NativeWindowOptions.MinimizeEnabled))]
+    public static partial bool GetMinimizeEnabled(nint window);
+
+    [LibImport("Gluino_Window_SetMinimizeEnabled", Managed = true, Property = PS, Option = nameof(NativeWindowOptions.MinimizeEnabled))]
+    public static partial void SetMinimizeEnabled(nint window, bool enabled);
+
+    [LibImport("Gluino_Window_GetMaximizeEnabled", Managed = true, Property = PG, Option = nameof(NativeWindowOptions.MaximizeEnabled))]
+    public static partial bool GetMaximizeEnabled(nint window);
+
+    [LibImport("Gluino_Window_SetMaximizeEnabled", Managed = true, Property = PS, Option = nameof(NativeWindowOptions.MaximizeEnabled))]
+    public static partial void SetMaximizeEnabled(nint window, bool enabled);
+
     [LibImport("Gluino_Window_GetTopMost", Managed = true, Property = PG, Option = nameof(NativeWindowOptions.TopMost))]
     public static partial bool GetTopMost(nint window);
 

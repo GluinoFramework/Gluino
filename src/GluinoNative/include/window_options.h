@@ -13,11 +13,13 @@ struct WindowOptions {
 	char* TitleA;
 	WindowBorderStyle BorderStyle;
 	WindowState WindowState;
+	WindowStartupLocation StartupLocation;
 	Size MinimumSize;
 	Size MaximumSize;
 	Size Size;
 	Point Location;
-	WindowStartupLocation StartupLocation;
+	bool MinimizeEnabled;
+	bool MaximizeEnabled;
 	bool TopMost;
 };
 

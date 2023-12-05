@@ -58,6 +58,12 @@ public:
 	Point GetLocation() override;
 	void SetLocation(Point& location) override;
 
+	bool GetMinimizeEnabled() override;
+	void SetMinimizeEnabled(bool enabled) override;
+
+	bool GetMaximizeEnabled() override;
+	void SetMaximizeEnabled(bool enabled) override;
+
 	bool GetTopMost() override;
 	void SetTopMost(bool topMost) override;
 
@@ -67,7 +73,8 @@ private:
 	WindowState _windowState;
 	Size _minSize;
 	Size _maxSize;
-	bool _resizable;
+	bool _minimizeEnabled;
+	bool _maximizeEnabled;
 
 	wil::com_ptr<ICoreWebView2>            _webview;
 	wil::com_ptr<ICoreWebView2Environment> _webviewEnv;

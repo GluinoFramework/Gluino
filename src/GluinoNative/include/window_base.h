@@ -8,6 +8,8 @@
 
 namespace Gluino {
 
+class WebViewBase;
+
 class WindowBase {
 public:
 	explicit WindowBase(WindowOptions* options, const WindowEvents* events) {
@@ -65,6 +67,12 @@ public:
 
 	virtual Point GetLocation() = 0;
 	virtual void SetLocation(Point& location) = 0;
+
+	virtual bool GetMinimizeEnabled() = 0;
+	virtual void SetMinimizeEnabled(bool enabled) = 0;
+
+	virtual bool GetMaximizeEnabled() = 0;
+	virtual void SetMaximizeEnabled(bool enabled) = 0;
 
 	virtual bool GetTopMost() = 0;
 	virtual void SetTopMost(bool topMost) = 0;
