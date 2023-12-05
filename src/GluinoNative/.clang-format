@@ -1,0 +1,6 @@
+DerivePointerAlignment: false
+PointerAlignment: Left
+ColumnLimit: 0
+IndentWidth: 4
+UseTab: Never
+AccessModifierOffset: -4

@@ -399,3 +399,4 @@ FodyWeavers.xsd
 
 # Custom
 !win32/
+build/
