@@ -7,6 +7,13 @@
 
 namespace Gluino {
 
+enum class WindowsOSVersion {
+    Unknown,
+    Win7,
+    Win8,
+    Win10
+};
+
 enum IMMERSIVEHCCACHEMODE {
     IHCM_USE_CACHED_VALUE = 0,
     IHCM_REFRESH = 1,
@@ -57,6 +64,7 @@ struct WINDOWCOMPOSITIONATTRIBDATA {
     SIZE_T cbData;
 };
 
+WindowsOSVersion GetWindowsOSVersion() noexcept;
 void InitDarkModeSupport() noexcept;
 bool IsDarkModeEnabled() noexcept;
 void EnableDarkMode(HWND hWnd, bool enable) noexcept;

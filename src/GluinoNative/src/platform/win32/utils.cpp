@@ -22,8 +22,31 @@ FnIsDarkModeAllowedForWindow IsDarkModeAllowedForWindow = nullptr;
 FnGetIsImmersiveColorUsingHighContrast GetIsImmersiveColorUsingHighContrast = nullptr;
 FnSetPreferredAppMode SetPreferredAppMode = nullptr;
 
-static constexpr DWORD win10_minimum_build_dark_mode = 18362;
+constexpr MARGINS StyleExtendMargins = { -1, -1, -1, -1 };
+static constexpr DWORD Win10MinimumBuildDarkMode = 18362;
 std::once_flag flag_init_dark_mode_support;
+
+WindowsOSVersion Gluino::GetWindowsOSVersion() noexcept
+{
+    const auto rtlGetNtVersionNumbers = (FnRtlGetNtVersionNumbers)GetProcAddress(
+        GetModuleHandleW(L"ntdll.dll"), "RtlGetNtVersionNumbers");
+
+    auto result = WindowsOSVersion::Unknown;
+
+    if (rtlGetNtVersionNumbers == nullptr) {
+        return result;
+    }
+
+    DWORD major, minor, build = 0;
+    rtlGetNtVersionNumbers(&major, &minor, &build);
+    build &= ~0xF0000000;
+
+    if (major == 10 && minor == 0) result = WindowsOSVersion::Win10;
+    if (major == 6 && (minor == 3 || minor == 2))  result = WindowsOSVersion::Win8;
+    if (major == 6 && minor == 1)  result = WindowsOSVersion::Win7;
+
+    return result;
+}
 
 void EnableDarkModeForApp() noexcept {
     if (SetPreferredAppMode) {
@@ -42,6 +65,7 @@ DWORD GetBuildNumber() noexcept {
     DWORD major, minor, build = 0;
     rtlGetNtVersionNumbers(&major, &minor, &build);
     build &= ~0xF0000000;
+
     return build;
 }
 
@@ -58,7 +82,7 @@ bool IsHighContrast() noexcept {
 }
 
 void InitDarkModeSupportOnce() noexcept {
-    if (const auto buildNumber = GetBuildNumber(); buildNumber < win10_minimum_build_dark_mode) {
+    if (const auto buildNumber = GetBuildNumber(); buildNumber < Win10MinimumBuildDarkMode) {
         return;
     }
 
@@ -123,6 +147,10 @@ void Gluino::RefreshNonClientArea(const HWND hWnd) noexcept {
 }
 
 bool Gluino::IsColorSchemeChange(const LPARAM lParam) noexcept {
+    if (const auto buildNumber = GetBuildNumber(); buildNumber < Win10MinimumBuildDarkMode) {
+        return false;
+    }
+
     bool returnValue = false;
     if (lParam > 0 && CompareStringOrdinal(reinterpret_cast<LPCWCH>(lParam),
         -1,
@@ -187,7 +215,7 @@ void Gluino::ApplyBorderlessStyle(const HWND hWnd, const bool borderless) noexce
     SetWindowLongW(hWnd, GWL_STYLE, static_cast<LONG>(newStyle));
 
     if (compositionEnabled) {
-        constexpr MARGINS shadowState[2] = { {0, 0, 0, 0}, {1, 1, 1, 1} };
+        constexpr MARGINS shadowState[2] = { StyleExtendMargins, {1, 1, 1, 1} };
         DwmExtendFrameIntoClientArea(hWnd, &shadowState[borderless]);
     }
 
@@ -196,26 +224,15 @@ void Gluino::ApplyBorderlessStyle(const HWND hWnd, const bool borderless) noexce
 }
 
 void Gluino::ApplyWindowStyle(const HWND hWnd, const bool darkMode) noexcept {
-    if (IsCompositionEnabled()) {
-        constexpr MARGINS margins = { -1, -1, -1, -1 };
-        auto hr = DwmExtendFrameIntoClientArea(hWnd, &margins);
-        if (FAILED(hr)) return;
-
-        const BOOL mode = darkMode ? TRUE : FALSE;
-        hr = DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &mode, sizeof mode);
-        if (FAILED(hr)) return;
-
-        constexpr DWM_SYSTEMBACKDROP_TYPE value = DWMSBT_MAINWINDOW;
-        hr = DwmSetWindowAttribute(hWnd, DWMWA_SYSTEMBACKDROP_TYPE, &value, sizeof value);
-        if (FAILED(hr)) return;
-
-        constexpr BOOL bkdbrush = TRUE;
-        auto _ = DwmSetWindowAttribute(hWnd, DWMWA_USE_HOSTBACKDROPBRUSH, &bkdbrush, sizeof bkdbrush);
+    if (const auto buildNumber = GetBuildNumber(); buildNumber < Win10MinimumBuildDarkMode) {
+        return;
     }
-    else {
-        EnableDarkMode(hWnd, darkMode);
-        if (IsDarkModeEnabled()) {
-            RefreshNonClientArea(hWnd);
-        }
-    }
+
+    DwmExtendFrameIntoClientArea(hWnd, &StyleExtendMargins);
+
+    const BOOL mode = darkMode ? TRUE : FALSE;
+    DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &mode, sizeof mode);
+
+    constexpr DWM_SYSTEMBACKDROP_TYPE value = DWMSBT_MAINWINDOW;
+    DwmSetWindowAttribute(hWnd, DWMWA_SYSTEMBACKDROP_TYPE, &value, sizeof value);
 }

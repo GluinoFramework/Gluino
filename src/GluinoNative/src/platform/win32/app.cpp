@@ -2,7 +2,6 @@
 
 #include <dwmapi.h>
 #include <future>
-#include <iostream>
 #include <map>
 #include <shobjidl_core.h>
 
@@ -17,6 +16,7 @@ App::App(const HINSTANCE hInstance, wchar_t* appId) {
 	_wndClassName = ConcatStr(_appId, L"Window");
 
 	SetCurrentProcessExplicitAppUserModelID(_appId);
+	SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
 	WNDCLASSEX wcex;
 	wcex.cbSize = sizeof WNDCLASSEX;

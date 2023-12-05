@@ -59,6 +59,12 @@ enum class WindowEdge {
     BottomRight
 };
 
+enum class WindowTheme {
+    System,
+    Light,
+    Dark
+};
+
 struct Size {
     int width;
     int height;

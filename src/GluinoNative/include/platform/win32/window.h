@@ -23,7 +23,6 @@ public:
 
 	HWND GetHandle() const { return _hWnd; }
 	LRESULT WndProc(UINT msg, WPARAM wParam, LPARAM lParam);
-	void SetBorderlessStyle(bool borderless) const;
 	void AttachWebView();
 	void RefitWebView() const;
 	void FocusWebView() const;
@@ -45,6 +44,9 @@ public:
 	
 	WindowState GetWindowState() override;
 	void SetWindowState(WindowState state) override;
+
+	WindowTheme GetTheme() override;
+	void SetTheme(WindowTheme theme) override;
 
 	Size GetMinimumSize() override;
 	void SetMinimumSize(Size& size) override;

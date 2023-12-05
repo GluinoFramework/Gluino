@@ -11,6 +11,7 @@ internal struct NativeWindowOptions
     public WindowBorderStyle BorderStyle;
     public WindowState WindowState;
     public WindowStartupLocation StartupLocation;
+    public WindowTheme Theme;
     public NativeSize MinimumSize;
     public NativeSize MaximumSize;
     public NativeSize Size;

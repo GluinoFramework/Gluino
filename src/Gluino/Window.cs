@@ -76,6 +76,11 @@ public partial class Window
         set => SetWindowState(value);
     }
 
+    public WindowTheme Theme {
+        get => GetTheme();
+        set => SetTheme(value);
+    }
+
     public WindowStartupLocation StartupLocation
     {
         get => _nativeOptions.StartupLocation;

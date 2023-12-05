@@ -20,6 +20,7 @@ public:
 		_title = CopyStr(options->TitleA);
 #endif
 		_borderStyle = options->BorderStyle;
+		_theme = options->Theme;
 
 		_onShown = (Delegate)events->OnShown;
 		_onHidden = (Delegate)events->OnHidden;
@@ -58,6 +59,9 @@ public:
 	virtual WindowState GetWindowState() = 0;
 	virtual void SetWindowState(WindowState state) = 0;
 
+	virtual WindowTheme GetTheme() = 0;
+	virtual void SetTheme(WindowTheme theme) = 0;
+
 	virtual Size GetMinimumSize() = 0;
 	virtual void SetMinimumSize(Size& size) = 0;
 
@@ -83,6 +87,7 @@ protected:
 	bool _isMain;
 	autostr _title;
 	WindowBorderStyle _borderStyle;
+	WindowTheme _theme;
 
 	Delegate _onShown;
 	Delegate _onHidden;

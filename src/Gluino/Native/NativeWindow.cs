@@ -47,6 +47,12 @@ internal partial class NativeWindow
     [LibImport("Gluino_Window_SetWindowState", Managed = true, Property = PS, Option = nameof(NativeWindowOptions.WindowState))]
     public static partial void SetWindowState(nint window, WindowState state);
 
+    [LibImport("Gluino_Window_GetTheme", Managed = true, Property = PG, Option = nameof(NativeWindowOptions.Theme))]
+    public static partial WindowTheme GetTheme(nint window);
+
+    [LibImport("Gluino_Window_SetTheme", Managed = true, Property = PS, Option = nameof(NativeWindowOptions.Theme))]
+    public static partial void SetTheme(nint window, WindowTheme theme);
+
     [LibImport("Gluino_Window_GetMinimumSize", Managed = true, Property = PG, Option = nameof(NativeWindowOptions.MinimumSize))]
     public static partial NativeSize GetMinimumSize(nint window);
 

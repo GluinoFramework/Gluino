@@ -37,10 +37,9 @@ Window::Window(WindowOptions* options, const WindowEvents* events) : WindowBase(
         App::GetHInstance(),
         this);
 
-    SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
     InitDarkModeSupport();
-    ApplyWindowStyle(_hWnd, true);
 
+	SetTheme(options->Theme);
 	if (options->StartupLocation == WindowStartupLocation::CenterScreen)
 		Center();
 	if (options->TopMost)
@@ -142,7 +141,7 @@ LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam
 			break;
 		}
 		case WM_SETTINGCHANGE: {
-			if (IsColorSchemeChange(lParam)) {
+			if (_theme == WindowTheme::System && IsColorSchemeChange(lParam)) {
 				SendMessageW(_hWnd, WM_THEMECHANGED, 0, 0);
 			}
 			break;
@@ -156,31 +155,6 @@ LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam
 	}
 
 	return DefWindowProc(_hWnd, msg, wParam, lParam);
-}
-
-void Window::SetBorderlessStyle(const bool borderless) const {
-	const auto compositionEnabled = IsCompositionEnabled();
-
-	constexpr DWORD aeroBorderless = WS_POPUP | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_MAXIMIZEBOX | WS_MINIMIZEBOX;
-	constexpr DWORD basicBorderless = WS_POPUP | WS_THICKFRAME | WS_SYSMENU | WS_MAXIMIZEBOX | WS_MINIMIZEBOX;
-	const DWORD borderlessStyle = compositionEnabled ? aeroBorderless : basicBorderless;
-
-	const DWORD newStyle = borderless ? borderlessStyle : WS_OVERLAPPEDWINDOW;
-	const DWORD oldStyle = GetWindowLong(_hWnd, GWL_STYLE);
-
-	if (newStyle == oldStyle) {
-		return;
-	}
-
-	SetWindowLongW(_hWnd, GWL_STYLE, static_cast<LONG>(newStyle));
-
-	if (compositionEnabled) {
-		constexpr MARGINS shadowState[2] = { {0, 0, 0, 0}, {1, 1, 1, 1} };
-		DwmExtendFrameIntoClientArea(_hWnd, &shadowState[borderless]);
-	}
-
-	SetWindowPos(_hWnd, nullptr, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
-	ShowWindow(_hWnd, SW_SHOW);
 }
 
 void Window::AttachWebView() {
@@ -220,8 +194,8 @@ void Window::Show() {
 
 	if (_windowState != WindowState::Normal)
 		SetWindowState(_windowState);
-
-	SetBorderStyle(_borderStyle);
+	if (_borderStyle != WindowBorderStyle::Sizable)
+		SetBorderStyle(_borderStyle);
 	if (!_minimizeEnabled)
 		SetMinimizeEnabled(_minimizeEnabled);
 	if (!_maximizeEnabled)
@@ -300,13 +274,13 @@ WindowBorderStyle Window::GetBorderStyle() {
 void Window::SetBorderStyle(const WindowBorderStyle style) {
 	if (style == WindowBorderStyle::SizableNoCaption ||
 		style == WindowBorderStyle::FixedNoCaption) {
-		SetBorderlessStyle(true);
+		ApplyBorderlessStyle(_hWnd, true);
 		if (style == WindowBorderStyle::SizableNoCaption)
 			_frame->Attach();
 	}
 	else if (style == WindowBorderStyle::Sizable || 
 			 style == WindowBorderStyle::Fixed) {
-		SetBorderlessStyle(false);
+		ApplyBorderlessStyle(_hWnd, false);
 		_frame->Detach();
 
 		const auto wndStyle = GetWindowLongPtr(_hWnd, GWL_STYLE);
@@ -345,6 +319,19 @@ void Window::SetWindowState(const WindowState state) {
 		case WindowState::Normal:	 placement.showCmd = SW_NORMAL;	  break;
 	}
 	SetWindowPlacement(_hWnd, &placement);
+}
+
+WindowTheme Window::GetTheme() {
+	return _theme;
+}
+
+void Window::SetTheme(const WindowTheme theme) {
+	_theme = theme;
+	const auto darkMode =
+		theme == WindowTheme::System ? IsDarkModeEnabled() :
+		theme == WindowTheme::Dark;
+	ApplyWindowStyle(_hWnd, darkMode);
+	UpdateWindow(_hWnd);
 }
 
 Size Window::GetMinimumSize() {

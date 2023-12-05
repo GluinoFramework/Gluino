@@ -9,6 +9,8 @@ using namespace Gluino;
 
 extern "C" {
 #ifdef _WIN32
+	EXPORT WindowsOSVersion Gluino_GetWindowsOSVersion() { return GetWindowsOSVersion(); }
+
 	EXPORT AppBase* Gluino_App_Create(const HINSTANCE hInstance, const autostr appId) { return new App(hInstance, appId); }
 #endif
 
@@ -35,6 +37,9 @@ extern "C" {
 
 	EXPORT WindowState Gluino_Window_GetWindowState(WindowBase* window) { return window->GetWindowState(); }
 	EXPORT void Gluino_Window_SetWindowState(WindowBase* window, const WindowState state) { window->SetWindowState(state); }
+
+	EXPORT WindowTheme Gluino_Window_GetTheme(WindowBase* window) { return window->GetTheme(); }
+	EXPORT void Gluino_Window_SetTheme(WindowBase* window, const WindowTheme theme) { window->SetTheme(theme); }
 
 	EXPORT Size Gluino_Window_GetMinimumSize(WindowBase* window) { return window->GetMinimumSize(); }
 	EXPORT void Gluino_Window_SetMinimumSize(WindowBase* window, Size size) { window->SetMinimumSize(size); }

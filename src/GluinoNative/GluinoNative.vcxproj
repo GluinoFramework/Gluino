@@ -147,9 +147,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)GluinoNative.dll $(SolutionDir)dev\TestApp\bin\Debug\net8.0\
-copy $(OutDir)GluinoNative.pdb $(SolutionDir)dev\TestApp\bin\Debug\net8.0\
-copy $(OutDir)WebView2Loader.dll $(SolutionDir)dev\TestApp\bin\Debug\net8.0\</Command>
+      <Command>copy "$(OutDir)GluinoNative.dll" "$(SolutionDir)dev\TestApp\bin\Debug\net8.0\"
+copy "$(OutDir)GluinoNative.pdb" "$(SolutionDir)dev\TestApp\bin\Debug\net8.0\"
+copy "$(OutDir)WebView2Loader.dll" "$(SolutionDir)dev\TestApp\bin\Debug\net8.0\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

@@ -14,6 +14,7 @@ struct WindowOptions {
 	WindowBorderStyle BorderStyle;
 	WindowState WindowState;
 	WindowStartupLocation StartupLocation;
+	WindowTheme Theme;
 	Size MinimumSize;
 	Size MaximumSize;
 	Size Size;
