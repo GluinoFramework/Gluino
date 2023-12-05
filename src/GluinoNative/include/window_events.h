@@ -10,7 +10,9 @@ namespace Gluino {
 struct WindowEvents {
 	Delegate* OnShown;
 	Delegate* OnHidden;
-	SizeDelegate* OnSizeChanged;
+	SizeDelegate* OnResize;
+	SizeDelegate* OnResizeStart;
+	SizeDelegate* OnResizeEnd;
 	PointDelegate* OnLocationChanged;
 	IntDelegate* OnWindowStateChanged;
 	Delegate* OnFocusIn;

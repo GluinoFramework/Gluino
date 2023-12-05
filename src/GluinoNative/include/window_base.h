@@ -23,7 +23,9 @@ public:
 
 		_onShown = (Delegate)events->OnShown;
 		_onHidden = (Delegate)events->OnHidden;
-		_onSizeChanged = (SizeDelegate)events->OnSizeChanged;
+		_onResize = (SizeDelegate)events->OnResize;
+		_onResizeStart = (SizeDelegate)events->OnResizeStart;
+		_onResizeEnd = (SizeDelegate)events->OnResizeEnd;
 		_onLocationChanged = (PointDelegate)events->OnLocationChanged;
 		_onWindowStateChanged = (IntDelegate)events->OnWindowStateChanged;
 		_onFocusIn = (Delegate)events->OnFocusIn;
@@ -84,7 +86,9 @@ protected:
 
 	Delegate _onShown;
 	Delegate _onHidden;
-	SizeDelegate _onSizeChanged;
+	SizeDelegate _onResize;
+	SizeDelegate _onResizeStart;
+	SizeDelegate _onResizeEnd;
 	PointDelegate _onLocationChanged;
 	IntDelegate _onWindowStateChanged;
 	Delegate _onFocusIn;

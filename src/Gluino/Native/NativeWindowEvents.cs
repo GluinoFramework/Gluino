@@ -8,7 +8,9 @@ internal struct NativeWindowEvents
     
     [MarshalAs(UnmanagedType.FunctionPtr)] public NativeDelegate OnShown;
     [MarshalAs(UnmanagedType.FunctionPtr)] public NativeDelegate OnHidden;
-    [MarshalAs(UnmanagedType.FunctionPtr)] public NativeSizeDelegate OnSizeChanged;
+    [MarshalAs(UnmanagedType.FunctionPtr)] public NativeSizeDelegate OnResize;
+    [MarshalAs(UnmanagedType.FunctionPtr)] public NativeSizeDelegate OnResizeStart;
+    [MarshalAs(UnmanagedType.FunctionPtr)] public NativeSizeDelegate OnResizeEnd;
     [MarshalAs(UnmanagedType.FunctionPtr)] public NativePointDelegate OnLocationChanged;
     [MarshalAs(UnmanagedType.FunctionPtr)] public NativeIntDelegate OnWindowStateChanged;
     [MarshalAs(UnmanagedType.FunctionPtr)] public NativeDelegate OnFocusIn;

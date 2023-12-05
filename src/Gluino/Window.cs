@@ -16,7 +16,9 @@ public partial class Window
     public event EventHandler Created;
     public event EventHandler Shown;
     public event EventHandler Hidden;
-    public event EventHandler<Size> SizeChanged;
+    public event EventHandler<Size> Resize;
+    public event EventHandler<Size> ResizeStart;
+    public event EventHandler<Size> ResizeEnd;
     public event EventHandler<Point> LocationChanged;
     public event EventHandler<WindowStateChangedEventArgs> WindowStateChanged; 
     public event EventHandler FocusIn;
@@ -47,7 +49,9 @@ public partial class Window
         _nativeEvents = new() {
             OnShown = InvokeShown,
             OnHidden = InvokeHidden,
-            OnSizeChanged = InvokeSizeChanged,
+            OnResize = InvokeResize,
+            OnResizeStart = InvokeResizeStart,
+            OnResizeEnd = InvokeResizeEnd,
             OnLocationChanged = InvokeLocationChanged,
             OnWindowStateChanged = InvokeWindowStateChanged,
             OnFocusIn = InvokeFocusIn,
@@ -217,7 +221,9 @@ public partial class Window
     protected virtual void OnCreated(EventArgs e) { }
     protected virtual void OnShown(EventArgs e) { }
     protected virtual void OnHidden(EventArgs e) { }
-    protected virtual void OnSizeChanged(Size e) { }
+    protected virtual void OnResize(Size e) { }
+    protected virtual void OnResizeStart(Size e) { }
+    protected virtual void OnResizeEnd(Size e) { }
     protected virtual void OnLocationChanged(Point e) { }
     protected virtual void OnWindowStateChanged(WindowStateChangedEventArgs e) { }
     protected virtual void OnFocusIn(EventArgs e) { }
@@ -249,10 +255,22 @@ public partial class Window
         Hidden?.Invoke(this, EventArgs.Empty);
     }
 
-    private void InvokeSizeChanged(NativeSize e)
+    private void InvokeResize(NativeSize e)
     {
-        OnSizeChanged(new(e.Width, e.Height));
-        SizeChanged?.Invoke(this, new(e.Width, e.Height));
+        OnResize(new(e.Width, e.Height));
+        Resize?.Invoke(this, new(e.Width, e.Height));
+    }
+
+    private void InvokeResizeStart(NativeSize e)
+    {
+        OnResizeStart(new(e.Width, e.Height));
+        ResizeStart?.Invoke(this, new(e.Width, e.Height));
+    }
+
+    private void InvokeResizeEnd(NativeSize e)
+    {
+        OnResizeEnd(new(e.Width, e.Height));
+        ResizeEnd?.Invoke(this, new(e.Width, e.Height));
     }
 
     private void InvokeLocationChanged(NativePoint e)

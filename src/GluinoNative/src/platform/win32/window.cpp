@@ -49,8 +49,6 @@ Window::Window(WindowOptions* options, const WindowEvents* events) : WindowBase(
 	_frame = new WindowFrame(_hWnd);
 }
 
-
-
 Window::~Window() {
 	delete[] _title;
 }
@@ -74,17 +72,38 @@ LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam
 
 			RefitWebView();
 			
-			_onSizeChanged(GetSize());
+			_onResize(GetSize());
 
-			if (LOWORD(wParam) == SIZE_MAXIMIZED)      _onWindowStateChanged((int)WindowState::Maximized);
-			else if (LOWORD(wParam) == SIZE_MINIMIZED) _onWindowStateChanged((int)WindowState::Minimized);
-			else if (LOWORD(wParam) == SIZE_RESTORED)  _onWindowStateChanged((int)WindowState::Normal);
+			switch (wParam) {
+				case SIZE_MAXIMIZED:
+					_onWindowStateChanged((int)WindowState::Maximized);
+					_isResizing = false;
+					break;
+				case SIZE_MINIMIZED:
+					_onWindowStateChanged((int)WindowState::Minimized);
+					_isResizing = false;
+					break;
+				case SIZE_RESTORED:
+					if (!_isResizing) {
+						_onWindowStateChanged((int)WindowState::Normal);
+					}
+					break;
+				default: break;
+			}
 
 			return 0;
+		}
+		case WM_ENTERSIZEMOVE: {
+			_onResizeStart(GetSize());
+			_isResizing = true;
+			break;
 		}
 		case WM_EXITSIZEMOVE: {
 			if (_borderStyle == WindowBorderStyle::SizableNoCaption)
 				_frame->Update();
+
+			_onResizeEnd(GetSize());
+			_isResizing = false;
 			break;
 		}
 		case WM_MOVE: {
