@@ -1,64 +1,87 @@
-#include "window_base.h"
-#include "window_options.h"
-
-#ifdef _WIN32
 #include "app.h"
-#endif
+#include "window.h"
+#include "webview.h"
 
 using namespace Gluino;
 
 extern "C" {
 #ifdef _WIN32
 	EXPORT WindowsOSVersion Gluino_GetWindowsOSVersion() { return GetWindowsOSVersion(); }
-
-	EXPORT AppBase* Gluino_App_Create(const HINSTANCE hInstance, const autostr appId) { return new App(hInstance, appId); }
+	EXPORT App* Gluino_App_Create(const HINSTANCE hInstance, const autostr appId) { return new App(hInstance, appId); }
+	EXPORT HWND Gluino_Window_GetHandle(const Window* window) { return window->GetHandle(); }
+#else
+	//TODO: EXPORT App* Gluino_App_Create() { return new App(); }
 #endif
 
-	EXPORT void Gluino_App_Destroy(const AppBase* app) { delete app; }
-	EXPORT WindowBase* Gluino_App_SpawnWindow(AppBase* app, WindowOptions* options, WindowEvents* events) { return app->SpawnWindow(options, events); }
-	EXPORT void Gluino_App_DespawnWindow(AppBase* app, WindowBase* window) { app->DespawnWindow(window); }
-	EXPORT void Gluino_App_Run(AppBase* app) { app->Run(); }
-	EXPORT void Gluino_App_Exit(AppBase* app) { app->Exit(); }
+	EXPORT void Gluino_App_Destroy(const App* app) { delete app; }
+	EXPORT void Gluino_App_SpawnWindow(App* app, 
+		WindowOptions* windowOptions, WindowEvents* windowEvents, 
+		WebViewOptions* webViewOptions, WebViewEvents* webViewEvents, 
+		WindowBase** window, WebViewBase** webView) {
+		app->SpawnWindow(windowOptions, windowEvents, webViewOptions, webViewEvents, window, webView);
+	}
+	EXPORT void Gluino_App_DespawnWindow(App* app, Window* window) { app->DespawnWindow(window); }
+	EXPORT void Gluino_App_Run(App* app) { app->Run(); }
+	EXPORT void Gluino_App_Exit(App* app) { app->Exit(); }
 
-	EXPORT void Gluino_Window_Show(WindowBase* window) { window->Show(); }
-	EXPORT void Gluino_Window_Hide(WindowBase* window) { window->Hide(); }
-	EXPORT void Gluino_Window_Close(WindowBase* window) { window->Close(); }
-	EXPORT void Gluino_Window_Center(WindowBase* window) { window->Center(); }
-	EXPORT void Gluino_Window_DragMove(WindowBase* window) { window->DragMove(); }
-	EXPORT void Gluino_Window_Invoke(WindowBase* window, const Delegate action) { window->Invoke(action); }
 
-	EXPORT void Gluino_Window_GetBounds(WindowBase* window, Rect* bounds) { window->GetBounds(bounds); }
+	EXPORT void Gluino_Window_Show(Window* window) { window->Show(); }
+	EXPORT void Gluino_Window_Hide(Window* window) { window->Hide(); }
+	EXPORT void Gluino_Window_Close(Window* window) { window->Close(); }
+	EXPORT void Gluino_Window_Center(Window* window) { window->Center(); }
+	EXPORT void Gluino_Window_DragMove(Window* window) { window->DragMove(); }
+	EXPORT void Gluino_Window_Invoke(Window* window, const Delegate action) { window->Invoke(action); }
 
-	EXPORT autostr Gluino_Window_GetTitle(WindowBase* window) { return window->GetTitle(); }
-	EXPORT void Gluino_Window_SetTitle(WindowBase* window, const autostr title) { window->SetTitle(title); }
+	EXPORT void Gluino_Window_GetBounds(Window* window, Rect* bounds) { window->GetBounds(bounds); }
 
-	EXPORT WindowBorderStyle Gluino_Window_GetBorderStyle(WindowBase* window) { return window->GetBorderStyle(); }
-	EXPORT void Gluino_Window_SetBorderStyle(WindowBase* window, const WindowBorderStyle style) { window->SetBorderStyle(style); }
+	EXPORT bool Gluino_Window_GetIsDarkMode(Window* window) { return window->GetIsDarkMode(); }
 
-	EXPORT WindowState Gluino_Window_GetWindowState(WindowBase* window) { return window->GetWindowState(); }
-	EXPORT void Gluino_Window_SetWindowState(WindowBase* window, const WindowState state) { window->SetWindowState(state); }
+	EXPORT autostr Gluino_Window_GetTitle(Window* window) { return window->GetTitle(); }
+	EXPORT void Gluino_Window_SetTitle(Window* window, const autostr title) { window->SetTitle(title); }
 
-	EXPORT WindowTheme Gluino_Window_GetTheme(WindowBase* window) { return window->GetTheme(); }
-	EXPORT void Gluino_Window_SetTheme(WindowBase* window, const WindowTheme theme) { window->SetTheme(theme); }
+	EXPORT WindowBorderStyle Gluino_Window_GetBorderStyle(Window* window) { return window->GetBorderStyle(); }
+	EXPORT void Gluino_Window_SetBorderStyle(Window* window, const WindowBorderStyle style) { window->SetBorderStyle(style); }
 
-	EXPORT Size Gluino_Window_GetMinimumSize(WindowBase* window) { return window->GetMinimumSize(); }
-	EXPORT void Gluino_Window_SetMinimumSize(WindowBase* window, Size size) { window->SetMinimumSize(size); }
+	EXPORT WindowState Gluino_Window_GetWindowState(Window* window) { return window->GetWindowState(); }
+	EXPORT void Gluino_Window_SetWindowState(Window* window, const WindowState state) { window->SetWindowState(state); }
 
-	EXPORT Size Gluino_Window_GetMaximumSize(WindowBase* window) { return window->GetMaximumSize(); }
-	EXPORT void Gluino_Window_SetMaximumSize(WindowBase* window, Size size) { window->SetMaximumSize(size); }
+	EXPORT WindowTheme Gluino_Window_GetTheme(Window* window) { return window->GetTheme(); }
+	EXPORT void Gluino_Window_SetTheme(Window* window, const WindowTheme theme) { window->SetTheme(theme); }
 
-	EXPORT Size Gluino_Window_GetSize(WindowBase* window) { return window->GetSize(); }
-	EXPORT void Gluino_Window_SetSize(WindowBase* window, Size size) { window->SetSize(size); }
+	EXPORT Size Gluino_Window_GetMinimumSize(Window* window) { return window->GetMinimumSize(); }
+	EXPORT void Gluino_Window_SetMinimumSize(Window* window, Size size) { window->SetMinimumSize(size); }
 
-	EXPORT Point Gluino_Window_GetLocation(WindowBase* window) { return window->GetLocation(); }
-	EXPORT void Gluino_Window_SetLocation(WindowBase* window, Point location) { window->SetLocation(location); }
+	EXPORT Size Gluino_Window_GetMaximumSize(Window* window) { return window->GetMaximumSize(); }
+	EXPORT void Gluino_Window_SetMaximumSize(Window* window, Size size) { window->SetMaximumSize(size); }
 
-	EXPORT bool Gluino_Window_GetMinimizeEnabled(WindowBase* window) { return window->GetMinimizeEnabled(); }
-	EXPORT void Gluino_Window_SetMinimizeEnabled(WindowBase* window, const bool enabled) { window->SetMinimizeEnabled(enabled); }
+	EXPORT Size Gluino_Window_GetSize(Window* window) { return window->GetSize(); }
+	EXPORT void Gluino_Window_SetSize(Window* window, Size size) { window->SetSize(size); }
 
-	EXPORT bool Gluino_Window_GetMaximizeEnabled(WindowBase* window) { return window->GetMaximizeEnabled(); }
-	EXPORT void Gluino_Window_SetMaximizeEnabled(WindowBase* window, const bool enabled) { window->SetMaximizeEnabled(enabled); }
+	EXPORT Point Gluino_Window_GetLocation(Window* window) { return window->GetLocation(); }
+	EXPORT void Gluino_Window_SetLocation(Window* window, Point location) { window->SetLocation(location); }
 
-	EXPORT bool Gluino_Window_GetTopMost(WindowBase* window) { return window->GetTopMost(); }
-	EXPORT void Gluino_Window_SetTopMost(WindowBase* window, const bool topMost) { window->SetTopMost(topMost); }
+	EXPORT bool Gluino_Window_GetMinimizeEnabled(Window* window) { return window->GetMinimizeEnabled(); }
+	EXPORT void Gluino_Window_SetMinimizeEnabled(Window* window, const bool enabled) { window->SetMinimizeEnabled(enabled); }
+
+	EXPORT bool Gluino_Window_GetMaximizeEnabled(Window* window) { return window->GetMaximizeEnabled(); }
+	EXPORT void Gluino_Window_SetMaximizeEnabled(Window* window, const bool enabled) { window->SetMaximizeEnabled(enabled); }
+
+	EXPORT bool Gluino_Window_GetTopMost(Window* window) { return window->GetTopMost(); }
+	EXPORT void Gluino_Window_SetTopMost(Window* window, const bool topMost) { window->SetTopMost(topMost); }
+
+
+	EXPORT void Gluino_WebView_Navigate(WebView* webView, const autostr url) { webView->Navigate(url); }
+	EXPORT void Gluino_WebView_LoadContent(WebView* webView, const autostr str) { webView->LoadContent(str); }
+	EXPORT void Gluino_WebView_PostWebMessage(WebView* webView, const autostr message) { webView->PostWebMessage(message); }
+
+	EXPORT bool Gluino_WebView_GetGrantPermissions(const WebView* webView) { return webView->GetGrantPermissions(); }
+
+	EXPORT bool Gluino_WebView_GetContextMenuEnabled(WebView* webView) { return webView->GetContextMenuEnabled(); }
+	EXPORT void Gluino_WebView_SetContextMenuEnabled(WebView* webView, const bool enabled) { webView->SetContextMenuEnabled(enabled); }
+
+	EXPORT bool Gluino_WebView_GetDevToolsEnabled(WebView* webView) { return webView->GetDevToolsEnabled(); }
+	EXPORT void Gluino_WebView_SetDevToolsEnabled(WebView* webView, const bool enabled) { webView->SetDevToolsEnabled(enabled); }
+
+	EXPORT autostr Gluino_WebView_GetUserAgent(WebView* webView) { return webView->GetUserAgent(); }
+	EXPORT void Gluino_WebView_SetUserAgent(WebView* webView, const autostr userAgent) { webView->SetUserAgent(userAgent); }
 }

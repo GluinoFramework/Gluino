@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using Gluino.Events;
 using Gluino.Native;
 
 namespace Gluino;
@@ -8,28 +7,67 @@ public partial class Window
 {
     private readonly int _managedWindowThreadId;
 
-    private nint _nativeInstance;
-    private NativeWindowOptions _nativeOptions;
-    private NativeWindowEvents _nativeEvents;
-
+    internal nint InstancePtr;
+    internal NativeWindowOptions NativeOptions;
+    internal NativeWindowEvents NativeEvents;
+    
+    /// <summary>
+    /// Occurs when the window is being created.
+    /// </summary>
     public event EventHandler Creating;
+    /// <summary>
+    /// Occurs when the window has been created.
+    /// </summary>
     public event EventHandler Created;
+    /// <summary>
+    /// Occurs when the window is shown.
+    /// </summary>
     public event EventHandler Shown;
+    /// <summary>
+    /// Occurs when the window is hidden.
+    /// </summary>
     public event EventHandler Hidden;
+    /// <summary>
+    /// Occurs when the window is resized.
+    /// </summary>
     public event EventHandler<Size> Resize;
+    /// <summary>
+    /// Occurs when the window resize operation starts.
+    /// </summary>
     public event EventHandler<Size> ResizeStart;
+    /// <summary>
+    /// Occurs when the window resize operation ends.
+    /// </summary>
     public event EventHandler<Size> ResizeEnd;
+    /// <summary>
+    /// Occurs when the window location is changed.
+    /// </summary>
     public event EventHandler<Point> LocationChanged;
+    /// <summary>
+    /// Occurs when the window state is changed.
+    /// </summary>
     public event EventHandler<WindowStateChangedEventArgs> WindowStateChanged; 
+    /// <summary>
+    /// Occurs when the window gains focus.
+    /// </summary>
     public event EventHandler FocusIn;
+    /// <summary>
+    /// Occurs when the window loses focus.
+    /// </summary>
     public event EventHandler FocusOut;
+    /// <summary>
+    /// Occurs when the window is closing.
+    /// </summary>
     public event EventHandler<WindowClosingEventArgs> Closing;
+    /// <summary>
+    /// Occurs when the window is closed.
+    /// </summary>
     public event EventHandler Closed;
 
     public Window()
     {
         _managedWindowThreadId = Environment.CurrentManagedThreadId;
-        _nativeOptions = new() {
+        NativeOptions = new() {
             BorderStyle = WindowBorderStyle.Sizable,
             WindowState = WindowState.Normal,
             MaximumSize = new() {
@@ -46,7 +84,7 @@ public partial class Window
 
         Title = "Window";
 
-        _nativeEvents = new() {
+        NativeEvents = new() {
             OnShown = InvokeShown,
             OnHidden = InvokeHidden,
             OnResize = InvokeResize,
@@ -59,151 +97,265 @@ public partial class Window
             OnClosing = InvokeClosing,
             OnClosed = InvokeClosed
         };
+
+        WebView = new(this);
     }
 
+    /// <summary>
+    /// Get the <see cref="WebView"/> associated with this window.
+    /// </summary>
+    public WebView WebView { get; }
+
+    /// <summary>
+    /// Get or set the title of the window.
+    /// </summary>
+    /// <remarks>
+    /// Default: "Window"
+    /// </remarks>
     public string Title {
         get => GetTitle();
         set => SetTitle(value);
     }
 
+    /// <summary>
+    /// Get or set the border style of the window.
+    /// </summary>
+    /// <remarks>
+    /// Default: <see cref="WindowBorderStyle.Sizable"/>
+    /// </remarks>
     public WindowBorderStyle BorderStyle {
         get => GetBorderStyle();
         set => SetBorderStyle(value);
     }
 
+    /// <summary>
+    /// Get or set the state of the window.
+    /// </summary>
+    /// <remarks>
+    /// Default: <see cref="WindowState.Normal"/>
+    /// </remarks>
     public WindowState WindowState {
         get => GetWindowState();
         set => SetWindowState(value);
     }
 
+    /// <summary>
+    /// Get or set the theme of the window.
+    /// </summary>
+    /// <remarks>
+    /// Default: <see cref="WindowTheme.System"/><br />
+    /// Only supported on systems that support light and dark themes.
+    /// </remarks>
     public WindowTheme Theme {
         get => GetTheme();
         set => SetTheme(value);
     }
 
+    /// <summary>
+    /// Get whether the window's theme is in dark mode.
+    /// </summary>
+    /// <remarks>
+    /// Only supported on systems that support light and dark themes.
+    /// </remarks>
+    public bool IsDarkMode => SafeInvoke(() => NativeWindow.GetIsDarkMode(InstancePtr));
+
+    /// <summary>
+    /// Get or set the startup location of the window.
+    /// </summary>
+    /// <remarks>
+    /// Default: <see cref="WindowStartupLocation.Default"/>
+    /// </remarks>
     public WindowStartupLocation StartupLocation
     {
-        get => _nativeOptions.StartupLocation;
-        set => _nativeOptions.StartupLocation = value;
+        get => NativeOptions.StartupLocation;
+        set => NativeOptions.StartupLocation = value;
     }
 
+    /// <summary>
+    /// Get or set the minimum size of the window.
+    /// </summary>
     public Size MinimumSize {
         get => GetMinimumSize().ToManaged();
         set => SetMinimumSize(value.ToNative());
     }
 
+    /// <summary>
+    /// Get or set the maximum size of the window.
+    /// </summary>
     public Size MaximumSize {
         get => GetMaximumSize().ToManaged();
         set => SetMaximumSize(value.ToNative());
     }
 
+    /// <summary>
+    /// Get or set the size of the window.
+    /// </summary>
     public Size Size {
         get => GetSize().ToManaged();
         set => SetSize(value.ToNative());
     }
 
+    /// <summary>
+    /// Get or set the width of the window.
+    /// </summary>
     public int Width {
         get => GetSize().Width;
         set => SetSize(new() { Width = value, Height = GetSize().Height });
     }
 
+    /// <summary>
+    /// Get or set the height of the window.
+    /// </summary>
     public int Height {
         get => GetSize().Height;
         set => SetSize(new() { Width = GetSize().Width, Height = value });
     }
 
+    /// <summary>
+    /// Get or set the location of the window.
+    /// </summary>
     public Point Location {
         get => GetLocation().ToManaged();
         set => SetLocation(value.ToNative());
     }
 
+    /// <summary>
+    /// Get or set the X coordinate of the window.
+    /// </summary>
     public int X {
         get => GetLocation().X;
         set => SetLocation(new() { X = value, Y = GetLocation().Y });
     }
 
+    /// <summary>
+    /// Get or set the Y coordinate of the window.
+    /// </summary>
     public int Y {
         get => GetLocation().Y;
         set => SetLocation(new() { X = GetLocation().X, Y = value });
     }
 
+    /// <summary>
+    /// Get or set whether the window can be minimized.
+    /// </summary>
+    /// <remarks>
+    /// Default: true
+    /// </remarks>
     public bool MinimizeEnabled {
         get => GetMinimizeEnabled();
         set => SetMinimizeEnabled(value);
     }
 
+    /// <summary>
+    /// Get or set whether the window can be maximized.
+    /// </summary>
+    /// <remarks>
+    /// Default: true
+    /// </remarks>
     public bool MaximizeEnabled {
         get => GetMaximizeEnabled();
         set => SetMaximizeEnabled(value);
     }
 
+    /// <summary>
+    /// Get or set whether the window is always on top of other windows.
+    /// </summary>
+    /// <remarks>
+    /// Default: false
+    /// </remarks>
     public bool TopMost {
         get => GetTopMost();
         set => SetTopMost(value);
     }
-    
+
+    /// <summary>
+    /// Get the bounding rectangle of the window.
+    /// </summary>
+    public Rectangle Bounds {
+        get {
+            var bounds = NativeRect.Empty;
+            SafeInvoke(() => NativeWindow.GetBounds(InstancePtr, out bounds));
+            return new(bounds.X, bounds.Y, bounds.Width, bounds.Height);
+        }
+    }
+
+    /// <summary>
+    /// Get the native window handle.
+    /// </summary>
+    /// <remarks>
+    /// Windows only.
+    /// </remarks>
+    public nint Handle {
+        get {
+            if (!App.Platform.IsWindows)
+                throw new PlatformNotSupportedException();
+            return SafeInvoke(() => NativeWindow.GetHandle(InstancePtr));
+        }
+    }
+
     internal bool IsMain {
         set {
-            if (_nativeInstance == nint.Zero)
-                _nativeOptions.IsMain = value;
+            if (InstancePtr == nint.Zero)
+                NativeOptions.IsMain = value;
             else
                 throw new InvalidOperationException();
         }
     }
 
-    public Rectangle GetBounds()
-    {
-        var bounds = NativeRect.Empty;
-        SafeInvoke(() => NativeWindow.GetBounds(_nativeInstance, out bounds));
-        return new(bounds.X, bounds.Y, bounds.Width, bounds.Height);
-    }
-
+    /// <summary>
+    /// Show the window.
+    /// </summary>
     public void Show()
     {
-        if (_nativeInstance == nint.Zero) {
+        if (InstancePtr == nint.Zero) {
             InvokeCreating();
-            
-            _nativeInstance = NativeApp.SpawnWindow(App.NativeInstance, ref _nativeOptions, ref _nativeEvents);
-            App.ActiveWindows.Add(this);
 
+            NativeApp.SpawnWindow(App.NativeInstance, 
+                ref NativeOptions, ref NativeEvents, 
+                ref WebView.NativeOptions, ref WebView.NativeEvents, 
+                out InstancePtr, out WebView.InstancePtr);
+            App.ActiveWindows.Add(this);
             InvokeCreated();
         }
 
-        Invoke(() => NativeWindow.Show(_nativeInstance));
+        Invoke(() => NativeWindow.Show(InstancePtr));
     }
 
-    public void Hide()
-    {
-        SafeInvoke(() => NativeWindow.Hide(_nativeInstance));
-    }
+    /// <summary>
+    /// Hide the window.
+    /// </summary>
+    public void Hide() => SafeInvoke(() => NativeWindow.Hide(InstancePtr));
 
+    /// <summary>
+    /// Close the window.
+    /// </summary>
     public void Close()
     {
-        if (_nativeInstance == nint.Zero)
+        if (InstancePtr == nint.Zero)
             return;
 
-        Invoke(() => NativeWindow.Close(_nativeInstance));
+        Invoke(() => NativeWindow.Close(InstancePtr));
 
         if (App.MainWindow == this)
             App.Exit();
     }
 
-    public void Center()
-    {
-        SafeInvoke(() => NativeWindow.Center(_nativeInstance));
-    }
+    /// <summary>
+    /// Center the window on the screen.
+    /// </summary>
+    public void Center() => SafeInvoke(() => NativeWindow.Center(InstancePtr));
 
-    public void DragMove()
-    {
-        SafeInvoke(() => NativeWindow.DragMove(_nativeInstance));
-    }
-    
+    /// <summary>
+    /// Begin a drag move operation.
+    /// </summary>
+    public void DragMove() => SafeInvoke(() => NativeWindow.DragMove(InstancePtr));
+
     internal void Invoke(Action action)
     {
         if (Environment.CurrentManagedThreadId == _managedWindowThreadId)
             action();
         else
-            NativeWindow.Invoke(_nativeInstance, action.Invoke);
+            NativeWindow.Invoke(InstancePtr, action.Invoke);
     }
 
     internal T Invoke<T>(Func<T> func)
@@ -215,12 +367,12 @@ public partial class Window
 
     internal void SafeInvoke(Action action)
     {
-        if (_nativeInstance == nint.Zero)
+        if (InstancePtr == nint.Zero)
             return;
         Invoke(action);
     }
 
-    internal T SafeInvoke<T>(Func<T> func) => _nativeInstance == nint.Zero ? default : Invoke(func);
+    internal T SafeInvoke<T>(Func<T> func) => InstancePtr == nint.Zero ? default : Invoke(func);
 
     protected virtual void OnCreating(EventArgs e) { }
     protected virtual void OnCreated(EventArgs e) { }

@@ -6,6 +6,7 @@
 #include "utils.h"
 #include "app_base.h"
 #include "window.h"
+#include "webview.h"
 
 #include <Windows.h>
 
@@ -20,7 +21,10 @@ public:
 	explicit App(HINSTANCE hInstance, wchar_t* appId);
 	~App() override;
 
-	WindowBase* SpawnWindow(WindowOptions* options, WindowEvents* events) override;
+	void SpawnWindow(
+		WindowOptions* windowOptions, WindowEvents* windowEvents,
+		WebViewOptions* webViewOptions, WebViewEvents* webViewEvents,
+		WindowBase** window, WebViewBase** webView) override;
 	void DespawnWindow(WindowBase* window) override;
 	void Run() override;
 	void Exit() override;

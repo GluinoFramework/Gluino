@@ -1,4 +1,4 @@
-﻿namespace Gluino.Events;
+﻿namespace Gluino;
 
 public class WindowClosingEventArgs(bool cancel) : EventArgs
 {

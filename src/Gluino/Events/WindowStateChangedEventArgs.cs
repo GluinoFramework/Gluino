@@ -1,4 +1,4 @@
-﻿namespace Gluino.Events;
+﻿namespace Gluino;
 
 public class WindowStateChangedEventArgs(WindowState windowState) : EventArgs
 {

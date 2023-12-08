@@ -4,16 +4,10 @@
 
 #include <future>
 #include <algorithm>
-#include <iostream>
-#include <shlobj.h>
-#include <dwmapi.h>
-#include <wrl.h>
 
-using namespace Microsoft::WRL;
 using namespace Gluino;
 
-Window::Window(WindowOptions* options, const WindowEvents* events) : WindowBase(options, events) {
-    _title = CopyStr(options->TitleW);
+Window::Window(WindowOptions* options, const WindowEvents* events, WebView* webView) : WindowBase(options, events) {
 	_windowState = options->WindowState;
 	_minSize = options->MinimumSize;
 	_maxSize = options->MaximumSize;
@@ -46,6 +40,11 @@ Window::Window(WindowOptions* options, const WindowEvents* events) : WindowBase(
 		SetTopMost(options->TopMost);
 
 	_frame = new WindowFrame(_hWnd);
+	if (options->BorderStyle == WindowBorderStyle::SizableNoCaption)
+		_frame->Attach();
+
+	_webView = webView;
+	_webView->Attach(this);
 }
 
 Window::~Window() {
@@ -59,7 +58,7 @@ LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam
 				_onFocusOut();
 			}
 			else {
-				FocusWebView();
+				_webView->Focus();
 				_onFocusIn();
 				return 0;
 			}
@@ -69,7 +68,7 @@ LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam
 			// Blocking the thread for 1 millisecond seems to make WebView2 resize smoother
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-			RefitWebView();
+			_webView->Refit(_borderStyle);
 			
 			_onResize(GetSize());
 
@@ -157,37 +156,6 @@ LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam
 	return DefWindowProc(_hWnd, msg, wParam, lParam);
 }
 
-void Window::AttachWebView() {
-	wchar_t dataPath[MAX_PATH];
-	SHGetSpecialFolderPath(nullptr, dataPath, CSIDL_LOCAL_APPDATA, FALSE);
-
-	CreateCoreWebView2EnvironmentWithOptions(nullptr, dataPath, nullptr,
-		Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(this,
-			&Window::OnWebView2CreateEnvironmentCompleted).Get());
-}
-
-void Window::RefitWebView() const {
-	if (_webviewController == nullptr) return;
-
-	RECT bounds;
-	GetClientRect(_hWnd, &bounds);
-	if (_borderStyle == WindowBorderStyle::SizableNoCaption || 
-		_borderStyle == WindowBorderStyle::FixedNoCaption) {
-		bounds.top += 1;
-		bounds.left += 1;
-		bounds.right -= 1;
-		bounds.bottom -= 1;
-	}
-
-	_webviewController->put_Bounds(bounds);
-}
-
-void Window::FocusWebView() const {
-	if (!_webviewController) return;
-
-	_webviewController->MoveFocus(COREWEBVIEW2_MOVE_FOCUS_REASON_PROGRAMMATIC);
-}
-
 void Window::Show() {
 	ShowWindow(_hWnd, SW_SHOWDEFAULT);
 	UpdateWindow(_hWnd);
@@ -200,8 +168,6 @@ void Window::Show() {
 		SetMinimizeEnabled(_minimizeEnabled);
 	if (!_maximizeEnabled)
 		SetMaximizeEnabled(_maximizeEnabled);
-
-	AttachWebView();
 }
 
 void Window::Hide() {
@@ -252,6 +218,10 @@ void Window::GetBounds(Rect* bounds) {
 		rect.left,
 		rect.top
 	};
+}
+
+bool Window::GetIsDarkMode() {
+	return _theme == WindowTheme::System ? IsDarkModeEnabled() : _theme == WindowTheme::Dark;
 }
 
 autostr Window::GetTitle() {
@@ -443,92 +413,5 @@ bool Window::GetTopMost() {
 
 void Window::SetTopMost(const bool topMost) {
     SetWindowPos(_hWnd, topMost ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-}
-
-HRESULT Window::OnWebView2CreateEnvironmentCompleted(const HRESULT result, ICoreWebView2Environment* env) {
-	if (result != S_OK) return result;
-	const auto envResult = env->QueryInterface(&_webviewEnv);
-	if (envResult != S_OK) return envResult;
-
-	env->CreateCoreWebView2Controller(_hWnd,
-		Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(this,
-			&Window::OnWebView2CreateControllerCompleted).Get());
-
-	return S_OK;
-}
-
-HRESULT Window::OnWebView2CreateControllerCompleted(HRESULT result, ICoreWebView2Controller* controller) {
-	if (result != S_OK) return result;
-
-	const auto controllerResult = controller->QueryInterface(&_webviewController);
-	if (controllerResult != S_OK) return controllerResult;
-
-	_webviewController->get_CoreWebView2(&_webview);
-
-	_webviewController2 = _webviewController.query<ICoreWebView2Controller2>();
-	_webviewController2->put_DefaultBackgroundColor({ 0, 0, 0, 0 });
-
-	_webview->get_Settings(&_webviewSettings);
-	_webviewSettings->put_AreHostObjectsAllowed(TRUE);
-	_webviewSettings->put_IsScriptEnabled(TRUE);
-	_webviewSettings->put_AreDefaultScriptDialogsEnabled(TRUE);
-	_webviewSettings->put_IsWebMessageEnabled(TRUE);
-	_webviewSettings->put_IsStatusBarEnabled(FALSE);
-
-	_webviewSettings2 = _webviewSettings.try_query<ICoreWebView2Settings2>();
-
-	/*EventRegistrationToken permissionRequestedToken;
-	_webview->add_PermissionRequested(
-		Callback<ICoreWebView2PermissionRequestedEventHandler>(this,
-			&WindowWin32::OnWebView2PermissionRequested).Get(), &permissionRequestedToken);*/
-
-	const auto htmlContent = L"\
-<!DOCTYPE html>\n\
-<html lang=\"en\">\n\
-<head>\n\
-  <meta charset=\"UTF-8\">\n\
-  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n\
-  <title>Test</title>\n\
-\n\
-  <style>\n\
-	html {\n\
-      padding: 0;\n\
-	  margin: 0;\n\
-      box-sizing: border-box;\n\
-	  border: 1px solid red;\n\
-      height: 100vh;\n\
-    }\n\
-\n\
-    html, body {\n\
-      background-color: transparent;\n\
-      color: pink;\n\
-      font-family: \"Segoe UI\", sans-serif;\n\
-      font-size: 14px;\n\
-      font-weight: 400;\n\
-    }\n\
-  </style>\n\
-</head>\n\
-<body>\n\
-  This is a test.\n\
-</body>\n\
-</html>";
-
-	_webview->NavigateToString(htmlContent);
-
-	RefitWebView();
-
-	return S_OK;
-}
-
-HRESULT Window::OnWebView2WebMessageReceived(ICoreWebView2* webview, ICoreWebView2WebMessageReceivedEventArgs* args) {
-	return S_OK;
-}
-
-HRESULT Window::OnWebView2WebResourceRequested(ICoreWebView2* webview, ICoreWebView2WebResourceRequestedEventArgs* args) {
-	return S_OK;
-}
-
-HRESULT Window::OnWebView2PermissionRequested(ICoreWebView2* sender, ICoreWebView2PermissionRequestedEventArgs* args) {
-	return S_OK;
 }
 

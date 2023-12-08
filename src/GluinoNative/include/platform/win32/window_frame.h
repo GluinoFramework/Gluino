@@ -4,8 +4,8 @@
 #define GLUINO_WINDOW_FRAME_H
 
 #include "common.h"
-#include "window.h"
 
+#include <Windows.h>
 #include <vector>
 
 namespace Gluino {
@@ -15,12 +15,13 @@ public:
 	explicit WindowFrame(HWND hWndWindow);
 
 	void Attach();
-	void Detach() const;
+	void Detach();
 	void Update() const;
 
 private:
 	HWND _hWndWindow;
 	std::vector<HWND> _hWndEdges;
+	bool _isAttached = false;
 
 	Rect GetEdgeRect(WindowEdge edge) const;
 

@@ -8,26 +8,32 @@ internal partial class NativeWindow
     private const ManagedProperty PG = ManagedProperty.Get;
     private const ManagedProperty PS = ManagedProperty.Set;
 
-    [LibImport("Gluino_Window_Show", Managed = true)]
+    [LibImport("Gluino_Window_Show")]
     public static partial void Show(nint window);
 
-    [LibImport("Gluino_Window_Hide", Managed = true)]
+    [LibImport("Gluino_Window_Hide")]
     public static partial void Hide(nint window);
 
-    [LibImport("Gluino_Window_Close", Managed = true)]
+    [LibImport("Gluino_Window_Close")]
     public static partial void Close(nint window);
 
-    [LibImport("Gluino_Window_Center", Managed = true)]
+    [LibImport("Gluino_Window_Center")]
     public static partial void Center(nint window);
 
-    [LibImport("Gluino_Window_DragMove", Managed = true)]
+    [LibImport("Gluino_Window_DragMove")]
     public static partial void DragMove(nint window);
 
     [LibImport("Gluino_Window_Invoke")]
     public static partial void Invoke(nint window, NativeDelegate action);
 
+    [LibImport("Gluino_Window_GetHandle")]
+    public static partial nint GetHandle(nint window);
+
     [LibImport("Gluino_Window_GetBounds")]
     public static partial void GetBounds(nint window, out NativeRect bounds);
+
+    [LibImport("Gluino_Window_GetIsDarkMode")]
+    public static partial bool GetIsDarkMode(nint window);
 
     [LibImport("Gluino_Window_GetTitle", Managed = true, Property = PG, Option = "Title")]
     public static partial string GetTitle(nint window);

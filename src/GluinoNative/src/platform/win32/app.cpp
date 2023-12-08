@@ -42,11 +42,24 @@ App::~App() {
 	delete[] _wndClassName;
 }
 
-WindowBase* App::SpawnWindow(WindowOptions* options, WindowEvents* events) {
+void App::SpawnWindow(
+	WindowOptions* windowOptions, WindowEvents* windowEvents,
+	WebViewOptions* webViewOptions, WebViewEvents* webViewEvents,
+	WindowBase** window, WebViewBase** webView) {
+	const auto wv = new WebView(webViewOptions, webViewEvents);
+	const auto wnd = new Window(windowOptions, windowEvents, wv);
+
+	windowMap[wnd->GetHandle()] = wnd;
+
+	*window = wnd;
+	*webView = wv;
+}
+
+/*WindowBase* App::SpawnWindow(WindowOptions* options, WindowEvents* events) {
 	const auto window = new Window(options, events);
 	windowMap[window->GetHandle()] = window;
 	return window;
-}
+}*/
 
 void App::DespawnWindow(WindowBase* window) {
 	const auto win32Window = (Window*)window;

@@ -168,35 +168,44 @@ public class LibImportGenerator : ISourceGenerator
     {
         var className = propertyData.Getter.Symbol.ContainingType.Name;
 
-        var getType = propertyData.Getter.Symbol.ReturnType.ToDisplayString();
-        var getSource =
-            $$"""
-                private {{(propertyData.Getter.Import.IsStatic ? "static " : "")}}{{getType}} {{propertyData.Getter.Name}}()
-                {
-                   if (_nativeInstance == nint.Zero) {
-                       {{(propertyData.Getter.Symbol.ReturnType.IsString() ? $"return App.Platform.IsWindows ? _nativeOptions.{propertyData.Option}W : _nativeOptions.{propertyData.Option}A" : $"return _nativeOptions.{propertyData.Option}")}};
-                   }
-                   return Invoke(() => {{className}}.{{propertyData.Getter.Name}}(_nativeInstance));
-                }
-            """;
+        string getSource = null;
+        if (propertyData.Getter != null) {
+            var getType = propertyData.Getter.Symbol.ReturnType.ToDisplayString();
+            getSource =
+                $$"""
+                      private {{(propertyData.Getter.Import.IsStatic ? "static " : "")}}{{getType}} {{propertyData.Getter.Name}}()
+                      {
+                         if (InstancePtr == nint.Zero) {
+                             {{(propertyData.Getter.Symbol.ReturnType.IsString() ? $"return App.Platform.IsWindows ? NativeOptions.{propertyData.Option}W : NativeOptions.{propertyData.Option}A" : $"return NativeOptions.{propertyData.Option}")}};
+                         }
+                         return SafeInvoke(() => {{className}}.{{propertyData.Getter.Name}}(InstancePtr));
+                      }
+                  """;
+        }
 
-        var setParam = propertyData.Setter.Symbol.Parameters[1];
-        var setParamType = setParam.Type.ToDisplayString();
-        var setParamName = setParam.Name;
-        var setSource =
-            $$"""
-                private {{(propertyData.Setter.Import.IsStatic ? "static " : "")}}void {{propertyData.Setter.Name}}({{setParamType}} {{setParamName}})
-                {
-                    if (_nativeInstance == nint.Zero) {
-                        {{(setParam.Type.IsString() ? $"if (App.Platform.IsWindows) {{\r\n                _nativeOptions.{propertyData.Option}W = {setParamName};\r\n            }}\r\n            else {{\r\n                _nativeOptions.{propertyData.Option}A = {setParamName};\r\n            }}" : $"_nativeOptions.{propertyData.Option} = {setParamName};")}}
-                    }
-                    else {
-                        Invoke(() => {{className}}.{{propertyData.Setter.Name}}(_nativeInstance, {{setParamName}}));
-                    }
-                }
-            """;
+        string setSource = null;
+        if (propertyData.Setter != null) {
+            var setParam = propertyData.Setter.Symbol.Parameters[1];
+            var setParamType = setParam.Type.ToDisplayString();
+            var setParamName = setParam.Name;
+            setSource =
+                $$"""
+                      private {{(propertyData.Setter.Import.IsStatic ? "static " : "")}}void {{propertyData.Setter.Name}}({{setParamType}} {{setParamName}})
+                      {
+                          if (InstancePtr == nint.Zero) {
+                              {{(setParam.Type.IsString() ? $"if (App.Platform.IsWindows) {{\r\n                NativeOptions.{propertyData.Option}W = {setParamName};\r\n            }}\r\n            else {{\r\n                NativeOptions.{propertyData.Option}A = {setParamName};\r\n            }}" : $"NativeOptions.{propertyData.Option} = {setParamName};")}}
+                          }
+                          else {
+                              SafeInvoke(() => {{className}}.{{propertyData.Setter.Name}}(InstancePtr, {{setParamName}}));
+                          }
+                      }
+                  """;
+        }
 
-        return $"{getSource}\r\n\r\n\r\n{setSource}";
+        return getSource != null && setSource != null
+            ? $"{getSource}\r\n\r\n\r\n{setSource}"
+            : getSource ?? setSource;
+        //return $"{getSource}\r\n\r\n\r\n{setSource}";
     }
 
     private class SyntaxReceiver : ISyntaxReceiver

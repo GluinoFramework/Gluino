@@ -2,7 +2,6 @@
 #include "app.h"
 
 #include <map>
-#include <ranges>
 
 using namespace Gluino;
 
@@ -17,6 +16,7 @@ WindowFrame::WindowFrame(const HWND hWndWindow) {
 }
 
 void WindowFrame::Attach() {
+	if (_isAttached) return;
 	for (int i = 0; i < 8; ++i) {
 		const auto edge = static_cast<WindowEdge>(i);
 		const auto [x, y, width, height] = GetEdgeRect(edge);
@@ -41,9 +41,11 @@ void WindowFrame::Attach() {
 		StaticHandleToFrame[hWnd] = this;
 		OriginalWndProc = (WNDPROC)SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)WndFrameProc);
 	}
+	_isAttached = true;
 }
 
-void WindowFrame::Detach() const {
+void WindowFrame::Detach() {
+	if (!_isAttached) return;
 	for (const auto hWnd : _hWndEdges) {
 		StaticHandleToEdge.erase(hWnd);
 		StaticHandleToWindowHandle.erase(hWnd);
@@ -51,9 +53,11 @@ void WindowFrame::Detach() const {
 
 		DestroyWindow(hWnd);
 	}
+	_isAttached = false;
 }
 
 void WindowFrame::Update() const {
+	if (!_isAttached) return;
 	for (const auto& [hWnd, edge] : StaticHandleToEdge) {
 		auto [x, y, width, height] = GetEdgeRect(edge);
 		SetWindowPos(hWnd, nullptr, x, y, width, height, SWP_NOZORDER);

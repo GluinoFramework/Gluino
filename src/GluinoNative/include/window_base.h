@@ -39,7 +39,7 @@ public:
 		delete[] _title;
 	}
 
-	bool IsMain() const { return _isMain; }
+	[[nodiscard]] bool IsMain() const { return _isMain; }
 
 	virtual void Show() = 0;
 	virtual void Hide() = 0;
@@ -49,6 +49,7 @@ public:
 	virtual void Invoke(Delegate action) = 0;
 
 	virtual void GetBounds(Rect* bounds) = 0;
+	virtual bool GetIsDarkMode() = 0;
 
 	virtual autostr GetTitle() = 0;
 	virtual void SetTitle(autostr title) = 0;

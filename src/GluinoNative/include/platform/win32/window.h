@@ -4,28 +4,22 @@
 #define GLUINO_WINDOW_H
 
 #include "window_base.h"
-
-#include <Windows.h>
-#include <wil/com.h>
-#include <WebView2.h>
+#include "window_frame.h"
 
 #undef min
 #undef max
 
 namespace Gluino {
 
-class WindowFrame;
+class WebView;
 
 class Window final : public WindowBase {
 public:
-	explicit Window(WindowOptions* options, const WindowEvents* events);
+	explicit Window(WindowOptions* options, const WindowEvents* events, WebView* webView);
 	~Window() override;
 
 	HWND GetHandle() const { return _hWnd; }
 	LRESULT WndProc(UINT msg, WPARAM wParam, LPARAM lParam);
-	void AttachWebView();
-	void RefitWebView() const;
-	void FocusWebView() const;
 
 	void Show() override;
 	void Hide() override;
@@ -35,6 +29,7 @@ public:
 	void Invoke(Delegate action) override;
 
 	void GetBounds(Rect* bounds) override;
+	bool GetIsDarkMode() override;
 
 	autostr GetTitle() override;
 	void SetTitle(autostr title) override;
@@ -79,18 +74,7 @@ private:
 	bool _minimizeEnabled;
 	bool _maximizeEnabled;
 
-	wil::com_ptr<ICoreWebView2>            _webview;
-	wil::com_ptr<ICoreWebView2Environment> _webviewEnv;
-	wil::com_ptr<ICoreWebView2Controller>  _webviewController;
-	wil::com_ptr<ICoreWebView2Controller2> _webviewController2;
-	wil::com_ptr<ICoreWebView2Settings>    _webviewSettings;
-	wil::com_ptr<ICoreWebView2Settings2>   _webviewSettings2;
-
-	HRESULT OnWebView2CreateEnvironmentCompleted(HRESULT result, ICoreWebView2Environment* env);
-	HRESULT OnWebView2CreateControllerCompleted(HRESULT result, ICoreWebView2Controller* controller);
-	HRESULT OnWebView2WebMessageReceived(ICoreWebView2* webview, ICoreWebView2WebMessageReceivedEventArgs* args);
-	HRESULT OnWebView2WebResourceRequested(ICoreWebView2* webview, ICoreWebView2WebResourceRequestedEventArgs* args);
-	HRESULT OnWebView2PermissionRequested(ICoreWebView2* sender, ICoreWebView2PermissionRequestedEventArgs* args);
+	WebView* _webView;
 };
 
 }
