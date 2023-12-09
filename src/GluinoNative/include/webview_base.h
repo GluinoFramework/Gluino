@@ -26,12 +26,13 @@ public:
 		_onNavigationStart = (StringDelegate)events->OnNavigationStart;
 		_onNavigationEnd = (Delegate)events->OnNavigationEnd;
 		_onMessageReceived = (StringDelegate)events->OnMessageReceived;
+		_onResourceRequested = (WebResourceDelegate)events->OnResourceRequested;
 	}
 	virtual ~WebViewBase() = default;
 
 	virtual void Attach(WindowBase* window) = 0;
 	virtual void Navigate(autostr url) = 0;
-	virtual void LoadContent(autostr content) = 0;
+	virtual void NativateToString(autostr content) = 0;
 	virtual void PostWebMessage(autostr message) = 0;
 
 	virtual bool GetContextMenuEnabled() = 0;
@@ -52,6 +53,7 @@ protected:
 	StringDelegate _onNavigationStart;
 	Delegate _onNavigationEnd;
 	StringDelegate _onMessageReceived;
+	WebResourceDelegate _onResourceRequested;
 };
 
 }

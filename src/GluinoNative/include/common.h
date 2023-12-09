@@ -82,12 +82,30 @@ struct Rect {
     int height;
 };
 
+struct WebResourceRequest {
+    wchar_t* UrlW;
+    char* UrlA;
+    wchar_t* MethodW;
+    char* MethodA;
+};
+
+struct WebResourceResponse {
+    wchar_t* ContentTypeW;
+    char* ContentTypeA;
+    void* Content;
+    int ContentLength;
+    int StatusCode;
+    wchar_t* ReasonPhraseW;
+    char* ReasonPhraseA;
+};
+
 typedef void (*Delegate)();
 typedef bool (*Predicate)();
 typedef void (*SizeDelegate)(Size);
 typedef void (*PointDelegate)(Point);
 typedef void (*StringDelegate)(autostr);
 typedef void (*IntDelegate)(int);
+typedef void (*WebResourceDelegate)(WebResourceRequest, WebResourceResponse*);
 
 inline autostr CopyStr(autostr source) {
     autostr result;

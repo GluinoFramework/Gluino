@@ -25,7 +25,7 @@ public:
 
 	void Attach(WindowBase* window) override;
 	void Navigate(autostr url) override;
-	void LoadContent(autostr content) override;
+	void NativateToString(autostr content) override;
 	void PostWebMessage(autostr message) override;
 
 	bool GetGrantPermissions() const;

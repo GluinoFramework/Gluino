@@ -8,3 +8,4 @@ namespace Gluino.Native;
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void NativePointDelegate(NativePoint point);
 [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)] internal delegate void NativeStringDelegate(string value);
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void NativeIntDelegate(int value);
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void NativeWebResourceDelegate(NativeWebResourceRequest request, out NativeWebResourceResponse response);

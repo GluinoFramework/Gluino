@@ -3,6 +3,9 @@ using Gluino.Native;
 
 namespace Gluino;
 
+/// <summary>
+/// Represents the embedded WebView control.
+/// </summary>
 public partial class WebView
 {
     [GeneratedRegex("^https?://", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
@@ -31,6 +34,10 @@ public partial class WebView
     /// Occurs when the WebView receives a message from the page.
     /// </summary>
     public event EventHandler<string> MessageReceived;
+    /// <summary>
+    /// Occurs when the WebView requests a resource.
+    /// </summary>
+    public event EventHandler<WebResourceRequestedEventArgs> ResourceRequested;
 
     internal WebView(Window window)
     {
@@ -42,7 +49,8 @@ public partial class WebView
             OnCreated = InvokeCreated,
             OnNavigationStart = InvokeNavigationStart,
             OnNavigationEnd = InvokeNavigationEnd,
-            OnMessageReceived = InvokeMessageReceived
+            OnMessageReceived = InvokeMessageReceived,
+            OnResourceRequested = InvokeResourceRequested
         };
 
         _window = window;
@@ -149,10 +157,19 @@ public partial class WebView
     }
 
     /// <summary>
-    /// Loads the specified HTML content in the WebView.
+    /// Navigates to the specified HTML content.
     /// </summary>
-    /// <param name="content">The HTML content to load.</param>
-    public void LoadContent(string content) => SafeInvoke(() => NativeWebView.LoadContent(InstancePtr, content));
+    /// <param name="content">The HTML content to navigate to.</param>
+    public void NativateToString(string content)
+    {
+        if (InstancePtr == nint.Zero) {
+            if (App.Platform.IsWindows) NativeOptions.StartContentW = content;
+            else NativeOptions.StartContentA = content;
+            return;
+        }
+
+        Invoke(() => NativeWebView.NativateToString(InstancePtr, content));
+    }
 
     /// <summary>
     /// Sends a message to the WebView.
@@ -163,9 +180,19 @@ public partial class WebView
     private void Invoke(Action action) => _window.Invoke(action);
     private void SafeInvoke(Action action) => _window.SafeInvoke(action);
     private T SafeInvoke<T>(Func<T> func) => _window.SafeInvoke(func);
-
+    
     private void InvokeCreated() => Created?.Invoke(this, EventArgs.Empty);
     private void InvokeNavigationStart(string url) => NavigationStart?.Invoke(this, new (url));
     private void InvokeNavigationEnd() => NavigationEnd?.Invoke(this, EventArgs.Empty);
     private void InvokeMessageReceived(string message) => MessageReceived?.Invoke(this, message);
+
+    private void InvokeResourceRequested(NativeWebResourceRequest request, out NativeWebResourceResponse response)
+    {
+        var req = new WebResourceRequest(request);
+        var res = new WebResourceResponse();
+
+        ResourceRequested?.Invoke(this, new(req, res));
+
+        response = res.Native;
+    }
 }

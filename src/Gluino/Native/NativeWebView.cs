@@ -7,7 +7,7 @@ internal partial class NativeWebView
     private const ManagedProperty PS = ManagedProperty.Set;
 
     [LibImport("Gluino_WebView_LoadUrl")] public static partial void Navigate(nint webView, string url);
-    [LibImport("Gluino_WebView_LoadContent")] public static partial void LoadContent(nint webView, string content);
+    [LibImport("Gluino_WebView_NativateToString")] public static partial void NativateToString(nint webView, string content);
     [LibImport("Gluino_WebView_PostWebMessage")] public static partial void PostWebMessage(nint webView, string message);
 
     [LibImport("Gluino_WebView_GetGrantPermissions", Managed = true, Property = PG, Option = nameof(NativeWebViewOptions.GrantPermissions))]

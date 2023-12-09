@@ -1,7 +1,10 @@
 #include "webview.h"
 
 #include <shlobj.h>
+#include <Shlwapi.h>
 #include <wrl.h>
+
+#pragma comment(lib, "Shlwapi.lib")
 
 using namespace Microsoft::WRL;
 using namespace Gluino;
@@ -48,7 +51,7 @@ void WebView::Navigate(const autostr url) {
 	_webview->Navigate(url);
 }
 
-void WebView::LoadContent(const autostr content) {
+void WebView::NativateToString(const autostr content) {
 	if (_webview == nullptr) return;
 	_webview->NavigateToString(content);
 }
@@ -140,15 +143,15 @@ HRESULT WebView::OnWebView2CreateControllerCompleted(const HRESULT result, ICore
 	}).Get(), &navigationStartingToken);
 
 	EventRegistrationToken navigationCompletedToken;
-	_webview->add_NavigationCompleted(Callback<ICoreWebView2NavigationCompletedEventHandler>(
-		[&](ICoreWebView2* _, ICoreWebView2NavigationCompletedEventArgs* args) -> HRESULT {
+	_webview->add_NavigationCompleted(Callback<ICoreWebView2NavigationCompletedEventHandler>([&](
+		ICoreWebView2* _, ICoreWebView2NavigationCompletedEventArgs* args) -> HRESULT {
 		_onNavigationEnd();
 		return S_OK;
 	}).Get(), &navigationCompletedToken);
 
 	EventRegistrationToken webMessageReceivedToken;
-	_webview->add_WebMessageReceived(Callback<ICoreWebView2WebMessageReceivedEventHandler>(
-		[&](ICoreWebView2* _, ICoreWebView2WebMessageReceivedEventArgs* args) -> HRESULT {
+	_webview->add_WebMessageReceived(Callback<ICoreWebView2WebMessageReceivedEventHandler>([&]
+	(ICoreWebView2* _, ICoreWebView2WebMessageReceivedEventArgs* args) -> HRESULT {
 		wil::unique_cotaskmem_string message;
 		if (const auto hr = args->TryGetWebMessageAsString(&message); hr != S_OK)
 			return hr;
@@ -157,12 +160,55 @@ HRESULT WebView::OnWebView2CreateControllerCompleted(const HRESULT result, ICore
 	}).Get(), &webMessageReceivedToken);
 
 	EventRegistrationToken permissionRequestedToken;
-	_webview->add_PermissionRequested(Callback<ICoreWebView2PermissionRequestedEventHandler>(
-		[&](ICoreWebView2* _, ICoreWebView2PermissionRequestedEventArgs* args) -> HRESULT {
+	_webview->add_PermissionRequested(Callback<ICoreWebView2PermissionRequestedEventHandler>([&]
+	(ICoreWebView2* _, ICoreWebView2PermissionRequestedEventArgs* args)->HRESULT {
 		if (_grantPermissions)
 			args->put_State(COREWEBVIEW2_PERMISSION_STATE_ALLOW);
 		return S_OK;
 	}).Get(), &permissionRequestedToken);
+
+	EventRegistrationToken webResourceRequestedToken;
+	_webview->AddWebResourceRequestedFilter(L"*", COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL);
+	_webview->add_WebResourceRequested(Callback<ICoreWebView2WebResourceRequestedEventHandler>([&]
+	(ICoreWebView2* _, ICoreWebView2WebResourceRequestedEventArgs* args) -> HRESULT {
+		ICoreWebView2WebResourceRequest* request;
+		args->get_Request(&request);
+
+		wil::unique_cotaskmem_string reqUri;
+		request->get_Uri(&reqUri);
+
+		wil::unique_cotaskmem_string reqMethod;
+		request->get_Method(&reqMethod);
+
+		const WebResourceRequest req{
+			reqUri.get(),
+			nullptr,
+			reqMethod.get(),
+			nullptr
+		};
+		WebResourceResponse res;
+		_onResourceRequested(req, &res);
+
+		const wil::unique_cotaskmem content(res.Content);
+
+		if (content != nullptr) {
+			const std::wstring contentTypeW(res.ContentTypeW);
+
+			IStream* stream = SHCreateMemStream((BYTE*)content.get(), res.ContentLength);
+			wil::com_ptr<ICoreWebView2WebResourceResponse> response;
+
+			_webviewEnv->CreateWebResourceResponse(
+				stream, 
+				res.StatusCode, 
+				res.ReasonPhraseW, 
+				(L"" + contentTypeW).c_str(), 
+				&response);
+
+			args->put_Response(response.get());
+		}
+
+		return S_OK;
+	}).Get(), &webResourceRequestedToken);
 
 	if (_startUrl) 
 		_webview->Navigate(_startUrl);

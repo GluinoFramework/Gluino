@@ -1,4 +1,6 @@
-﻿using Gluino;
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
+using Gluino;
 
 namespace TestApp;
 
@@ -7,48 +9,25 @@ internal class Program
     [STAThread]
     public static void Main()
     {
-        var htmlContent = """
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Test</title>
-            
-              <style>
-                html {
-                  padding: 0;
-                  margin: 0;
-                  box-sizing: border-box;
-                  border: 1px solid red;
-                  height: 100vh;
-                }
-            
-                html, body {
-                  background-color: transparent;
-                  color: pink;
-                  font-family: "Segoe UI", sans-serif;
-                  font-size: 14px;
-                  font-weight: 400;
-                }
-              </style>
-            </head>
-            <body>
-              This is a test.
-            </body>
-            </html>
-            """;
+        var htmlContent = string.Empty;
+        var assembly = Assembly.GetExecutingAssembly();
+        var indexResource = assembly.GetManifestResourceNames().FirstOrDefault(x => x.EndsWith("index.html"));
+        if (indexResource != null) {
+            using var stream = assembly.GetManifestResourceStream(indexResource);
+            using var reader = new StreamReader(stream!);
+            htmlContent = reader.ReadToEnd();
+        }
 
         var window = new Window {
             Title = "Test Window",
             //BorderStyle = WindowBorderStyle.SizableNoCaption,
             //WindowState = WindowState.Maximized,
-            Theme = WindowTheme.System,
+            //Theme = WindowTheme.System,
             //Resizable = true,
             //TopMost = false,
             //StartupLocation = WindowStartupLocation.Default,
             //MinimizeEnabled = true,
-            //MaximizeEnabled = false
+            //MaximizeEnabled = false,
 
             WebView = {
                 //StartUrl = "https://google.com",
@@ -72,10 +51,48 @@ internal class Program
         window.Closing += (_, _) => LogWindowEvent("Closing");
         window.Closed += (_, _) => LogWindowEvent("Closed");
 
-        window.WebView.Created += (_, _) => LogWebViewEvent("WebView Created");
-        window.WebView.NavigationStart += (_, e) => LogWebViewEvent($"WebView NavigationStart: {e.Url}");
-        window.WebView.NavigationEnd += (_, _) => LogWebViewEvent("WebView NavigationEnd");
-        window.WebView.MessageReceived += (_, e) => LogWebViewEvent($"WebView MessageReceived: {e}");
+        window.WebView.Created += (_, _) => LogWebViewEvent("Created");
+        window.WebView.NavigationStart += (_, e) => LogWebViewEvent($"NavigationStart: {e.Url}");
+        window.WebView.NavigationEnd += (_, _) => LogWebViewEvent("NavigationEnd");
+        window.WebView.MessageReceived += (_, e) => LogWebViewEvent($"MessageReceived: {e}");
+
+
+        var resourceDir = $"{assembly.GetName().Name}.wwwroot";
+        window.WebView.ResourceRequested += (_, e) => {
+            if (!e.Request.Url.StartsWith("app://")) {
+                return;
+            }
+
+            var path = e.Request.Url[6..];
+            var resourceName = $"{resourceDir}.{path.Trim('/').Replace('/', '.')}";
+            var resource = assembly.GetManifestResourceStream(resourceName);
+
+            e.Response.Content = resource;
+            e.Response.ContentType = Path.GetExtension(path) switch {
+                ".html" => "text/html",
+                ".css" => "text/css",
+                ".js" => "text/javascript",
+                ".png" => "image/png",
+                ".jpg" => "image/jpeg",
+                ".jpeg" => "image/jpeg",
+                ".gif" => "image/gif",
+                ".svg" => "image/svg+xml",
+                ".ico" => "image/x-icon",
+                ".json" => "application/json",
+                ".woff" => "font/woff",
+                ".woff2" => "font/woff2",
+                ".ttf" => "font/ttf",
+                ".otf" => "font/otf",
+                ".eot" => "application/vnd.ms-fontobject",
+                ".sfnt" => "application/font-sfnt",
+                ".xml" => "text/xml",
+                ".txt" => "text/plain",
+                _ => "application/octet-stream"
+            };
+            e.Response.StatusCode = 200;
+
+            LogWebViewEvent($"ResourceRequested: {e.Request.Url}");
+        };
 
         App.Run(window);
     }

@@ -71,7 +71,7 @@ extern "C" {
 
 
 	EXPORT void Gluino_WebView_Navigate(WebView* webView, const autostr url) { webView->Navigate(url); }
-	EXPORT void Gluino_WebView_LoadContent(WebView* webView, const autostr str) { webView->LoadContent(str); }
+	EXPORT void Gluino_WebView_NativateToString(WebView* webView, const autostr str) { webView->NativateToString(str); }
 	EXPORT void Gluino_WebView_PostWebMessage(WebView* webView, const autostr message) { webView->PostWebMessage(message); }
 
 	EXPORT bool Gluino_WebView_GetGrantPermissions(const WebView* webView) { return webView->GetGrantPermissions(); }

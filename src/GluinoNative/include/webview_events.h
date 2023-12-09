@@ -12,6 +12,7 @@ struct WebViewEvents {
 	StringDelegate* OnNavigationStart;
 	Delegate* OnNavigationEnd;
 	StringDelegate* OnMessageReceived;
+	WebResourceDelegate* OnResourceRequested;
 };
 
 }
