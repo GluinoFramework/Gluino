@@ -132,6 +132,32 @@ HRESULT WebView::OnWebView2CreateControllerCompleted(const HRESULT result, ICore
 	_webviewSettings2 = _webviewSettings.try_query<ICoreWebView2Settings2>();
 	if (_userAgent) _webviewSettings2->put_UserAgent(_userAgent);
 
+	_webview->AddScriptToExecuteOnDocumentCreated(
+		LR"(window.Gluino = (function() {
+    const listenerMap = new Map();
+
+    return {
+        sendMessage: function(message) {
+            window.chrome.webview.postMessage(message);
+        },
+        addListener: function(callback) {
+            let wrappedCallback = function(e) {
+                const msg = e.data;
+                callback(msg);
+            };
+            listenerMap.set(callback, wrappedCallback);
+            window.chrome.webview.addEventListener('message', wrappedCallback);
+        },
+        removeListener: function(callback) {
+            let wrappedCallback = listenerMap.get(callback);
+            if (wrappedCallback) {
+                window.chrome.webview.removeEventListener('message', wrappedCallback);
+                listenerMap.delete(callback);
+            }
+        }
+    };
+})();)", nullptr);
+
 	EventRegistrationToken navigationStartingToken;
 	_webview->add_NavigationStarting(Callback<ICoreWebView2NavigationStartingEventHandler>(
 		[&](ICoreWebView2* _, ICoreWebView2NavigationStartingEventArgs* args) -> HRESULT {

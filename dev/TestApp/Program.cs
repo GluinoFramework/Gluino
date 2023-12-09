@@ -46,8 +46,16 @@ internal class Program
         window.ResizeEnd += (_, e) => LogWindowEvent($"ResizeEnd: {e.Width}, {e.Height}");
         window.LocationChanged += (_, e) => LogWindowEvent($"LocationChanged: {e.X}, {e.Y}");
         window.WindowStateChanged += (_, e) => LogWindowEvent($"WindowStateChanged: {e.WindowState}");
-        window.FocusIn += (_, _) => LogWindowEvent("FocusIn");
-        window.FocusOut += (_, _) => LogWindowEvent("FocusOut");
+        window.FocusIn += (_, _) => {
+            window.WebView.SendMessage("window-focus-in");
+
+            LogWindowEvent("FocusIn");
+        };
+        window.FocusOut += (_, _) => {
+            window.WebView.SendMessage("window-focus-out");
+
+            LogWindowEvent("FocusOut");
+        };
         window.Closing += (_, _) => LogWindowEvent("Closing");
         window.Closed += (_, _) => LogWindowEvent("Closed");
 
