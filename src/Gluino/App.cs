@@ -6,7 +6,6 @@ namespace Gluino;
 
 public static class App
 {
-    internal static int WindowCount;
     internal static readonly nint AppHInstance;
     internal static readonly nint NativeInstance;
 

@@ -61,6 +61,14 @@ void WebView::PostWebMessage(const autostr message) {
 	_webview->PostWebMessageAsString(message);
 }
 
+void WebView::InjectScript(autostr script, bool onDocumentCreated) {
+	if (_webview == nullptr) return;
+	if (onDocumentCreated)
+		_webview->AddScriptToExecuteOnDocumentCreated(script, nullptr);
+	else
+		_webview->ExecuteScript(script, nullptr);
+}
+
 bool WebView::GetGrantPermissions() const {
 	return _grantPermissions;
 }
@@ -110,8 +118,6 @@ HRESULT WebView::OnWebView2CreateEnvironmentCompleted(const HRESULT result, ICor
 HRESULT WebView::OnWebView2CreateControllerCompleted(const HRESULT result, ICoreWebView2Controller* controller) {
 	if (result != S_OK) return result;
 
-	_onCreated();
-
 	const auto controllerResult = controller->QueryInterface(&_webviewController);
 	if (controllerResult != S_OK) return controllerResult;
 
@@ -132,109 +138,61 @@ HRESULT WebView::OnWebView2CreateControllerCompleted(const HRESULT result, ICore
 	_webviewSettings2 = _webviewSettings.try_query<ICoreWebView2Settings2>();
 	if (_userAgent) _webviewSettings2->put_UserAgent(_userAgent);
 
-	_webview->AddScriptToExecuteOnDocumentCreated(
-		LR"(window.Gluino = (function() {
-    const listenerMap = new Map();
 
-    return {
-        sendMessage: function(message) {
-            window.chrome.webview.postMessage(message);
-        },
-        addListener: function(callback) {
-            let wrappedCallback = function(e) {
-                const msg = e.data;
-                callback(msg);
-            };
-            listenerMap.set(callback, wrappedCallback);
-            window.chrome.webview.addEventListener('message', wrappedCallback);
-        },
-        removeListener: function(callback) {
-            let wrappedCallback = listenerMap.get(callback);
-            if (wrappedCallback) {
-                window.chrome.webview.removeEventListener('message', wrappedCallback);
-                listenerMap.delete(callback);
-            }
-        }
-    };
+
+	_webview->AddScriptToExecuteOnDocumentCreated(
+		LR"(window.gluino = (function() {
+  const listenerMap = new Map();
+
+  return {
+    sendMessage: function(message) {
+      window.chrome.webview.postMessage(message);
+    },
+    addListener: function(callback) {
+      let wrappedCallback = function(e) {
+          const msg = e.data;
+          callback(msg);
+      };
+      listenerMap.set(callback, wrappedCallback);
+      window.chrome.webview.addEventListener('message', wrappedCallback);
+    },
+    removeListener: function(callback) {
+      let wrappedCallback = listenerMap.get(callback);
+      if (wrappedCallback) {
+          window.chrome.webview.removeEventListener('message', wrappedCallback);
+          listenerMap.delete(callback);
+      }
+    }
+  };
 })();)", nullptr);
 
+	_onCreated();
+
 	EventRegistrationToken navigationStartingToken;
-	_webview->add_NavigationStarting(Callback<ICoreWebView2NavigationStartingEventHandler>(
-		[&](ICoreWebView2* _, ICoreWebView2NavigationStartingEventArgs* args) -> HRESULT {
-		wil::unique_cotaskmem_string uri;
-		if (const auto hr = args->get_Uri(&uri); hr != S_OK)
-			return hr;
-		_onNavigationStart(uri.get());
-		return S_OK;
-	}).Get(), &navigationStartingToken);
+	_webview->add_NavigationStarting(
+		Callback<ICoreWebView2NavigationStartingEventHandler>(this,
+			&WebView::OnWebView2NavigationStarting).Get(), &navigationStartingToken);
 
 	EventRegistrationToken navigationCompletedToken;
-	_webview->add_NavigationCompleted(Callback<ICoreWebView2NavigationCompletedEventHandler>([&](
-		ICoreWebView2* _, ICoreWebView2NavigationCompletedEventArgs* args) -> HRESULT {
-		_onNavigationEnd();
-		return S_OK;
-	}).Get(), &navigationCompletedToken);
+	_webview->add_NavigationCompleted(
+		Callback<ICoreWebView2NavigationCompletedEventHandler>(this,
+			&WebView::OnWebView2NavigationCompleted).Get(), &navigationCompletedToken);
 
 	EventRegistrationToken webMessageReceivedToken;
-	_webview->add_WebMessageReceived(Callback<ICoreWebView2WebMessageReceivedEventHandler>([&]
-	(ICoreWebView2* _, ICoreWebView2WebMessageReceivedEventArgs* args) -> HRESULT {
-		wil::unique_cotaskmem_string message;
-		if (const auto hr = args->TryGetWebMessageAsString(&message); hr != S_OK)
-			return hr;
-		_onMessageReceived(message.get());
-		return S_OK;
-	}).Get(), &webMessageReceivedToken);
-
-	EventRegistrationToken permissionRequestedToken;
-	_webview->add_PermissionRequested(Callback<ICoreWebView2PermissionRequestedEventHandler>([&]
-	(ICoreWebView2* _, ICoreWebView2PermissionRequestedEventArgs* args)->HRESULT {
-		if (_grantPermissions)
-			args->put_State(COREWEBVIEW2_PERMISSION_STATE_ALLOW);
-		return S_OK;
-	}).Get(), &permissionRequestedToken);
+	_webview->add_WebMessageReceived(
+		Callback<ICoreWebView2WebMessageReceivedEventHandler>(this,
+			&WebView::OnWebView2WebMessageReceived).Get(), &webMessageReceivedToken);
 
 	EventRegistrationToken webResourceRequestedToken;
 	_webview->AddWebResourceRequestedFilter(L"*", COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL);
-	_webview->add_WebResourceRequested(Callback<ICoreWebView2WebResourceRequestedEventHandler>([&]
-	(ICoreWebView2* _, ICoreWebView2WebResourceRequestedEventArgs* args) -> HRESULT {
-		ICoreWebView2WebResourceRequest* request;
-		args->get_Request(&request);
+	_webview->add_WebResourceRequested(
+		Callback<ICoreWebView2WebResourceRequestedEventHandler>(this,
+			&WebView::OnWebView2WebResourceRequested).Get(), &webResourceRequestedToken);
 
-		wil::unique_cotaskmem_string reqUri;
-		request->get_Uri(&reqUri);
-
-		wil::unique_cotaskmem_string reqMethod;
-		request->get_Method(&reqMethod);
-
-		const WebResourceRequest req{
-			reqUri.get(),
-			nullptr,
-			reqMethod.get(),
-			nullptr
-		};
-		WebResourceResponse res;
-		_onResourceRequested(req, &res);
-
-		const wil::unique_cotaskmem content(res.Content);
-
-		if (content != nullptr) {
-			const std::wstring contentTypeW(res.ContentTypeW);
-
-			IStream* stream = SHCreateMemStream((BYTE*)content.get(), res.ContentLength);
-			wil::com_ptr<ICoreWebView2WebResourceResponse> response;
-
-			_webviewEnv->CreateWebResourceResponse(
-				stream, 
-				res.StatusCode, 
-				res.ReasonPhraseW, 
-				(L"" + contentTypeW).c_str(), 
-				&response);
-
-			args->put_Response(response.get());
-		}
-
-		return S_OK;
-	}).Get(), &webResourceRequestedToken);
+	EventRegistrationToken permissionRequestedToken;
+	_webview->add_PermissionRequested(
+		Callback<ICoreWebView2PermissionRequestedEventHandler>(this,
+			&WebView::OnWebView2PermissionRequested).Get(), &permissionRequestedToken);
 
 	if (_startUrl) 
 		_webview->Navigate(_startUrl);
@@ -243,5 +201,72 @@ HRESULT WebView::OnWebView2CreateControllerCompleted(const HRESULT result, ICore
 
 	Refit(_window->GetBorderStyle());
 
+	return S_OK;
+}
+
+HRESULT WebView::OnWebView2NavigationStarting(ICoreWebView2* sender, ICoreWebView2NavigationStartingEventArgs* args) {
+	wil::unique_cotaskmem_string uri;
+	if (const auto hr = args->get_Uri(&uri); hr != S_OK)
+		return hr;
+	_onNavigationStart(uri.get());
+	return S_OK;
+}
+
+HRESULT WebView::OnWebView2NavigationCompleted(ICoreWebView2* sender, ICoreWebView2NavigationCompletedEventArgs* args) {
+	_onNavigationEnd();
+	return S_OK;
+}
+
+HRESULT WebView::OnWebView2WebMessageReceived(ICoreWebView2* sender, ICoreWebView2WebMessageReceivedEventArgs* args) {
+	wil::unique_cotaskmem_string message;
+	if (const auto hr = args->TryGetWebMessageAsString(&message); hr != S_OK)
+		return hr;
+	_onMessageReceived(message.get());
+	return S_OK;
+}
+
+HRESULT WebView::OnWebView2WebResourceRequested(ICoreWebView2* sender, ICoreWebView2WebResourceRequestedEventArgs* args) {
+	ICoreWebView2WebResourceRequest* request;
+	args->get_Request(&request);
+
+	wil::unique_cotaskmem_string reqUri;
+	request->get_Uri(&reqUri);
+
+	wil::unique_cotaskmem_string reqMethod;
+	request->get_Method(&reqMethod);
+
+	const WebResourceRequest req{
+		reqUri.get(),
+		nullptr,
+		reqMethod.get(),
+		nullptr
+	};
+	WebResourceResponse res;
+	_onResourceRequested(req, &res);
+
+	const wil::unique_cotaskmem content(res.Content);
+
+	if (content != nullptr) {
+		const std::wstring contentTypeW(res.ContentTypeW);
+
+		IStream* stream = SHCreateMemStream((BYTE*)content.get(), res.ContentLength);
+		wil::com_ptr<ICoreWebView2WebResourceResponse> response;
+
+		_webviewEnv->CreateWebResourceResponse(
+			stream,
+			res.StatusCode,
+			res.ReasonPhraseW,
+			(L"" + contentTypeW).c_str(),
+			&response);
+
+		args->put_Response(response.get());
+	}
+
+	return S_OK;
+}
+
+HRESULT WebView::OnWebView2PermissionRequested(ICoreWebView2* sender, ICoreWebView2PermissionRequestedEventArgs* args) {
+	if (_grantPermissions)
+		args->put_State(COREWEBVIEW2_PERMISSION_STATE_ALLOW);
 	return S_OK;
 }

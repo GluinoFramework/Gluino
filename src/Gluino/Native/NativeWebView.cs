@@ -9,6 +9,7 @@ internal partial class NativeWebView
     [LibImport("Gluino_WebView_LoadUrl")] public static partial void Navigate(nint webView, string url);
     [LibImport("Gluino_WebView_NativateToString")] public static partial void NativateToString(nint webView, string content);
     [LibImport("Gluino_WebView_PostWebMessage")] public static partial void PostWebMessage(nint webView, string message);
+    [LibImport("Gluino_WebView_InjectScript")] public static partial void InjectScript(nint webView, string script, bool onDocumentCreated);
 
     [LibImport("Gluino_WebView_GetGrantPermissions", Managed = true, Property = PG, Option = nameof(NativeWebViewOptions.GrantPermissions))]
     public static partial bool GetGrantPermissions(nint webView);

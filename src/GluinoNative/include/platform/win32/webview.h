@@ -27,6 +27,7 @@ public:
 	void Navigate(autostr url) override;
 	void NativateToString(autostr content) override;
 	void PostWebMessage(autostr message) override;
+	void InjectScript(autostr script, bool onDocumentCreated) override;
 
 	bool GetGrantPermissions() const;
 
@@ -56,6 +57,11 @@ private:
 
 	HRESULT OnWebView2CreateEnvironmentCompleted(HRESULT result, ICoreWebView2Environment* env);
 	HRESULT OnWebView2CreateControllerCompleted(HRESULT result, ICoreWebView2Controller* controller);
+	HRESULT OnWebView2NavigationStarting(ICoreWebView2* sender, ICoreWebView2NavigationStartingEventArgs* args);
+	HRESULT OnWebView2NavigationCompleted(ICoreWebView2* sender, ICoreWebView2NavigationCompletedEventArgs* args);
+	HRESULT OnWebView2WebMessageReceived(ICoreWebView2* sender, ICoreWebView2WebMessageReceivedEventArgs* args);
+	HRESULT OnWebView2WebResourceRequested(ICoreWebView2* sender, ICoreWebView2WebResourceRequestedEventArgs* args);
+	HRESULT OnWebView2PermissionRequested(ICoreWebView2* sender, ICoreWebView2PermissionRequestedEventArgs* args);
 };
 
 }

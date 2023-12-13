@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Collections.Concurrent;
+using System.Text.RegularExpressions;
 using Gluino.Native;
 
 namespace Gluino;
@@ -13,6 +14,7 @@ public partial class WebView
     private static readonly Regex HttpRegex = CreateHttpRegex();
 
     private readonly Window _window;
+    private readonly WebViewBinder _binder;
 
     internal nint InstancePtr;
     internal NativeWebViewOptions NativeOptions;
@@ -54,6 +56,7 @@ public partial class WebView
         };
 
         _window = window;
+        _binder = new WebViewBinder(this);
     }
 
     /// <summary>
@@ -176,6 +179,42 @@ public partial class WebView
     /// </summary>
     /// <param name="message">The message to send.</param>
     public void SendMessage(string message) => SafeInvoke(() => NativeWebView.PostWebMessage(InstancePtr, message));
+
+    /// <summary>
+    /// Injects the specified JavaScript code.
+    /// </summary>
+    /// <param name="script">The JavaScript code to inject.</param>
+    public void InjectScript(string script) => SafeInvoke(() => NativeWebView.InjectScript(InstancePtr, script, false));
+
+    /// <summary>
+    /// Injects the specified JavaScript code when the document is created.
+    /// </summary>
+    /// <param name="script">The JavaScript code to inject.</param>
+    public void InjectScriptOnDocumentCreated(string script) => SafeInvoke(() => NativeWebView.InjectScript(InstancePtr, script, true));
+
+    private readonly ConcurrentDictionary<string, Delegate> _bindings = new();
+
+    /// <summary>
+    /// Bind a C# method to JavaScript.
+    /// </summary>
+    /// <param name="name">The name of the function that will be created in JavaScript.</param>
+    /// <param name="fn">The method to bind.</param>
+    /// <remarks>
+    /// Example binding:
+    /// <code>
+    /// // C#
+    /// webView.Bind("test", (string arg1, string arg2) => {
+    ///     Console.WriteLine($"arg1: {arg1}, arg2: {arg2}"); // arg1: Hello, arg2: World!
+    ///     return "Hello from C#!";
+    /// });
+    /// </code>
+    /// <code>
+    /// // JavaScript
+    /// const result = await window.gluino.test("Hello", "World!");
+    /// cosnole.log(result); // Hello from C#!
+    /// </code>
+    /// </remarks>
+    public void Bind(string name, Delegate fn) => _binder.Bind(name, fn);
 
     private void Invoke(Action action) => _window.Invoke(action);
     private void SafeInvoke(Action action) => _window.SafeInvoke(action);

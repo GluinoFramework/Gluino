@@ -68,6 +68,7 @@ private:
 	HWND _hWnd;
 	WindowFrame* _frame;
 	bool _isResizing;
+
 	WindowState _windowState;
 	Size _minSize;
 	Size _maxSize;

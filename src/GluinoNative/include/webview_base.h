@@ -34,6 +34,7 @@ public:
 	virtual void Navigate(autostr url) = 0;
 	virtual void NativateToString(autostr content) = 0;
 	virtual void PostWebMessage(autostr message) = 0;
+	virtual void InjectScript(autostr script, bool onDocumentCreated) = 0;
 
 	virtual bool GetContextMenuEnabled() = 0;
 	virtual void SetContextMenuEnabled(bool enabled) = 0;

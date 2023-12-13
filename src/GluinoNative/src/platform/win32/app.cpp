@@ -55,12 +55,6 @@ void App::SpawnWindow(
 	*webView = wv;
 }
 
-/*WindowBase* App::SpawnWindow(WindowOptions* options, WindowEvents* events) {
-	const auto window = new Window(options, events);
-	windowMap[window->GetHandle()] = window;
-	return window;
-}*/
-
 void App::DespawnWindow(WindowBase* window) {
 	const auto win32Window = (Window*)window;
 	const HWND hWnd = win32Window->GetHandle();

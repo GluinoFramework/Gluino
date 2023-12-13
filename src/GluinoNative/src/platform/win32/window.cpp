@@ -65,11 +65,10 @@ LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam
 			break;
 		}
 		case WM_SIZE: {
-			// Blocking the thread for 1 millisecond seems to make WebView2 resize smoother
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			std::this_thread::sleep_for(std::chrono::nanoseconds(5000));
 
 			_webView->Refit(_borderStyle);
-			
+
 			_onResize(GetSize());
 
 			switch (wParam) {
@@ -124,10 +123,9 @@ LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam
 		}
 		case WM_CLOSE: {
 			if (const auto cancel = _onClosing(); !cancel) {
-				DestroyWindow(_hWnd);
-				return 0;
+				DestroyWindow(_hWnd);				
 			}
-			break;
+			return 0;
 		}
 		case WM_NCCALCSIZE: {
 			if (wParam == TRUE && 

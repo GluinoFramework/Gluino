@@ -106,6 +106,7 @@ typedef void (*PointDelegate)(Point);
 typedef void (*StringDelegate)(autostr);
 typedef void (*IntDelegate)(int);
 typedef void (*WebResourceDelegate)(WebResourceRequest, WebResourceResponse*);
+typedef void (__stdcall *ExecuteScriptCallback)(bool success, autostr result);
 
 inline autostr CopyStr(autostr source) {
     autostr result;
