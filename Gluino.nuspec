@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>Gluino</id>
-    <version>0.0.7</version>
+    <version>0.1.0</version>
     <title>Gluino</title>
     <authors>RyanGDev</authors>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
@@ -19,8 +19,9 @@
     <file src="README.md" target="docs\README.md" />
     <file src="LICENSE" target="docs\LICENSE" />
 
-    <file src="src/Gluino/bin/x64/Release/net8.0/Gluino.dll" target="lib\net8.0\" />
-    <file src="src/Gluino/bin/x64/Release/net8.0/Gluino.pdb" target="lib\net8.0\" />
+    <file src="src/Gluino/bin/Release/net8.0/Gluino.dll" target="lib\net8.0\" />
+    <file src="src/Gluino/bin/Release/net8.0/Gluino.pdb" target="lib\net8.0\" />
+    <file src="src/Gluino/bin/Release/net8.0/Gluino.xml" target="lib\net8.0\" />
 
     <file src="src/GluinoNative/bin/x64/Release/GluinoNative.dll" target="runtimes\win-x64\native\" />
     <file src="src/GluinoNative/bin/x64/Release/GluinoNative.pdb" target="runtimes\win-x64\native\" />
