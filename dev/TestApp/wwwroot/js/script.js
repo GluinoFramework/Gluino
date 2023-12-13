@@ -1,14 +1,17 @@
 const counter = document.getElementById('counter');
 
+const { sendMessage, addListener } = window.gluino;
+
 function updateCounter() {
   const count = parseInt(counter.innerText);
   counter.innerText = count + 1;
 
-  Gluino.sendMessage(`Counter: ${count + 1}`);
+  sendMessage(`Counter: ${count + 1}`);
 
-  console.log(Gluino);
+  console.log(window.gluino);
 }
 
-Gluino.addListener(function (e) {
-  console.log(e);
-});
+async function testBind() {
+  const result = await window.gluino.test('this is arg 1', 'this is arg 2');
+  console.log(result);
+}

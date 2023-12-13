@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.InteropServices;
 using Gluino;
 
 namespace TestApp;
@@ -36,6 +35,9 @@ internal class Program
                 DevToolsEnabled = true
             }
         };
+        var webView = window.WebView;
+
+        webView.Bind("test", Test);
 
         window.Creating += (_, _) => LogWindowEvent("Creating");
         window.Created += (_, _) => LogWindowEvent("Created");
@@ -59,14 +61,13 @@ internal class Program
         window.Closing += (_, _) => LogWindowEvent("Closing");
         window.Closed += (_, _) => LogWindowEvent("Closed");
 
-        window.WebView.Created += (_, _) => LogWebViewEvent("Created");
-        window.WebView.NavigationStart += (_, e) => LogWebViewEvent($"NavigationStart: {e.Url}");
-        window.WebView.NavigationEnd += (_, _) => LogWebViewEvent("NavigationEnd");
-        window.WebView.MessageReceived += (_, e) => LogWebViewEvent($"MessageReceived: {e}");
-
+        webView.Created += (_, _) => LogWebViewEvent("Created");
+        webView.NavigationStart += (_, e) => LogWebViewEvent($"NavigationStart: {e.Url}");
+        webView.NavigationEnd += (_, _) => LogWebViewEvent("NavigationEnd");
+        webView.MessageReceived += (_, e) => LogWebViewEvent($"MessageReceived: {e}");
 
         var resourceDir = $"{assembly.GetName().Name}.wwwroot";
-        window.WebView.ResourceRequested += (_, e) => {
+        webView.ResourceRequested += (_, e) => {
             if (!e.Request.Url.StartsWith("app://")) {
                 return;
             }
@@ -104,7 +105,13 @@ internal class Program
 
         App.Run(window);
     }
-    
+
+    private static string Test(string arg1, string arg2)
+    {
+        Console.WriteLine($"[METHOD] [WebView] Test: {arg1}, {arg2}");
+        return "Test result";
+    }
+
     private static void LogWindowEvent(string message) => Console.WriteLine("[EVENT] [Window] {0}", message);
     private static void LogWebViewEvent(string message) => Console.WriteLine("[EVENT] [WebView] {0}", message);
 }
