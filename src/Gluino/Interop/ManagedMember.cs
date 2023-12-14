@@ -1,4 +1,4 @@
-﻿namespace Gluino.Native;
+﻿namespace Gluino.Interop;
 
 internal enum ManagedMember
 {

@@ -1,5 +1,5 @@
 ﻿using System.Runtime.InteropServices;
-using Gluino.Native;
+using Gluino.Interop;
 
 namespace Gluino;
 

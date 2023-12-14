@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Gluino.Native;
+namespace Gluino.Interop;
 
 [LibDetails("Gluino.Core", ManagedType = typeof(Window))]
 internal partial class NativeWindow

@@ -1,4 +1,4 @@
-﻿namespace Gluino.Native;
+﻿namespace Gluino.Interop;
 
 [LibDetails("Gluino.Core", ManagedType = typeof(WebView))]
 internal partial class NativeWebView

@@ -22,8 +22,8 @@ public class LibImportGenerator : ISourceGenerator
             return;
 
         var compilation = context.Compilation;
-        var libDetailsAttributeSymbol = compilation.GetTypeByMetadataName("Gluino.Native.LibDetailsAttribute");
-        var libImportAttributeSymbol = compilation.GetTypeByMetadataName("Gluino.Native.LibImportAttribute");
+        var libDetailsAttributeSymbol = compilation.GetTypeByMetadataName("Gluino.Interop.LibDetailsAttribute");
+        var libImportAttributeSymbol = compilation.GetTypeByMetadataName("Gluino.Interop.LibImportAttribute");
 
         foreach (var classDeclaration in receiver.CandidateClasses) {
             var classModel = compilation.GetSemanticModel(classDeclaration.SyntaxTree);
@@ -150,7 +150,7 @@ public class LibImportGenerator : ISourceGenerator
         var source =
             $$"""
               using System.Drawing;
-              using Gluino.Native;
+              using Gluino.Interop;
 
               namespace {{namespaceName}};
 

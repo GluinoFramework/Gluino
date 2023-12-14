@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
-using Gluino.Native;
+using Gluino.Interop;
 
 namespace Gluino;
 

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Gluino.Native;
+namespace Gluino.Interop;
 
 [StructLayout(LayoutKind.Sequential)]
 internal struct NativeRect

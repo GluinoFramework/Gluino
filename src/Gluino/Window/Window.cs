@@ -1,5 +1,5 @@
 ﻿using System.Drawing;
-using Gluino.Native;
+using Gluino.Interop;
 
 namespace Gluino;
 
@@ -175,24 +175,24 @@ public partial class Window
     /// Get or set the minimum size of the window.
     /// </summary>
     public Size MinimumSize {
-        get => GetMinimumSize().ToManaged();
-        set => SetMinimumSize(value.ToNative());
+        get => GetMinimumSize();
+        set => SetMinimumSize(value);
     }
 
     /// <summary>
     /// Get or set the maximum size of the window.
     /// </summary>
     public Size MaximumSize {
-        get => GetMaximumSize().ToManaged();
-        set => SetMaximumSize(value.ToNative());
+        get => GetMaximumSize();
+        set => SetMaximumSize(value);
     }
 
     /// <summary>
     /// Get or set the size of the window.
     /// </summary>
     public Size Size {
-        get => GetSize().ToManaged();
-        set => SetSize(value.ToNative());
+        get => GetSize();
+        set => SetSize(value);
     }
 
     /// <summary>
@@ -215,8 +215,8 @@ public partial class Window
     /// Get or set the location of the window.
     /// </summary>
     public Point Location {
-        get => GetLocation().ToManaged();
-        set => SetLocation(value.ToNative());
+        get => GetLocation();
+        set => SetLocation(value);
     }
 
     /// <summary>

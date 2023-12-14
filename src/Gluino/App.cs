@@ -1,4 +1,4 @@
-﻿using Gluino.Native;
+﻿using Gluino.Interop;
 using System.Reflection;
 using System.Runtime.InteropServices;
 

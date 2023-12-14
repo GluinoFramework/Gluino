@@ -13,46 +13,52 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\WebView">
+      <UniqueIdentifier>{aade9f3f-b52a-4361-8877-7280e5eaed12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Window">
+      <UniqueIdentifier>{e48f4be2-3770-4ff9-8d5b-63d691be7583}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\window_base.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\window_options.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\app_base.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\window_events.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\platform\win32\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\platform\win32\window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\platform\win32\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\platform\win32\window_frame.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\platform\win32\webview.h">
+      <Filter>Header Files\WebView</Filter>
     </ClInclude>
     <ClInclude Include="include\webview_base.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\webview_options.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\WebView</Filter>
     </ClInclude>
     <ClInclude Include="include\webview_events.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\WebView</Filter>
     </ClInclude>
-    <ClInclude Include="include\platform\win32\webview.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\webview_options.h">
+      <Filter>Header Files\WebView</Filter>
+    </ClInclude>
+    <ClInclude Include="include\platform\win32\window.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="include\window_base.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="include\window_events.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="include\platform\win32\window_frame.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="include\window_options.h">
+      <Filter>Header Files\Window</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

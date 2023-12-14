@@ -1,4 +1,4 @@
-﻿namespace Gluino.Native;
+﻿namespace Gluino.Interop;
 
 [AttributeUsage(AttributeTargets.Class)]
 internal class LibDetailsAttribute(string libName) : Attribute

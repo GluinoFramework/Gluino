@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Gluino.Native;
+namespace Gluino.Interop;
 
 [AttributeUsage(AttributeTargets.Method)]
 internal class LibImportAttribute(string libName, string entryPoint) : Attribute

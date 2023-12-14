@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Gluino.Native;
+namespace Gluino.Interop;
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void NativeDelegate();
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate bool NativePredicate();
