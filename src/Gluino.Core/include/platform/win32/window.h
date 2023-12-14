@@ -34,6 +34,9 @@ public:
 	autostr GetTitle() override;
 	void SetTitle(autostr title) override;
 
+	void GetIcon(void** data, int* size) override;
+	void SetIcon(void* data, int size) override;
+
 	WindowBorderStyle GetBorderStyle() override;
 	void SetBorderStyle(WindowBorderStyle style) override;
 	

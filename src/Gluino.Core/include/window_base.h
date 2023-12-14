@@ -19,6 +19,8 @@ public:
 #else
 		_title = CopyStr(options->TitleA);
 #endif
+		_icon = options->Icon;
+		_iconSize = options->IconSize;
 		_borderStyle = options->BorderStyle;
 		_theme = options->Theme;
 
@@ -54,6 +56,9 @@ public:
 	virtual autostr GetTitle() = 0;
 	virtual void SetTitle(autostr title) = 0;
 
+	virtual void GetIcon(void** data, int* size) = 0;
+	virtual void SetIcon(void* data, int size) = 0;
+
 	virtual WindowBorderStyle GetBorderStyle() = 0;
 	virtual void SetBorderStyle(WindowBorderStyle style) = 0;
 
@@ -87,6 +92,8 @@ public:
 protected:
 	bool _isMain;
 	autostr _title;
+	void* _icon;
+	int _iconSize;
 	WindowBorderStyle _borderStyle;
 	WindowTheme _theme;
 

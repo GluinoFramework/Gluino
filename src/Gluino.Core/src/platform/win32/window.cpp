@@ -33,6 +33,8 @@ Window::Window(WindowOptions* options, const WindowEvents* events, WebView* webV
 
     InitDarkModeSupport();
 
+	if (options->Icon)
+		SetIcon(options->Icon, options->IconSize);
 	SetTheme(options->Theme);
 	if (options->StartupLocation == WindowStartupLocation::CenterScreen)
 		Center();
@@ -235,6 +237,22 @@ void Window::SetTitle(const autostr title) {
 	SetWindowText(_hWnd, _title);
 }
 
+void Window::GetIcon(void** data, int* size) {
+	*data = _icon;
+	*size = _iconSize;
+}
+
+void Window::SetIcon(void* data, const int size) {
+	auto hIconBig = CreateIconFromResourceEx((PBYTE)data, size, TRUE, 0x00030000, 256, 256, LR_SHARED);
+	auto hIconSmall = CreateIconFromResourceEx((PBYTE)data, size, TRUE, 0x00030000, 32, 32, LR_SHARED);
+	if (hIconBig && hIconSmall) {
+		SendMessage(_hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIconBig);
+		SendMessage(_hWnd, WM_SETICON, ICON_SMALL, (LPARAM)hIconSmall);
+		DestroyIcon(hIconBig);
+		DestroyIcon(hIconSmall);
+	}
+}
+
 WindowBorderStyle Window::GetBorderStyle() {
 	return _borderStyle;
 }
@@ -412,4 +430,3 @@ bool Window::GetTopMost() {
 void Window::SetTopMost(const bool topMost) {
     SetWindowPos(_hWnd, topMost ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
-

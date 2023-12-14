@@ -39,6 +39,9 @@ extern "C" {
 	EXPORT autostr Gluino_Window_GetTitle(Window* window) { return window->GetTitle(); }
 	EXPORT void Gluino_Window_SetTitle(Window* window, const autostr title) { window->SetTitle(title); }
 
+	EXPORT void Gluino_Window_GetIcon(Window* window, void** data, int* size) { window->GetIcon(data, size); }
+	EXPORT void Gluino_Window_SetIcon(Window* window, void* data, const int size) { window->SetIcon(data, size); }
+
 	EXPORT WindowBorderStyle Gluino_Window_GetBorderStyle(Window* window) { return window->GetBorderStyle(); }
 	EXPORT void Gluino_Window_SetBorderStyle(Window* window, const WindowBorderStyle style) { window->SetBorderStyle(style); }
 

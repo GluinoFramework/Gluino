@@ -11,6 +11,8 @@ struct WindowOptions {
 	bool IsMain;
 	wchar_t* TitleW;
 	char* TitleA;
+	void* Icon;
+	int IconSize;
 	WindowBorderStyle BorderStyle;
 	WindowState WindowState;
 	WindowStartupLocation StartupLocation;
