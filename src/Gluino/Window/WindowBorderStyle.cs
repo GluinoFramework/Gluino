@@ -1,5 +1,8 @@
 ﻿namespace Gluino;
 
+/// <summary>
+/// Represents the border style of a <see cref="Window"/>.
+/// </summary>
 public enum WindowBorderStyle
 {
     /// <summary>

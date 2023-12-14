@@ -3,6 +3,9 @@ using Gluino.Interop;
 
 namespace Gluino;
 
+/// <summary>
+/// Represents a response for a resource.
+/// </summary>
 public class WebResourceResponse
 {
     private static readonly Dictionary<int, string> StatusCodes = new() {
@@ -68,6 +71,9 @@ public class WebResourceResponse
 
     private NativeWebResourceResponse _native;
 
+    /// <summary>
+    /// Sets the content type of the resource.
+    /// </summary>
     public string ContentType {
         set {
             if (App.Platform.IsWindows) _native.ContentTypeW = value;
@@ -75,6 +81,9 @@ public class WebResourceResponse
         }
     }
 
+    /// <summary>
+    /// Sets the content of the resource.
+    /// </summary>
     public Stream Content {
         set {
             if (value == null) return;
@@ -89,6 +98,9 @@ public class WebResourceResponse
         }
     }
 
+    /// <summary>
+    /// Sets the status code of the resource response.
+    /// </summary>
     public int StatusCode {
         set {
             _native.StatusCode = value;

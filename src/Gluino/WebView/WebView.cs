@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Gluino.Interop;
 
 namespace Gluino;
@@ -191,9 +190,7 @@ public partial class WebView
     /// </summary>
     /// <param name="script">The JavaScript code to inject.</param>
     public void InjectScriptOnDocumentCreated(string script) => SafeInvoke(() => NativeWebView.InjectScript(InstancePtr, script, true));
-
-    private readonly ConcurrentDictionary<string, Delegate> _bindings = new();
-
+    
     /// <summary>
     /// Bind a C# method to JavaScript.
     /// </summary>

@@ -3,6 +3,9 @@ using Gluino.Interop;
 
 namespace Gluino;
 
+/// <summary>
+/// Represents an OS window.
+/// </summary>
 public partial class Window
 {
     private readonly int _managedWindowThreadId;
@@ -64,6 +67,9 @@ public partial class Window
     /// </summary>
     public event EventHandler Closed;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Window"/> class.
+    /// </summary>
     public Window()
     {
         _managedWindowThreadId = Environment.CurrentManagedThreadId;
@@ -406,18 +412,82 @@ public partial class Window
 
     internal T SafeInvoke<T>(Func<T> func) => InstancePtr == nint.Zero ? default : Invoke(func);
 
+    /// <summary>
+    /// Occurs when the window is being created.
+    /// </summary>
+    /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
     protected virtual void OnCreating(EventArgs e) { }
+
+    /// <summary>
+    /// Occurs when the window has been created.
+    /// </summary>
+    /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
     protected virtual void OnCreated(EventArgs e) { }
+
+    /// <summary>
+    /// Occurs when the window is shown.
+    /// </summary>
+    /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
     protected virtual void OnShown(EventArgs e) { }
+
+    /// <summary>
+    /// Occurs when the window is hidden.
+    /// </summary>
+    /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
     protected virtual void OnHidden(EventArgs e) { }
+
+    /// <summary>
+    /// Occurs when the window is resized.
+    /// </summary>
+    /// <param name="e">A <see cref="Size"/> that contains the size of the window.</param>
     protected virtual void OnResize(Size e) { }
+
+    /// <summary>
+    /// Occurs when the window resize operation starts.
+    /// </summary>
+    /// <param name="e">A <see cref="Size"/> that contains the current size of the window.</param>
     protected virtual void OnResizeStart(Size e) { }
+
+    /// <summary>
+    /// Occurs when the window resize operation ends.
+    /// </summary>
+    /// <param name="e">A <see cref="Size"/> that contains the new size of the window.</param>
     protected virtual void OnResizeEnd(Size e) { }
+
+    /// <summary>
+    /// Occurs when the window location is changed.
+    /// </summary>
+    /// <param name="e">A <see cref="Point"/> that contains the location of the window.</param>
     protected virtual void OnLocationChanged(Point e) { }
+
+    /// <summary>
+    /// Occurs when the window state is changed.
+    /// </summary>
+    /// <param name="e">A <see cref="WindowStateChangedEventArgs"/> that contains the event data.</param>
     protected virtual void OnWindowStateChanged(WindowStateChangedEventArgs e) { }
+
+    /// <summary>
+    /// Occurs when the window gains focus.
+    /// </summary>
+    /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
     protected virtual void OnFocusIn(EventArgs e) { }
+
+    /// <summary>
+    /// Occurs when the window loses focus.
+    /// </summary>
+    /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
     protected virtual void OnFocusOut(EventArgs e) { }
+
+    /// <summary>
+    /// Occurs when the window is closing.
+    /// </summary>
+    /// <param name="e">A <see cref="WindowClosingEventArgs"/> that contains the event data.</param>
     protected virtual void OnClosing(WindowClosingEventArgs e) { }
+
+    /// <summary>
+    /// Occurs when the window is closed.
+    /// </summary>
+    /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
     protected virtual void OnClosed(EventArgs e) { }
 
     private void InvokeCreating()
