@@ -73,28 +73,19 @@ LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam
 
 			_onResize(GetSize());
 
-			switch (wParam) {
-				case SIZE_MAXIMIZED:
-					_onWindowStateChanged((int)WindowState::Maximized);
-					_isResizing = false;
-					break;
-				case SIZE_MINIMIZED:
-					_onWindowStateChanged((int)WindowState::Minimized);
-					_isResizing = false;
-					break;
-				case SIZE_RESTORED:
-					if (!_isResizing) {
-						_onWindowStateChanged((int)WindowState::Normal);
-					}
-					break;
-				default: break;
+			if (const auto currentWindowState =
+				IsIconic(_hWnd) ? WindowState::Minimized :
+				IsZoomed(_hWnd) ? WindowState::Maximized :
+				WindowState::Normal;
+				currentWindowState != _windowState) {
+				_onWindowStateChanged((int)currentWindowState);
+				_windowState = currentWindowState;
 			}
 
 			return 0;
 		}
 		case WM_ENTERSIZEMOVE: {
 			_onResizeStart(GetSize());
-			_isResizing = true;
 			break;
 		}
 		case WM_EXITSIZEMOVE: {
@@ -102,7 +93,6 @@ LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam
 				_frame->Update();
 
 			_onResizeEnd(GetSize());
-			_isResizing = false;
 			break;
 		}
 		case WM_MOVE: {
