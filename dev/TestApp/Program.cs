@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Gluino;
+using TestApp.Properties;
 
 namespace TestApp;
 
@@ -19,6 +20,7 @@ internal class Program
 
         var window = new Window {
             Title = "Test Window",
+            Icon = Resources.icon,
             //BorderStyle = WindowBorderStyle.SizableNoCaption,
             //WindowState = WindowState.Maximized,
             //Theme = WindowTheme.System,
@@ -40,7 +42,10 @@ internal class Program
         webView.Bind("test", Test);
 
         window.Creating += (_, _) => LogWindowEvent("Creating");
-        window.Created += (_, _) => LogWindowEvent("Created");
+        window.Created += (_, _) => {
+            //window.Icon = Resources.icon;
+            LogWindowEvent("Created");
+        };
         window.Shown += (_, _) => LogWindowEvent("Shown");
         window.Hidden += (_, _) => LogWindowEvent("Hidden");
         window.Resize += (_, e) => LogWindowEvent($"Resize: {e.Width}, {e.Height}");
