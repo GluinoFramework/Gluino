@@ -1,12 +1,12 @@
 if(NOT WIN32)
   cmake_minimum_required(VERSION 3.25)
-  project(GluinoNative)
+  project(Gluino.Core)
 
   set(CMAKE_CXX_STANDARD 17)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-  set(PROJ GluinoNative)
-  set(PROJ_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/GluinoNative)
+  set(PROJ Gluino.Core)
+  set(PROJ_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/Gluino.Core)
 
   if(APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")

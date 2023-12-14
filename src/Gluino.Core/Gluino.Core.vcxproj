@@ -50,7 +50,7 @@
     <ProjectGuid>{7eebda8b-6d58-41fe-aa3d-23081deca060}</ProjectGuid>
     <RootNamespace>GluinoLib</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>GluinoNative</ProjectName>
+    <ProjectName>Gluino.Core</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -152,8 +152,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)GluinoNative.dll" "$(SolutionDir)dev\TestApp\bin\Debug\net8.0\"
-copy "$(OutDir)GluinoNative.pdb" "$(SolutionDir)dev\TestApp\bin\Debug\net8.0\"
+      <Command>copy "$(OutDir)Gluino.Core.dll" "$(SolutionDir)dev\TestApp\bin\Debug\net8.0\"
+copy "$(OutDir)Gluino.Core.pdb" "$(SolutionDir)dev\TestApp\bin\Debug\net8.0\"
 copy "$(OutDir)WebView2Loader.dll" "$(SolutionDir)dev\TestApp\bin\Debug\net8.0\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

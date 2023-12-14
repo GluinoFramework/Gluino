@@ -1,6 +1,6 @@
 ﻿namespace Gluino.Native;
 
-[LibDetails("GluinoNative", ManagedType = typeof(WebView))]
+[LibDetails("Gluino.Core", ManagedType = typeof(WebView))]
 internal partial class NativeWebView
 {
     private const ManagedProperty PG = ManagedProperty.Get;

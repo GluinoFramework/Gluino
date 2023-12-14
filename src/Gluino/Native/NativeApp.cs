@@ -2,7 +2,7 @@
 
 namespace Gluino.Native;
 
-[LibDetails("GluinoNative")]
+[LibDetails("Gluino.Core")]
 internal partial class NativeApp
 {
     [LibImport("Gluino_App_Create")] public static partial nint Create(nint hInstance, string appId);

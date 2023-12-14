@@ -1,4 +1,4 @@
-PROJ = GluinoNative
+PROJ = Gluino.Core
 PROJ_TEST = dev/TestApp
 PROJ_TEST_SDK = net8.0
 

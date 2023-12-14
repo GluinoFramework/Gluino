@@ -2,7 +2,7 @@
 
 namespace Gluino.Native;
 
-[LibDetails("GluinoNative", ManagedType = typeof(Window))]
+[LibDetails("Gluino.Core", ManagedType = typeof(Window))]
 internal partial class NativeWindow
 {
     private const ManagedProperty PG = ManagedProperty.Get;

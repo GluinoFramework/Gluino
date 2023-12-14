@@ -23,8 +23,8 @@
     <file src="src/Gluino/bin/Release/net8.0/Gluino.pdb" target="lib\net8.0\" />
     <file src="src/Gluino/bin/Release/net8.0/Gluino.xml" target="lib\net8.0\" />
 
-    <file src="src/GluinoNative/bin/x64/Release/GluinoNative.dll" target="runtimes\win-x64\native\" />
-    <file src="src/GluinoNative/bin/x64/Release/GluinoNative.pdb" target="runtimes\win-x64\native\" />
-    <file src="src/GluinoNative/bin/x64/Release/WebView2Loader.dll" target="runtimes\win-x64\native\" />
+    <file src="src/Gluino.Core/bin/x64/Release/Gluino.Core.dll" target="runtimes\win-x64\native\" />
+    <file src="src/Gluino.Core/bin/x64/Release/Gluino.Core.pdb" target="runtimes\win-x64\native\" />
+    <file src="src/Gluino.Core/bin/x64/Release/WebView2Loader.dll" target="runtimes\win-x64\native\" />
   </files>
 </package>
