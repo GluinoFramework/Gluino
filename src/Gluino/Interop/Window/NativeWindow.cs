@@ -41,6 +41,12 @@ internal partial class NativeWindow
     [LibImport("Gluino_Window_SetTitle", Managed = true, Property = PS, Option = "Title")]
     public static partial void SetTitle(nint window, string title);
 
+    [LibImport("Gluino_Window_GetIcon")]
+    public static partial void GetIcon(nint window, out nint data, out int size);
+
+    [LibImport("Gluino_Window_SetIcon")]
+    public static partial void SetIcon(nint window, nint data, int size);
+
     [LibImport("Gluino_Window_GetBorderStyle", Managed = true, Property = PG, Option = nameof(NativeWindowOptions.BorderStyle))]
     public static partial WindowBorderStyle GetBorderStyle(nint window);
 

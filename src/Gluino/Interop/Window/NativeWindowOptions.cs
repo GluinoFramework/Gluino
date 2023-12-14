@@ -8,6 +8,8 @@ internal struct NativeWindowOptions
     [MarshalAs(UnmanagedType.I1)] public bool IsMain;
     [MarshalAs(UnmanagedType.LPWStr)] public string TitleW;
     [MarshalAs(UnmanagedType.LPStr)] public string TitleA;
+    public nint Icon;
+    [MarshalAs(UnmanagedType.I4)] public int IconSize;
     public WindowBorderStyle BorderStyle;
     public WindowState WindowState;
     public WindowStartupLocation StartupLocation;

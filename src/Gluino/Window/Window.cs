@@ -118,6 +118,38 @@ public partial class Window
     }
 
     /// <summary>
+    /// Get or set the icon of the window.
+    /// </summary>
+    /// <remarks>
+    /// Must be in PNG format.
+    /// </remarks>
+    public WindowIcon Icon {
+        get {
+            nint ptr = default;
+            var size = 0;
+            if (InstancePtr != nint.Zero) {
+                Invoke(() => NativeWindow.GetIcon(InstancePtr, out ptr, out size));
+            }
+            else {
+                ptr = NativeOptions.Icon;
+                size = NativeOptions.IconSize;
+            }
+
+            return WindowIcon.FromNative(ptr, size);
+        }
+        set {
+            var ptr = value.ToNative(out var size);
+            if (InstancePtr != nint.Zero) {
+                Invoke(() => NativeWindow.SetIcon(InstancePtr, ptr, size));
+            }
+            else {
+                NativeOptions.Icon = ptr;
+                NativeOptions.IconSize = size;
+            }
+        }
+    }
+
+    /// <summary>
     /// Get or set the border style of the window.
     /// </summary>
     /// <remarks>
