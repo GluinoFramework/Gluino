@@ -24,10 +24,10 @@ public:
 	void Focus() const;
 
 	void Attach(WindowBase* window) override;
-	void Navigate(autostr url) override;
-	void NativateToString(autostr content) override;
-	void PostWebMessage(autostr message) override;
-	void InjectScript(autostr script, bool onDocumentCreated) override;
+	void Navigate(cstr url) override;
+	void NativateToString(cstr content) override;
+	void PostWebMessage(cstr message) override;
+	void InjectScript(cstr script, bool onDocumentCreated) override;
 
 	bool GetGrantPermissions() const;
 
@@ -37,8 +37,8 @@ public:
 	bool GetDevToolsEnabled() override;
 	void SetDevToolsEnabled(bool enabled) override;
 
-	autostr GetUserAgent() override;
-	void SetUserAgent(autostr userAgent) override;
+	cstr GetUserAgent() override;
+	void SetUserAgent(cstr userAgent) override;
 
 private:
 	Window* _window = nullptr;

@@ -64,16 +64,56 @@ struct WINDOWCOMPOSITIONATTRIBDATA {
     SIZE_T cbData;
 };
 
-WindowsOSVersion GetWindowsOSVersion() noexcept;
-void InitDarkModeSupport() noexcept;
-bool IsDarkModeEnabled() noexcept;
-void EnableDarkMode(HWND hWnd, bool enable) noexcept;
-void RefreshNonClientArea(HWND hWnd) noexcept;
-bool IsColorSchemeChange(LPARAM lParam) noexcept;
-bool IsCompositionEnabled() noexcept;
-void AdjustMaximizedClientRect(HWND hWnd, RECT& rect) noexcept;
-void ApplyBorderlessStyle(HWND hWnd, bool borderless) noexcept;
-void ApplyWindowStyle(HWND hWnd, bool darkMode) noexcept;
+WindowsOSVersion get_windows_os_version() noexcept;
+void init_dark_mode_support() noexcept;
+bool is_dark_mode_enabled() noexcept;
+void enable_dark_mode(HWND hWnd, bool enable) noexcept;
+void refresh_nonclient_area(HWND hWnd) noexcept;
+bool is_color_scheme_change(LPARAM lParam) noexcept;
+bool is_composition_enabled() noexcept;
+void adjust_maximized_client_rect(HWND hWnd, RECT& rect) noexcept;
+void apply_borderless_style(HWND hWnd, bool borderless) noexcept;
+void apply_window_style(HWND hWnd, bool darkMode) noexcept;
+
+inline wchar_t* widen(const char* str) {
+    if (str == nullptr) return nullptr;
+
+    const auto len = (int)strlen(str);
+    if (len == 0) return nullptr;
+
+    const int wlen = MultiByteToWideChar(CP_UTF8, 0, str, len, nullptr, 0);
+    if (wlen == 0) return nullptr;
+
+    const auto wstr = new wchar_t[wlen + 1];
+    if (const auto result = MultiByteToWideChar(CP_UTF8, 0, str, len, wstr, wlen);
+        result == 0) {
+        delete[] wstr;
+        return nullptr;
+    }
+
+    wstr[wlen] = L'\0';
+    return wstr;
+}
+
+inline char* narrow(const wchar_t* wstr) {
+    if (wstr == nullptr) return nullptr;
+
+    const auto wlen = (int)wcslen(wstr);
+    if (wlen == 0) return nullptr;
+
+    const int len = WideCharToMultiByte(CP_UTF8, 0, wstr, wlen, nullptr, 0, nullptr, nullptr);
+    if (len == 0) return nullptr;
+
+    const auto str = new char[len + 1];
+    if (const auto result = WideCharToMultiByte(CP_UTF8, 0, wstr, wlen, str, len, nullptr, nullptr);
+        result == 0) {
+        delete[] str;
+        return nullptr;
+    }
+
+    str[len] = '\0';
+    return str;
+}
 
 }
 

@@ -12,15 +12,9 @@ namespace Gluino {
 class WebViewBase {
 public:
 	explicit WebViewBase(WebViewOptions* options, const WebViewEvents* events) {
-#ifdef _WIN32
-		if (options->StartUrlW) _startUrl = CopyStr(options->StartUrlW);
-		if (options->StartContentW) _startContent = CopyStr(options->StartContentW);
-		if (options->UserAgentW) _userAgent = CopyStr(options->UserAgentW);
-#else
-		if (options->StartUrlA) _startUrl = CopyStr(options->StartUrlA);
-		if (options->StartStrA) _startStr = CopyStr(options->StartStrA);
-		if (options->UserAgentA) _userAgent = CopyStr(options->UserAgentA);
-#endif
+		_startUrl = widen(options->StartUrl);
+		_startContent = widen(options->StartContent);
+		_userAgent = widen(options->UserAgent);
 
 		_onCreated = (Delegate)events->OnCreated;
 		_onNavigationStart = (StringDelegate)events->OnNavigationStart;
@@ -31,10 +25,10 @@ public:
 	virtual ~WebViewBase() = default;
 
 	virtual void Attach(WindowBase* window) = 0;
-	virtual void Navigate(autostr url) = 0;
-	virtual void NativateToString(autostr content) = 0;
-	virtual void PostWebMessage(autostr message) = 0;
-	virtual void InjectScript(autostr script, bool onDocumentCreated) = 0;
+	virtual void Navigate(cstr url) = 0;
+	virtual void NativateToString(cstr content) = 0;
+	virtual void PostWebMessage(cstr message) = 0;
+	virtual void InjectScript(cstr script, bool onDocumentCreated) = 0;
 
 	virtual bool GetContextMenuEnabled() = 0;
 	virtual void SetContextMenuEnabled(bool enabled) = 0;
@@ -42,13 +36,13 @@ public:
 	virtual bool GetDevToolsEnabled() = 0;
 	virtual void SetDevToolsEnabled(bool enabled) = 0;
 
-	virtual autostr GetUserAgent() = 0;
-	virtual void SetUserAgent(autostr userAgent) = 0;
+	virtual cstr GetUserAgent() = 0;
+	virtual void SetUserAgent(cstr userAgent) = 0;
 
 protected:
-	autostr _startUrl;
-	autostr _startContent;
-	autostr _userAgent;
+	cstr _startUrl;
+	cstr _startContent;
+	cstr _userAgent;
 
 	Delegate _onCreated;
 	StringDelegate _onNavigationStart;

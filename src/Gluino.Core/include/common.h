@@ -4,6 +4,7 @@
 #define GLUINO_COMMON_H
 
 #ifdef _WIN32
+#include "utils.h"
 #include <wchar.h>
 #else
 #include <cstring>
@@ -20,11 +21,13 @@ namespace Gluino {
 #ifdef _WIN32
 #define EXPORT __declspec(dllexport)
 
-typedef wchar_t* autostr;
+typedef wchar_t* cstr;
+typedef std::wstring cppstr;
 #else
 
 #define EXPORT
-typedef char* autostr;
+typedef char* cstr;
+typedef std::string cppstr;
 #endif
 
 enum class WindowBorderStyle {
@@ -83,34 +86,29 @@ struct Rect {
 };
 
 struct WebResourceRequest {
-    wchar_t* UrlW;
-    char* UrlA;
-    wchar_t* MethodW;
-    char* MethodA;
+    char* Url;
+    char* Method;
 };
 
 struct WebResourceResponse {
-    wchar_t* ContentTypeW;
-    char* ContentTypeA;
+    char* ContentType;
     void* Content;
     int ContentLength;
     int StatusCode;
-    wchar_t* ReasonPhraseW;
-    char* ReasonPhraseA;
+    char* ReasonPhrase;
 };
 
 typedef void (*Delegate)();
 typedef bool (*Predicate)();
 typedef void (*SizeDelegate)(Size);
 typedef void (*PointDelegate)(Point);
-typedef void (*StringDelegate)(autostr);
+typedef void (*StringDelegate)(cstr);
 typedef void (*IntDelegate)(int);
 typedef void (*WebResourceDelegate)(WebResourceRequest, WebResourceResponse*);
-typedef void (__stdcall *ExecuteScriptCallback)(bool success, autostr result);
+typedef void (__stdcall *ExecuteScriptCallback)(bool success, cstr result);
 
-inline autostr CopyStr(autostr source) {
-    autostr result;
-
+inline cstr cstrcpy(cstr source) {
+    cstr result;
 #ifdef _WIN32
     size_t len = wcslen(source) + 1;
     result = new wchar_t[len];
@@ -131,7 +129,7 @@ template<typename T>
 concept wstr_ptr = std::is_same_v<T, wchar_t*> || std::is_same_v<T, const wchar_t*>;
 
 template<wstr_ptr... Args>
-wchar_t* ConcatStr(Args... args) {
+wchar_t* cstrconcat(Args... args) {
     std::wstringstream wss;
 
     ((wss << args), ...);

@@ -26,7 +26,7 @@ constexpr MARGINS StyleExtendMargins = { -1, -1, -1, -1 };
 static constexpr DWORD Win10MinimumBuildDarkMode = 18362;
 std::once_flag flag_init_dark_mode_support;
 
-WindowsOSVersion Gluino::GetWindowsOSVersion() noexcept
+WindowsOSVersion Gluino::get_windows_os_version() noexcept
 {
     const auto rtlGetNtVersionNumbers = (FnRtlGetNtVersionNumbers)GetProcAddress(
         GetModuleHandleW(L"ntdll.dll"), "RtlGetNtVersionNumbers");
@@ -109,25 +109,25 @@ void InitDarkModeSupportOnce() noexcept {
     }
 }
 
-void Gluino::InitDarkModeSupport() noexcept {
+void Gluino::init_dark_mode_support() noexcept {
     std::call_once(flag_init_dark_mode_support, InitDarkModeSupportOnce);
 }
 
-bool Gluino::IsDarkModeEnabled() noexcept {
+bool Gluino::is_dark_mode_enabled() noexcept {
     if (ShouldAppsUseDarkMode == nullptr) {
         return false;
     }
     return (ShouldAppsUseDarkMode() == TRUE) && !IsHighContrast();
 }
 
-void Gluino::EnableDarkMode(const HWND hWnd, const bool enable) noexcept {
+void Gluino::enable_dark_mode(const HWND hWnd, const bool enable) noexcept {
     if (AllowDarkModeForWindow == nullptr) {
         return;
     }
     AllowDarkModeForWindow(hWnd, enable ? TRUE : FALSE);
 }
 
-void Gluino::RefreshNonClientArea(const HWND hWnd) noexcept {
+void Gluino::refresh_nonclient_area(const HWND hWnd) noexcept {
     if (IsDarkModeAllowedForWindow == nullptr ||
         ShouldAppsUseDarkMode == nullptr) {
         return;
@@ -146,7 +146,7 @@ void Gluino::RefreshNonClientArea(const HWND hWnd) noexcept {
     }
 }
 
-bool Gluino::IsColorSchemeChange(const LPARAM lParam) noexcept {
+bool Gluino::is_color_scheme_change(const LPARAM lParam) noexcept {
     if (const auto buildNumber = GetBuildNumber(); buildNumber < Win10MinimumBuildDarkMode) {
         return false;
     }
@@ -167,14 +167,14 @@ bool Gluino::IsColorSchemeChange(const LPARAM lParam) noexcept {
     return returnValue;
 }
 
-bool Gluino::IsCompositionEnabled() noexcept
+bool Gluino::is_composition_enabled() noexcept
 {
     BOOL compositionEnabled = FALSE;
     const bool success = DwmIsCompositionEnabled(&compositionEnabled) == S_OK;
     return compositionEnabled && success;
 }
 
-void Gluino::AdjustMaximizedClientRect(const HWND hWnd, RECT& rect) noexcept {
+void Gluino::adjust_maximized_client_rect(const HWND hWnd, RECT& rect) noexcept {
     WINDOWPLACEMENT wp;
     if (!GetWindowPlacement(hWnd, &wp)) {
     	return;
@@ -198,8 +198,8 @@ void Gluino::AdjustMaximizedClientRect(const HWND hWnd, RECT& rect) noexcept {
     rect = monitorInfo.rcWork;
 }
 
-void Gluino::ApplyBorderlessStyle(const HWND hWnd, const bool borderless) noexcept {
-    const auto compositionEnabled = IsCompositionEnabled();
+void Gluino::apply_borderless_style(const HWND hWnd, const bool borderless) noexcept {
+    const auto compositionEnabled = is_composition_enabled();
 
     constexpr DWORD aeroBorderless = WS_POPUP | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_MAXIMIZEBOX | WS_MINIMIZEBOX;
     constexpr DWORD basicBorderless = WS_POPUP | WS_THICKFRAME | WS_SYSMENU | WS_MAXIMIZEBOX | WS_MINIMIZEBOX;
@@ -223,7 +223,7 @@ void Gluino::ApplyBorderlessStyle(const HWND hWnd, const bool borderless) noexce
     ShowWindow(hWnd, SW_SHOW);
 }
 
-void Gluino::ApplyWindowStyle(const HWND hWnd, const bool darkMode) noexcept {
+void Gluino::apply_window_style(const HWND hWnd, const bool darkMode) noexcept {
     if (const auto buildNumber = GetBuildNumber(); buildNumber < Win10MinimumBuildDarkMode) {
         return;
     }

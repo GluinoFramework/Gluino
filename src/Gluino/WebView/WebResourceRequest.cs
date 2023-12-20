@@ -14,10 +14,10 @@ public class WebResourceRequest
     /// <summary>
     /// Gets the URL of the requested resource.
     /// </summary>
-    public string Url => App.Platform.IsWindows ? _native.UrlW : _native.UrlA;
+    public string Url => _native.Url;
 
     /// <summary>
     /// Gets the HTTP method of the request.
     /// </summary>
-    public string Method => App.Platform.IsWindows ? _native.MethodW : _native.MethodA;
+    public string Method => _native.Method;
 }

@@ -75,10 +75,7 @@ public class WebResourceResponse
     /// Sets the content type of the resource.
     /// </summary>
     public string ContentType {
-        set {
-            if (App.Platform.IsWindows) _native.ContentTypeW = value;
-            else _native.ContentTypeA = value;
-        }
+        set => _native.ContentType = value;
     }
 
     /// <summary>
@@ -106,8 +103,7 @@ public class WebResourceResponse
             _native.StatusCode = value;
 
             var reasonPhrase = StatusCodes.GetValueOrDefault(value, "Unknown");
-            if (App.Platform.IsWindows) _native.ReasonPhraseW = reasonPhrase;
-            else _native.ReasonPhraseA = reasonPhrase;
+            _native.ReasonPhrase = reasonPhrase;
         }
     }
 
