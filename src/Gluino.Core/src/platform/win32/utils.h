@@ -14,17 +14,17 @@ enum class WindowsOSVersion {
     Win10
 };
 
-enum IMMERSIVEHCCACHEMODE {
-    IHCM_USE_CACHED_VALUE = 0,
-    IHCM_REFRESH = 1,
-};
-
-enum PreferredAppMode {
+enum class PreferredAppMode {
     Default = 0,
     AllowDark = 1,
     ForceDark = 2,
     ForceLight = 3,
     Max = 4,
+};
+
+enum IMMERSIVEHCCACHEMODE {
+    IHCM_USE_CACHED_VALUE = 0,
+    IHCM_REFRESH = 1,
 };
 
 enum WINDOWCOMPOSITIONATTRIB {
@@ -64,18 +64,18 @@ struct WINDOWCOMPOSITIONATTRIBDATA {
     SIZE_T cbData;
 };
 
-WindowsOSVersion get_windows_os_version() noexcept;
-void init_dark_mode_support() noexcept;
-bool is_dark_mode_enabled() noexcept;
-void enable_dark_mode(HWND hWnd, bool enable) noexcept;
-void refresh_nonclient_area(HWND hWnd) noexcept;
-bool is_color_scheme_change(LPARAM lParam) noexcept;
-bool is_composition_enabled() noexcept;
-void adjust_maximized_client_rect(HWND hWnd, RECT& rect) noexcept;
-void apply_borderless_style(HWND hWnd, bool borderless) noexcept;
-void apply_window_style(HWND hWnd, bool darkMode) noexcept;
+WindowsOSVersion GetWindowsOSVersion() noexcept;
+void InitDarkModeSupport() noexcept;
+bool IsDarkModeEnabled() noexcept;
+void EnableDarkMode(HWND hWnd, bool enable) noexcept;
+void RefreshNonClientArea(HWND hWnd) noexcept;
+bool IsColorSchemeChange(LPARAM lParam) noexcept;
+bool IsCompositionEnabled() noexcept;
+void AdjustMaximizedClientRect(HWND hWnd, RECT& rect) noexcept;
+void ApplyBorderlessStyle(HWND hWnd, bool borderless) noexcept;
+void ApplyWindowStyle(HWND hWnd, bool darkMode) noexcept;
 
-inline wchar_t* widen(const char* str) {
+inline wchar_t* CStrWiden(const char* str) {
     if (str == nullptr) return nullptr;
 
     const auto len = (int)strlen(str);
@@ -95,7 +95,7 @@ inline wchar_t* widen(const char* str) {
     return wstr;
 }
 
-inline char* narrow(const wchar_t* wstr) {
+inline char* CStrNarrow(const wchar_t* wstr) {
     if (wstr == nullptr) return nullptr;
 
     const auto wlen = (int)wcslen(wstr);

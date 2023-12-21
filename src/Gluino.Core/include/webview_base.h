@@ -12,9 +12,9 @@ namespace Gluino {
 class WebViewBase {
 public:
 	explicit WebViewBase(WebViewOptions* options, const WebViewEvents* events) {
-		_startUrl = widen(options->StartUrl);
-		_startContent = widen(options->StartContent);
-		_userAgent = widen(options->UserAgent);
+		_startUrl = CStrWiden(options->StartUrl);
+		_startContent = CStrWiden(options->StartContent);
+		_userAgent = CStrWiden(options->UserAgent);
 
 		_onCreated = (Delegate)events->OnCreated;
 		_onNavigationStart = (StringDelegate)events->OnNavigationStart;

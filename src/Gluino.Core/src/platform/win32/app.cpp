@@ -12,8 +12,8 @@ std::map<HWND, Window*> windowMap{};
 
 App::App(const HINSTANCE hInstance, wchar_t* appId) {
 	_hInstance = hInstance;
-	_appId = cstrcpy(appId);
-	_wndClassName = cstrconcat(_appId, L"Window");
+	_appId = CStrCopy(appId);
+	_wndClassName = CStrConcat(_appId, L"Window");
 
 	SetCurrentProcessExplicitAppUserModelID(_appId);
 	SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);

@@ -6,7 +6,7 @@ using namespace Gluino;
 
 extern "C" {
 #ifdef _WIN32
-	EXPORT WindowsOSVersion Gluino_GetWindowsOSVersion() { return get_windows_os_version(); }
+	EXPORT WindowsOSVersion Gluino_GetWindowsOSVersion() { return GetWindowsOSVersion(); }
 	EXPORT App* Gluino_App_Create(const HINSTANCE hInstance, const cstr appId) { return new App(hInstance, appId); }
 	EXPORT HWND Gluino_Window_GetHandle(const Window* window) { return window->GetHandle(); }
 #else

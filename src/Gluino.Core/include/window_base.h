@@ -14,7 +14,7 @@ class WindowBase {
 public:
 	explicit WindowBase(const WindowOptions* options, const WindowEvents* events) {
 		_isMain = options->IsMain;
-		_title = widen(options->Title);
+		_title = CStrWiden(options->Title);
 		_icon = options->Icon;
 		_iconSize = options->IconSize;
 		_borderStyle = options->BorderStyle;

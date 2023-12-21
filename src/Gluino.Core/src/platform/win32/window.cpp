@@ -31,7 +31,7 @@ Window::Window(const WindowOptions* options, const WindowEvents* events, WebView
         App::GetHInstance(),
         this);
 
-    init_dark_mode_support();
+    InitDarkModeSupport();
 
 	if (options->Icon)
 		SetIcon(options->Icon, options->IconSize);
@@ -124,19 +124,19 @@ LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam
 				_borderStyle == WindowBorderStyle::SizableNoCaption || 
 				_borderStyle == WindowBorderStyle::FixedNoCaption) {
 				auto& [rgrc, _] = *reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
-				adjust_maximized_client_rect(_hWnd, rgrc[0]);
+				AdjustMaximizedClientRect(_hWnd, rgrc[0]);
 				return 0;
 			}
 			break;
 		}
 		case WM_SETTINGCHANGE: {
-			if (_theme == WindowTheme::System && is_color_scheme_change(lParam)) {
+			if (_theme == WindowTheme::System && IsColorSchemeChange(lParam)) {
 				SendMessageW(_hWnd, WM_THEMECHANGED, 0, 0);
 			}
 			break;
 		}
 		case WM_THEMECHANGED: {
-			apply_window_style(_hWnd, is_dark_mode_enabled());
+			ApplyWindowStyle(_hWnd, IsDarkModeEnabled());
 			break;
 		}
 		default:
@@ -211,7 +211,7 @@ void Window::GetBounds(Rect* bounds) {
 }
 
 bool Window::GetIsDarkMode() {
-	return _theme == WindowTheme::System ? is_dark_mode_enabled() : _theme == WindowTheme::Dark;
+	return _theme == WindowTheme::System ? IsDarkModeEnabled() : _theme == WindowTheme::Dark;
 }
 
 cstr Window::GetTitle() {
@@ -222,7 +222,7 @@ cstr Window::GetTitle() {
 }
 
 void Window::SetTitle(const cstr title) {
-	_title = cstrcpy(title);
+	_title = CStrCopy(title);
 
 	SetWindowText(_hWnd, _title);
 }
@@ -250,13 +250,13 @@ WindowBorderStyle Window::GetBorderStyle() {
 void Window::SetBorderStyle(const WindowBorderStyle style) {
 	if (style == WindowBorderStyle::SizableNoCaption ||
 		style == WindowBorderStyle::FixedNoCaption) {
-		apply_borderless_style(_hWnd, true);
+		ApplyBorderlessStyle(_hWnd, true);
 		if (style == WindowBorderStyle::SizableNoCaption)
 			_frame->Attach();
 	}
 	else if (style == WindowBorderStyle::Sizable || 
 			 style == WindowBorderStyle::Fixed) {
-		apply_borderless_style(_hWnd, false);
+		ApplyBorderlessStyle(_hWnd, false);
 		_frame->Detach();
 
 		const auto wndStyle = GetWindowLongPtr(_hWnd, GWL_STYLE);
@@ -304,9 +304,9 @@ WindowTheme Window::GetTheme() {
 void Window::SetTheme(const WindowTheme theme) {
 	_theme = theme;
 	const auto darkMode =
-		theme == WindowTheme::System ? is_dark_mode_enabled() :
+		theme == WindowTheme::System ? IsDarkModeEnabled() :
 		theme == WindowTheme::Dark;
-	apply_window_style(_hWnd, darkMode);
+	ApplyWindowStyle(_hWnd, darkMode);
 	UpdateWindow(_hWnd);
 }
 

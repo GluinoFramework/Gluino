@@ -23,11 +23,13 @@ namespace Gluino {
 
 typedef wchar_t* cstr;
 typedef std::wstring cppstr;
+typedef std::wstringstream cppstrstream;
 #else
-
 #define EXPORT
+
 typedef char* cstr;
 typedef std::string cppstr;
+typedef std::stringstream cppstrstream;
 #endif
 
 enum class WindowBorderStyle {
@@ -107,7 +109,7 @@ typedef void (*IntDelegate)(int);
 typedef void (*WebResourceDelegate)(WebResourceRequest, WebResourceResponse*);
 typedef void (__stdcall *ExecuteScriptCallback)(bool success, cstr result);
 
-inline cstr cstrcpy(cstr source) {
+inline cstr CStrCopy(cstr source) {
     cstr result;
 #ifdef _WIN32
     size_t len = wcslen(source) + 1;
@@ -126,18 +128,27 @@ inline cstr cstrcpy(cstr source) {
 }
 
 template<typename T>
-concept wstr_ptr = std::is_same_v<T, wchar_t*> || std::is_same_v<T, const wchar_t*>;
+#ifdef _WIN32
+concept cstr_ptr = std::is_same_v<T, wchar_t*> || std::is_same_v<T, const wchar_t*>;
+#else
+concept cstr_ptr = std::is_same_v<T, char*> || std::is_same_v<T, const char*>;
+#endif
 
-template<wstr_ptr... Args>
-wchar_t* cstrconcat(Args... args) {
-    std::wstringstream wss;
+template<cstr_ptr... Args>
+cstr CStrConcat(Args... args) {
+    cppstrstream css;
 
-    ((wss << args), ...);
+    ((css << args), ...);
 
-    const std::wstring temp = wss.str();
+    const cppstr temp = css.str();
     const size_t concatenatedSize = temp.length() + 1;
-    const auto concatenated = new wchar_t[concatenatedSize];
+#ifdef _WIN32
+    auto concatenated = new wchar_t[concatenatedSize];
     wcscpy_s(concatenated, concatenatedSize, temp.c_str());
+#else
+    auto concatenated = new char[concatenatedSize];
+    strncpy(concatenated, temp.c_str(), concatenatedSize);
+#endif
 
     return concatenated;
 }
