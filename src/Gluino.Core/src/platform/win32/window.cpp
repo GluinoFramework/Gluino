@@ -73,13 +73,12 @@ LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam
 
 			_onResize(GetSize());
 
-			if (const auto currentWindowState =
+			if (const auto windowState = 
 				IsIconic(_hWnd) ? WindowState::Minimized :
 				IsZoomed(_hWnd) ? WindowState::Maximized :
-				WindowState::Normal;
-				currentWindowState != _windowState) {
-				_onWindowStateChanged((int)currentWindowState);
-				_windowState = currentWindowState;
+				WindowState::Normal; windowState != _previousWindowState) {
+				_onWindowStateChanged((int)windowState);
+				_previousWindowState = windowState;
 			}
 
 			return 0;

@@ -77,6 +77,8 @@ private:
 	bool _minimizeEnabled;
 	bool _maximizeEnabled;
 
+	WindowState _previousWindowState = WindowState::Normal;
+
 	WebView* _webView;
 };
 
