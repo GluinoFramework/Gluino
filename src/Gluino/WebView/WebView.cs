@@ -62,22 +62,16 @@ public partial class WebView
     /// Gets or sets the URL to load when the WebView is created.
     /// </summary>
     public string StartUrl {
-        get => App.Platform.IsWindows ? NativeOptions.StartUrlW : NativeOptions.StartUrlA;
-        set {
-            if (App.Platform.IsWindows) NativeOptions.StartUrlW = value;
-            else NativeOptions.StartUrlA = value;
-        }
+        get => NativeOptions.StartUrl;
+        set => NativeOptions.StartUrl = value;
     }
 
     /// <summary>
     /// Gets or sets the HTML content to load when the WebView is created.
     /// </summary>
     public string StartContent {
-        get => App.Platform.IsWindows ? NativeOptions.StartContentW : NativeOptions.StartContentA;
-        set {
-            if (App.Platform.IsWindows) NativeOptions.StartContentW = value;
-            else NativeOptions.StartContentA = value;
-        }
+        get => NativeOptions.StartContent;
+        set => NativeOptions.StartContent = value;
     }
 
     /// <summary>
@@ -150,8 +144,7 @@ public partial class WebView
     public void Navigate(Uri uri)
     {
         if (InstancePtr == nint.Zero) {
-            if (App.Platform.IsWindows) NativeOptions.StartUrlW = uri.ToString();
-            else NativeOptions.StartUrlA = uri.ToString();
+            NativeOptions.StartUrl = uri.ToString();
             return;
         }
 
@@ -165,8 +158,7 @@ public partial class WebView
     public void NativateToString(string content)
     {
         if (InstancePtr == nint.Zero) {
-            if (App.Platform.IsWindows) NativeOptions.StartContentW = content;
-            else NativeOptions.StartContentA = content;
+            NativeOptions.StartContent = content;
             return;
         }
 

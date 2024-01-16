@@ -14,17 +14,17 @@ enum class WindowsOSVersion {
     Win10
 };
 
-enum IMMERSIVEHCCACHEMODE {
-    IHCM_USE_CACHED_VALUE = 0,
-    IHCM_REFRESH = 1,
-};
-
-enum PreferredAppMode {
+enum class PreferredAppMode {
     Default = 0,
     AllowDark = 1,
     ForceDark = 2,
     ForceLight = 3,
     Max = 4,
+};
+
+enum IMMERSIVEHCCACHEMODE {
+    IHCM_USE_CACHED_VALUE = 0,
+    IHCM_REFRESH = 1,
 };
 
 enum WINDOWCOMPOSITIONATTRIB {
@@ -74,6 +74,46 @@ bool IsCompositionEnabled() noexcept;
 void AdjustMaximizedClientRect(HWND hWnd, RECT& rect) noexcept;
 void ApplyBorderlessStyle(HWND hWnd, bool borderless) noexcept;
 void ApplyWindowStyle(HWND hWnd, bool darkMode) noexcept;
+
+inline wchar_t* CStrWiden(const char* str) {
+    if (str == nullptr) return nullptr;
+
+    const auto len = (int)strlen(str);
+    if (len == 0) return nullptr;
+
+    const int wlen = MultiByteToWideChar(CP_UTF8, 0, str, len, nullptr, 0);
+    if (wlen == 0) return nullptr;
+
+    const auto wstr = new wchar_t[wlen + 1];
+    if (const auto result = MultiByteToWideChar(CP_UTF8, 0, str, len, wstr, wlen);
+        result == 0) {
+        delete[] wstr;
+        return nullptr;
+    }
+
+    wstr[wlen] = L'\0';
+    return wstr;
+}
+
+inline char* CStrNarrow(const wchar_t* wstr) {
+    if (wstr == nullptr) return nullptr;
+
+    const auto wlen = (int)wcslen(wstr);
+    if (wlen == 0) return nullptr;
+
+    const int len = WideCharToMultiByte(CP_UTF8, 0, wstr, wlen, nullptr, 0, nullptr, nullptr);
+    if (len == 0) return nullptr;
+
+    const auto str = new char[len + 1];
+    if (const auto result = WideCharToMultiByte(CP_UTF8, 0, wstr, wlen, str, len, nullptr, nullptr);
+        result == 0) {
+        delete[] str;
+        return nullptr;
+    }
+
+    str[len] = '\0';
+    return str;
+}
 
 }
 

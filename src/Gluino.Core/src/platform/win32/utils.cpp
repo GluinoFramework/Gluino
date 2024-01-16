@@ -50,7 +50,7 @@ WindowsOSVersion Gluino::GetWindowsOSVersion() noexcept
 
 void EnableDarkModeForApp() noexcept {
     if (SetPreferredAppMode) {
-        SetPreferredAppMode(AllowDark);
+        SetPreferredAppMode(PreferredAppMode::AllowDark);
     }
 }
 

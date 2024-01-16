@@ -7,7 +7,7 @@
 
 using namespace Gluino;
 
-Window::Window(WindowOptions* options, const WindowEvents* events, WebView* webView) : WindowBase(options, events) {
+Window::Window(const WindowOptions* options, const WindowEvents* events, WebView* webView) : WindowBase(options, events) {
 	_windowState = options->WindowState;
 	_minSize = options->MinimumSize;
 	_maxSize = options->MaximumSize;
@@ -73,13 +73,12 @@ LRESULT Window::WndProc(const UINT msg, const WPARAM wParam, const LPARAM lParam
 
 			_onResize(GetSize());
 
-			if (const auto currentWindowState =
+			if (const auto windowState = 
 				IsIconic(_hWnd) ? WindowState::Minimized :
 				IsZoomed(_hWnd) ? WindowState::Maximized :
-				WindowState::Normal;
-				currentWindowState != _windowState) {
-				_onWindowStateChanged((int)currentWindowState);
-				_windowState = currentWindowState;
+				WindowState::Normal; windowState != _previousWindowState) {
+				_onWindowStateChanged((int)windowState);
+				_previousWindowState = windowState;
 			}
 
 			return 0;
@@ -214,15 +213,15 @@ bool Window::GetIsDarkMode() {
 	return _theme == WindowTheme::System ? IsDarkModeEnabled() : _theme == WindowTheme::Dark;
 }
 
-autostr Window::GetTitle() {
+cstr Window::GetTitle() {
 	const auto length = GetWindowTextLength(_hWnd);
 	const auto title = new wchar_t[length + 1];
 	GetWindowText(_hWnd, title, length + 1);
 	return title;
 }
 
-void Window::SetTitle(const autostr title) {
-	_title = CopyStr(title);
+void Window::SetTitle(const cstr title) {
+	_title = CStrCopy(title);
 
 	SetWindowText(_hWnd, _title);
 }

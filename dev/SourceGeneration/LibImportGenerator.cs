@@ -176,7 +176,7 @@ public class LibImportGenerator : ISourceGenerator
                       private {{(propertyData.Getter.Import.IsStatic ? "static " : "")}}{{getType}} {{propertyData.Getter.Name}}()
                       {
                          if (InstancePtr == nint.Zero) {
-                             {{(propertyData.Getter.Symbol.ReturnType.IsString() ? $"return App.Platform.IsWindows ? NativeOptions.{propertyData.Option}W : NativeOptions.{propertyData.Option}A" : $"return NativeOptions.{propertyData.Option}")}};
+                             {{$"return NativeOptions.{propertyData.Option}"}};
                          }
                          return SafeInvoke(() => {{className}}.{{propertyData.Getter.Name}}(InstancePtr));
                       }
@@ -193,7 +193,7 @@ public class LibImportGenerator : ISourceGenerator
                       private {{(propertyData.Setter.Import.IsStatic ? "static " : "")}}void {{propertyData.Setter.Name}}({{setParamType}} {{setParamName}})
                       {
                           if (InstancePtr == nint.Zero) {
-                              {{(setParam.Type.IsString() ? $"if (App.Platform.IsWindows) {{\r\n                NativeOptions.{propertyData.Option}W = {setParamName};\r\n            }}\r\n            else {{\r\n                NativeOptions.{propertyData.Option}A = {setParamName};\r\n            }}" : $"NativeOptions.{propertyData.Option} = {setParamName};")}}
+                              {{$"NativeOptions.{propertyData.Option} = {setParamName};"}}
                           }
                           else {
                               SafeInvoke(() => {{className}}.{{propertyData.Setter.Name}}(InstancePtr, {{setParamName}}));

@@ -12,13 +12,9 @@ class WebViewBase;
 
 class WindowBase {
 public:
-	explicit WindowBase(WindowOptions* options, const WindowEvents* events) {
+	explicit WindowBase(const WindowOptions* options, const WindowEvents* events) {
 		_isMain = options->IsMain;
-#ifdef _WIN32
-		_title = CopyStr(options->TitleW);
-#else
-		_title = CopyStr(options->TitleA);
-#endif
+		_title = CStrWiden(options->Title);
 		_icon = options->Icon;
 		_iconSize = options->IconSize;
 		_borderStyle = options->BorderStyle;
@@ -53,8 +49,8 @@ public:
 	virtual void GetBounds(Rect* bounds) = 0;
 	virtual bool GetIsDarkMode() = 0;
 
-	virtual autostr GetTitle() = 0;
-	virtual void SetTitle(autostr title) = 0;
+	virtual cstr GetTitle() = 0;
+	virtual void SetTitle(cstr title) = 0;
 
 	virtual void GetIcon(void** data, int* size) = 0;
 	virtual void SetIcon(void* data, int size) = 0;
@@ -91,7 +87,7 @@ public:
 
 protected:
 	bool _isMain;
-	autostr _title;
+	cstr _title;
 	void* _icon;
 	int _iconSize;
 	WindowBorderStyle _borderStyle;

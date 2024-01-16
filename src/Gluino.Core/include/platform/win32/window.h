@@ -15,7 +15,7 @@ class WebView;
 
 class Window final : public WindowBase {
 public:
-	explicit Window(WindowOptions* options, const WindowEvents* events, WebView* webView);
+	explicit Window(const WindowOptions* options, const WindowEvents* events, WebView* webView);
 	~Window() override;
 
 	HWND GetHandle() const { return _hWnd; }
@@ -31,8 +31,8 @@ public:
 	void GetBounds(Rect* bounds) override;
 	bool GetIsDarkMode() override;
 
-	autostr GetTitle() override;
-	void SetTitle(autostr title) override;
+	cstr GetTitle() override;
+	void SetTitle(cstr title) override;
 
 	void GetIcon(void** data, int* size) override;
 	void SetIcon(void* data, int size) override;
@@ -76,6 +76,8 @@ private:
 	Size _maxSize;
 	bool _minimizeEnabled;
 	bool _maximizeEnabled;
+
+	WindowState _previousWindowState = WindowState::Normal;
 
 	WebView* _webView;
 };

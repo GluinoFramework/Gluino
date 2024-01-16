@@ -7,7 +7,7 @@ using namespace Gluino;
 extern "C" {
 #ifdef _WIN32
 	EXPORT WindowsOSVersion Gluino_GetWindowsOSVersion() { return GetWindowsOSVersion(); }
-	EXPORT App* Gluino_App_Create(const HINSTANCE hInstance, const autostr appId) { return new App(hInstance, appId); }
+	EXPORT App* Gluino_App_Create(const HINSTANCE hInstance, const cstr appId) { return new App(hInstance, appId); }
 	EXPORT HWND Gluino_Window_GetHandle(const Window* window) { return window->GetHandle(); }
 #else
 	//TODO: EXPORT App* Gluino_App_Create() { return new App(); }
@@ -36,8 +36,8 @@ extern "C" {
 
 	EXPORT bool Gluino_Window_GetIsDarkMode(Window* window) { return window->GetIsDarkMode(); }
 
-	EXPORT autostr Gluino_Window_GetTitle(Window* window) { return window->GetTitle(); }
-	EXPORT void Gluino_Window_SetTitle(Window* window, const autostr title) { window->SetTitle(title); }
+	EXPORT cstr Gluino_Window_GetTitle(Window* window) { return window->GetTitle(); }
+	EXPORT void Gluino_Window_SetTitle(Window* window, const cstr title) { window->SetTitle(title); }
 
 	EXPORT void Gluino_Window_GetIcon(Window* window, void** data, int* size) { window->GetIcon(data, size); }
 	EXPORT void Gluino_Window_SetIcon(Window* window, void* data, const int size) { window->SetIcon(data, size); }
@@ -73,10 +73,10 @@ extern "C" {
 	EXPORT void Gluino_Window_SetTopMost(Window* window, const bool topMost) { window->SetTopMost(topMost); }
 
 
-	EXPORT void Gluino_WebView_Navigate(WebView* webView, const autostr url) { webView->Navigate(url); }
-	EXPORT void Gluino_WebView_NativateToString(WebView* webView, const autostr str) { webView->NativateToString(str); }
-	EXPORT void Gluino_WebView_PostWebMessage(WebView* webView, const autostr message) { webView->PostWebMessage(message); }
-	EXPORT void Gluino_WebView_InjectScript(WebView* webView, const autostr script, const bool onDocumentCreated) { webView->InjectScript(script, onDocumentCreated); }
+	EXPORT void Gluino_WebView_Navigate(WebView* webView, const cstr url) { webView->Navigate(url); }
+	EXPORT void Gluino_WebView_NativateToString(WebView* webView, const cstr str) { webView->NativateToString(str); }
+	EXPORT void Gluino_WebView_PostWebMessage(WebView* webView, const cstr message) { webView->PostWebMessage(message); }
+	EXPORT void Gluino_WebView_InjectScript(WebView* webView, const cstr script, const bool onDocumentCreated) { webView->InjectScript(script, onDocumentCreated); }
 
 	EXPORT bool Gluino_WebView_GetGrantPermissions(const WebView* webView) { return webView->GetGrantPermissions(); }
 
@@ -86,6 +86,6 @@ extern "C" {
 	EXPORT bool Gluino_WebView_GetDevToolsEnabled(WebView* webView) { return webView->GetDevToolsEnabled(); }
 	EXPORT void Gluino_WebView_SetDevToolsEnabled(WebView* webView, const bool enabled) { webView->SetDevToolsEnabled(enabled); }
 
-	EXPORT autostr Gluino_WebView_GetUserAgent(WebView* webView) { return webView->GetUserAgent(); }
-	EXPORT void Gluino_WebView_SetUserAgent(WebView* webView, const autostr userAgent) { webView->SetUserAgent(userAgent); }
+	EXPORT cstr Gluino_WebView_GetUserAgent(WebView* webView) { return webView->GetUserAgent(); }
+	EXPORT void Gluino_WebView_SetUserAgent(WebView* webView, const cstr userAgent) { webView->SetUserAgent(userAgent); }
 }

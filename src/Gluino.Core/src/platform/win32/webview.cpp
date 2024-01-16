@@ -46,22 +46,22 @@ void WebView::Attach(WindowBase* window) {
 			&WebView::OnWebView2CreateEnvironmentCompleted).Get());
 }
 
-void WebView::Navigate(const autostr url) {
+void WebView::Navigate(const cstr url) {
 	if (_webview == nullptr) return;
 	_webview->Navigate(url);
 }
 
-void WebView::NativateToString(const autostr content) {
+void WebView::NativateToString(const cstr content) {
 	if (_webview == nullptr) return;
 	_webview->NavigateToString(content);
 }
 
-void WebView::PostWebMessage(const autostr message) {
+void WebView::PostWebMessage(const cstr message) {
 	if (_webview == nullptr) return;
 	_webview->PostWebMessageAsString(message);
 }
 
-void WebView::InjectScript(autostr script, bool onDocumentCreated) {
+void WebView::InjectScript(cstr script, bool onDocumentCreated) {
 	if (_webview == nullptr) return;
 	if (onDocumentCreated)
 		_webview->AddScriptToExecuteOnDocumentCreated(script, nullptr);
@@ -93,13 +93,13 @@ void WebView::SetDevToolsEnabled(bool enabled) {
 	_webviewSettings->put_AreDevToolsEnabled(enabled);
 }
 
-autostr WebView::GetUserAgent() {
+cstr WebView::GetUserAgent() {
 	wchar_t* userAgent;
 	_webviewSettings2->get_UserAgent(&userAgent);
 	return userAgent;
 }
 
-void WebView::SetUserAgent(const autostr userAgent) {
+void WebView::SetUserAgent(const cstr userAgent) {
 	_webviewSettings2->put_UserAgent(userAgent);
 }
 
@@ -236,10 +236,8 @@ HRESULT WebView::OnWebView2WebResourceRequested(ICoreWebView2* sender, ICoreWebV
 	request->get_Method(&reqMethod);
 
 	const WebResourceRequest req{
-		reqUri.get(),
-		nullptr,
-		reqMethod.get(),
-		nullptr
+		CStrNarrow(reqUri.get()),
+		CStrNarrow(reqMethod.get()),
 	};
 	WebResourceResponse res;
 	_onResourceRequested(req, &res);
@@ -247,7 +245,7 @@ HRESULT WebView::OnWebView2WebResourceRequested(ICoreWebView2* sender, ICoreWebV
 	const wil::unique_cotaskmem content(res.Content);
 
 	if (content != nullptr) {
-		const std::wstring contentTypeW(res.ContentTypeW);
+		const std::wstring contentTypeW(CStrWiden(res.ContentType));
 
 		IStream* stream = SHCreateMemStream((BYTE*)content.get(), res.ContentLength);
 		wil::com_ptr<ICoreWebView2WebResourceResponse> response;
@@ -255,7 +253,7 @@ HRESULT WebView::OnWebView2WebResourceRequested(ICoreWebView2* sender, ICoreWebV
 		_webviewEnv->CreateWebResourceResponse(
 			stream,
 			res.StatusCode,
-			res.ReasonPhraseW,
+			CStrWiden(res.ReasonPhrase),
 			(L"" + contentTypeW).c_str(),
 			&response);
 
